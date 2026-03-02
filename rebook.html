@@ -376,7 +376,7 @@
 
         <div class="stepper" aria-label="stepper">
           <div class="dot on"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
-          <div class="stepLabel">MOVE â€¢ STEP 1/4</div>
+          <div class="stepLabel">MOVE • STEP 1/4</div>
         </div>
 
         <div class="stack">
@@ -384,7 +384,7 @@
             <div class="fieldLabel">Add element</div>
             <div class="inputRow">
               <div class="input">
-                <span style="opacity:.8;font-family:var(--mono);font-size:12px;">âŒ•</span>
+                <span style="opacity:.8;font-family:var(--mono);font-size:12px;">⌕</span>
                 <input id="addInput" type="text" placeholder="e.g. 24-10345-001" />
               </div>
               <button class="btn" id="scanElement" type="button">SCAN</button>
@@ -435,7 +435,7 @@
 
         <div class="stepper" aria-label="stepper">
           <div class="dot on"></div><div class="dot on"></div><div class="dot"></div><div class="dot"></div>
-          <div class="stepLabel">MOVE â€¢ STEP 2/4</div>
+          <div class="stepLabel">MOVE • STEP 2/4</div>
         </div>
 
         <div class="stack">
@@ -451,7 +451,7 @@
             <div class="fieldLabel">Scan current location tag (optional)</div>
             <div class="inputRow">
               <div class="input">
-                <span style="opacity:.8;font-family:var(--mono);font-size:12px;">âŒ•</span>
+                <span style="opacity:.8;font-family:var(--mono);font-size:12px;">⌕</span>
                 <input id="scanLocInput" type="text" placeholder="location code (from scan)" />
               </div>
               <button class="btn" id="scanLoc" type="button">SCAN</button>
@@ -493,7 +493,7 @@
 
         <div class="stepper" aria-label="stepper">
           <div class="dot on"></div><div class="dot on"></div><div class="dot on"></div><div class="dot"></div>
-          <div class="stepLabel">MOVE â€¢ STEP 3/4</div>
+          <div class="stepLabel">MOVE • STEP 3/4</div>
         </div>
 
         <div class="stack">
@@ -501,7 +501,7 @@
             <div class="fieldLabel">Scan destination tag (optional)</div>
             <div class="inputRow">
               <div class="input">
-                <span style="opacity:.8;font-family:var(--mono);font-size:12px;">âŒ•</span>
+                <span style="opacity:.8;font-family:var(--mono);font-size:12px;">⌕</span>
                 <input id="destScanInput" type="text" placeholder="destination code (from scan)" />
               </div>
               <button class="btn" id="scanDest" type="button">SCAN</button>
@@ -522,7 +522,7 @@
 
           <div class="notice">
             <b>Destination details</b><br/>
-            Capacity: 12 â€¢ Occupied: 7<br/>
+            Capacity: 12 • Occupied: 7<br/>
             Last updated: 08:55
           </div>
 
@@ -551,7 +551,7 @@
 
         <div class="stepper" aria-label="stepper">
           <div class="dot on"></div><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div>
-          <div class="stepLabel">MOVE â€¢ STEP 4/4</div>
+          <div class="stepLabel">MOVE • STEP 4/4</div>
         </div>
 
         <div class="stack">
@@ -679,9 +679,9 @@
    * SELECTION (wireframe)
    */
   const sel = [
-    { id:"24-10345-001", loc:"Row B â€¢ Lane 3 â€¢ Rack R-12", status:"Confirmed" },
-    { id:"24-10345-002", loc:"Staging West â€¢ Slot 08", status:"Queued" },
-    { id:"24-10345-003", loc:"Row C â€¢ Lane 1 â€¢ Pre-stack P2", status:"Conflict" },
+    { id:"24-10345-001", loc:"Row B • Lane 3 • Rack R-12", status:"Confirmed" },
+    { id:"24-10345-002", loc:"Staging West • Slot 08", status:"Queued" },
+    { id:"24-10345-003", loc:"Row C • Lane 1 • Pre-stack P2", status:"Conflict" },
   ];
   let selected = new Set([sel[0].id, sel[1].id, sel[2].id]); // default selected in wireframe
   let moveType = "Rebook";

@@ -448,13 +448,13 @@
       <!-- HOME (split, fixed GO layout) -->
       <section class="screen active" id="home">
         <div class="pageTitle">What do you want to do?</div>
-        <div class="pageSub">Fast actions â€¢ designed for forklifts â€¢ works offline (queues changes)</div>
+        <div class="pageSub">Fast actions • designed for forklifts • works offline (queues changes)</div>
 
         <div class="homeStack">
           <div class="actionCard primary" data-nav="search">
             <div class="actionText">
               <p class="actionTitle">Search Inventory</p>
-              <div class="actionSub">Elements + racks â€¢ scan barcode/QR â€¢ filter by project/location</div>
+              <div class="actionSub">Elements + racks • scan barcode/QR • filter by project/location</div>
             </div>
             <button class="goBtn" type="button">GO</button>
           </div>
@@ -462,7 +462,7 @@
           <div class="actionCard" data-nav="moves">
             <div class="actionText">
               <p class="actionTitle">Move / Rebook</p>
-              <div class="actionSub">Update element location (batch supported) â€¢ show success message</div>
+              <div class="actionSub">Update element location (batch supported) • show success message</div>
             </div>
             <button class="goBtn secondary" type="button">GO</button>
           </div>
@@ -470,7 +470,7 @@
           <div class="actionCard" data-nav="locations">
             <div class="actionText">
               <p class="actionTitle">Locations</p>
-              <div class="actionSub">Browse areas → rows → lanes → racks/pre-stacks â€¢ phone-friendly</div>
+              <div class="actionSub">Browse areas → rows → lanes → racks/pre-stacks • phone-friendly</div>
             </div>
             <button class="goBtn secondary" type="button">GO</button>
           </div>
@@ -490,7 +490,7 @@
       <!-- SEARCH (split out like Home; uses same â€œno overlapâ€ right-side button layout) -->
       <section class="screen" id="search">
         <div class="pageTitle">Search inventory</div>
-        <div class="pageSub">Search elements or racks â€¢ scan barcodes â€¢ batch via loadsheet</div>
+        <div class="pageSub">Search elements or racks • scan barcodes • batch via loadsheet</div>
 
         <!-- Tabs -->
         <div class="segTabs" role="tablist" aria-label="Search mode">
@@ -519,7 +519,7 @@
             <div class="fieldLabel" id="queryLabel">Search by element ID / barcode / description</div>
             <div class="inputRow">
               <div class="input">
-                <span style="opacity:.8;font-family:var(--mono);font-size:12px;">âŒ•</span>
+                <span style="opacity:.8;font-family:var(--mono);font-size:12px;">⌕</span>
                 <input id="query" type="text" placeholder="e.g. 24-10345-001" />
               </div>
               <button class="btn" id="scanBtn" type="button">SCAN</button>
@@ -661,30 +661,30 @@
 
   const MOCK_DATA = {
     elements: [
-      { id:"24-10345-001", barcode:"ELM-001-A7", desc:"Wall panel - north core", project:"ABC Tower", area:"Yard West", loc:"Yard West â€¢ Row B â€¢ Lane 3 â€¢ Rack R-B3-12" },
-      { id:"24-10345-002", barcode:"ELM-002-F1", desc:"Spandrel panel - bronze", project:"ABC Tower", area:"Staging West", loc:"Staging West â€¢ Slot 08" },
-      { id:"24-10345-003", barcode:"ELM-003-C4", desc:"Column cover - east face", project:"ABC Tower", area:"Yard East", loc:"Yard East â€¢ Row C â€¢ Lane 1 â€¢ Pre-stack P1" },
-      { id:"24-10345-004", barcode:"ELM-004-K2", desc:"Canopy beam section", project:"Harbor Point", area:"Yard West", loc:"Yard West â€¢ Row A â€¢ Lane 4 â€¢ Rack R-A4-03" },
-      { id:"24-10345-005", barcode:"ELM-005-M9", desc:"Curtain wall unit - corner", project:"Harbor Point", area:"Yard East", loc:"Yard East â€¢ Row B â€¢ Lane 2 â€¢ Rack R-B2-05" },
-      { id:"24-10345-006", barcode:"ELM-006-P6", desc:"Podium mullion set", project:"River Medical", area:"Staging West", loc:"Staging West â€¢ Slot 12" },
-      { id:"24-10345-007", barcode:"ELM-007-T3", desc:"GFRC coping panel", project:"River Medical", area:"Yard West", loc:"Yard West â€¢ Row D â€¢ Lane 1 â€¢ Pre-stack P1" },
-      { id:"24-10345-008", barcode:"ELM-008-H8", desc:"Mechanical screen frame", project:"Northline Labs", area:"Yard East", loc:"Yard East â€¢ Row A â€¢ Lane 3 â€¢ Rack R-A3-07" },
-      { id:"24-10345-009", barcode:"ELM-009-Q5", desc:"Sunshade blade set", project:"Northline Labs", area:"Yard West", loc:"Yard West â€¢ Row C â€¢ Lane 2 â€¢ Rack R-C2-10" },
-      { id:"24-10345-010", barcode:"ELM-010-W2", desc:"Entry canopy rib", project:"Summit Plaza", area:"Yard East", loc:"Yard East â€¢ Row C â€¢ Lane 3 â€¢ Pre-stack P3" },
-      { id:"24-10345-011", barcode:"ELM-011-D0", desc:"Storefront transom", project:"Summit Plaza", area:"Yard West", loc:"Yard West â€¢ Row B â€¢ Lane 1 â€¢ Rack R-B1-02" },
-      { id:"24-10345-012", barcode:"ELM-012-R4", desc:"Parapet return panel", project:"Summit Plaza", area:"Staging West", loc:"Staging West â€¢ Slot 01" },
+      { id:"24-10345-001", barcode:"ELM-001-A7", desc:"Wall panel - north core", project:"ABC Tower", area:"Yard West", loc:"Yard West • Row B • Lane 3 • Rack R-B3-12" },
+      { id:"24-10345-002", barcode:"ELM-002-F1", desc:"Spandrel panel - bronze", project:"ABC Tower", area:"Staging West", loc:"Staging West • Slot 08" },
+      { id:"24-10345-003", barcode:"ELM-003-C4", desc:"Column cover - east face", project:"ABC Tower", area:"Yard East", loc:"Yard East • Row C • Lane 1 • Pre-stack P1" },
+      { id:"24-10345-004", barcode:"ELM-004-K2", desc:"Canopy beam section", project:"Harbor Point", area:"Yard West", loc:"Yard West • Row A • Lane 4 • Rack R-A4-03" },
+      { id:"24-10345-005", barcode:"ELM-005-M9", desc:"Curtain wall unit - corner", project:"Harbor Point", area:"Yard East", loc:"Yard East • Row B • Lane 2 • Rack R-B2-05" },
+      { id:"24-10345-006", barcode:"ELM-006-P6", desc:"Podium mullion set", project:"River Medical", area:"Staging West", loc:"Staging West • Slot 12" },
+      { id:"24-10345-007", barcode:"ELM-007-T3", desc:"GFRC coping panel", project:"River Medical", area:"Yard West", loc:"Yard West • Row D • Lane 1 • Pre-stack P1" },
+      { id:"24-10345-008", barcode:"ELM-008-H8", desc:"Mechanical screen frame", project:"Northline Labs", area:"Yard East", loc:"Yard East • Row A • Lane 3 • Rack R-A3-07" },
+      { id:"24-10345-009", barcode:"ELM-009-Q5", desc:"Sunshade blade set", project:"Northline Labs", area:"Yard West", loc:"Yard West • Row C • Lane 2 • Rack R-C2-10" },
+      { id:"24-10345-010", barcode:"ELM-010-W2", desc:"Entry canopy rib", project:"Summit Plaza", area:"Yard East", loc:"Yard East • Row C • Lane 3 • Pre-stack P3" },
+      { id:"24-10345-011", barcode:"ELM-011-D0", desc:"Storefront transom", project:"Summit Plaza", area:"Yard West", loc:"Yard West • Row B • Lane 1 • Rack R-B1-02" },
+      { id:"24-10345-012", barcode:"ELM-012-R4", desc:"Parapet return panel", project:"Summit Plaza", area:"Staging West", loc:"Staging West • Slot 01" },
     ],
     racks: [
-      { id:"R-A4-03", barcode:"RACK-A403", project:"Harbor Point", area:"Yard West", leaves:"2026-03-04", loc:"Yard West â€¢ Row A â€¢ Lane 4 â€¢ Slot 3" },
-      { id:"R-B3-12", barcode:"RACK-B312", project:"ABC Tower", area:"Yard West", leaves:"2026-03-03", loc:"Yard West â€¢ Row B â€¢ Lane 3 â€¢ Slot 12" },
-      { id:"R-B2-05", barcode:"RACK-B205", project:"Harbor Point", area:"Yard East", leaves:"2026-03-06", loc:"Yard East â€¢ Row B â€¢ Lane 2 â€¢ Slot 5" },
-      { id:"R-C2-10", barcode:"RACK-C210", project:"Northline Labs", area:"Yard West", leaves:"2026-03-07", loc:"Yard West â€¢ Row C â€¢ Lane 2 â€¢ Slot 10" },
-      { id:"R-A3-07", barcode:"RACK-A307", project:"Northline Labs", area:"Yard East", leaves:"2026-03-05", loc:"Yard East â€¢ Row A â€¢ Lane 3 â€¢ Slot 7" },
-      { id:"R-B1-02", barcode:"RACK-B102", project:"Summit Plaza", area:"Yard West", leaves:"2026-03-08", loc:"Yard West â€¢ Row B â€¢ Lane 1 â€¢ Slot 2" },
-      { id:"R-D4-11", barcode:"RACK-D411", project:"River Medical", area:"Yard West", leaves:"2026-03-09", loc:"Yard West â€¢ Row D â€¢ Lane 4 â€¢ Slot 11" },
-      { id:"R-C1-04", barcode:"RACK-C104", project:"River Medical", area:"Yard East", leaves:"2026-03-10", loc:"Yard East â€¢ Row C â€¢ Lane 1 â€¢ Slot 4" },
-      { id:"R-A2-09", barcode:"RACK-A209", project:"ABC Tower", area:"Yard East", leaves:"2026-03-11", loc:"Yard East â€¢ Row A â€¢ Lane 2 â€¢ Slot 9" },
-      { id:"R-D2-06", barcode:"RACK-D206", project:"Summit Plaza", area:"Yard West", leaves:"2026-03-12", loc:"Yard West â€¢ Row D â€¢ Lane 2 â€¢ Slot 6" },
+      { id:"R-A4-03", barcode:"RACK-A403", project:"Harbor Point", area:"Yard West", leaves:"2026-03-04", loc:"Yard West • Row A • Lane 4 • Slot 3" },
+      { id:"R-B3-12", barcode:"RACK-B312", project:"ABC Tower", area:"Yard West", leaves:"2026-03-03", loc:"Yard West • Row B • Lane 3 • Slot 12" },
+      { id:"R-B2-05", barcode:"RACK-B205", project:"Harbor Point", area:"Yard East", leaves:"2026-03-06", loc:"Yard East • Row B • Lane 2 • Slot 5" },
+      { id:"R-C2-10", barcode:"RACK-C210", project:"Northline Labs", area:"Yard West", leaves:"2026-03-07", loc:"Yard West • Row C • Lane 2 • Slot 10" },
+      { id:"R-A3-07", barcode:"RACK-A307", project:"Northline Labs", area:"Yard East", leaves:"2026-03-05", loc:"Yard East • Row A • Lane 3 • Slot 7" },
+      { id:"R-B1-02", barcode:"RACK-B102", project:"Summit Plaza", area:"Yard West", leaves:"2026-03-08", loc:"Yard West • Row B • Lane 1 • Slot 2" },
+      { id:"R-D4-11", barcode:"RACK-D411", project:"River Medical", area:"Yard West", leaves:"2026-03-09", loc:"Yard West • Row D • Lane 4 • Slot 11" },
+      { id:"R-C1-04", barcode:"RACK-C104", project:"River Medical", area:"Yard East", leaves:"2026-03-10", loc:"Yard East • Row C • Lane 1 • Slot 4" },
+      { id:"R-A2-09", barcode:"RACK-A209", project:"ABC Tower", area:"Yard East", leaves:"2026-03-11", loc:"Yard East • Row A • Lane 2 • Slot 9" },
+      { id:"R-D2-06", barcode:"RACK-D206", project:"Summit Plaza", area:"Yard West", leaves:"2026-03-12", loc:"Yard West • Row D • Lane 2 • Slot 6" },
     ],
   };
 

@@ -280,7 +280,7 @@
                 <div style="font-family:var(--mono);font-size:12px;color:var(--muted)">${loc.area}</div>
                 <div style="font-weight:800">${loc.container}</div>
               </div>
-              <div class="locSub">${loc.row} â€¢ Lane ${loc.lane} â€¢ ${loc.type} â€¢ ${loc.occupied || 0}/${loc.capacity || '-' } occupied</div>
+              <div class="locSub">${loc.row} • Lane ${loc.lane} • ${loc.type} • ${loc.occupied || 0}/${loc.capacity || '-' } occupied</div>
             </div>
           </div>
         </div>
@@ -389,7 +389,7 @@
     pendingConfirm = { id: id, action: loc.active ? 'deactivate' : 'reactivate' };
     confirmTitle.textContent = loc.active ? 'Deactivate location' : 'Reactivate location';
     confirmText.textContent = loc.active
-      ? `Are you sure you want to deactivate ${loc.container} in ${loc.area} â€¢ ${loc.row} â€º ${loc.lane}? Deactivated locations will be hidden from quick pickers but remain in the system.`
+      ? `Are you sure you want to deactivate ${loc.container} in ${loc.area} • ${loc.row} â€º ${loc.lane}? Deactivated locations will be hidden from quick pickers but remain in the system.`
       : `Reactivate ${loc.container}? It will be available in pickers again.`;
     okConfirm.textContent = loc.active ? 'Deactivate' : 'Reactivate';
     okConfirm.classList.toggle('danger', loc.active);

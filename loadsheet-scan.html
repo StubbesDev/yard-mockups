@@ -192,12 +192,12 @@
 
   // Example parsed elements (wireframe)
   const sampleElements = [
-    { id: "24-10345-001", loc: "Row B â€¢ Lane 3 â€¢ Rack R-12", status: "OK" },
-    { id: "24-10345-002", loc: "Staging West â€¢ Slot 08", status: "OK" },
-    { id: "24-10345-003", loc: "Row C â€¢ Lane 1 â€¢ Pre-stack P2", status: "MISSING" },
+    { id: "24-10345-001", loc: "Row B • Lane 3 • Rack R-12", status: "OK" },
+    { id: "24-10345-002", loc: "Staging West • Slot 08", status: "OK" },
+    { id: "24-10345-003", loc: "Row C • Lane 1 • Pre-stack P2", status: "MISSING" },
     { id: "24-10345-004", loc: "—", status: "NOT IN YARD" },
-    { id: "24-10345-005", loc: "Row A â€¢ Lane 2 â€¢ Rack R-07", status: "OK" },
-    { id: "24-10345-006", loc: "Row D â€¢ Lane 4 â€¢ Rack R-19", status: "OK" }
+    { id: "24-10345-005", loc: "Row A • Lane 2 • Rack R-07", status: "OK" },
+    { id: "24-10345-006", loc: "Row D • Lane 4 • Rack R-19", status: "OK" }
   ];
 
   let currentSheet = null;
@@ -258,7 +258,7 @@
   simulateScan.addEventListener('click', ()=>{
     currentSheet = "LS-2026-0301-014";
     lsId.textContent = currentSheet;
-    lsMeta.textContent = `${sampleElements.length} elements found â€¢ parsed at ${new Date().toLocaleTimeString()}`;
+    lsMeta.textContent = `${sampleElements.length} elements found • parsed at ${new Date().toLocaleTimeString()}`;
     found = [...sampleElements];
     selected = new Set(found.filter((_,i)=>i<3).map(f=>f.id)); // pre-select first 3 as example
     enableControls(true);
@@ -274,7 +274,7 @@
     if (!code) return;
     currentSheet = code.trim();
     lsId.textContent = currentSheet;
-    lsMeta.textContent = `manual entry â€¢ will fetch when online`;
+    lsMeta.textContent = `manual entry • will fetch when online`;
     // keep list empty until user "fetches" (for wireframe show small sample)
     found = [...sampleElements];
     selected = new Set();

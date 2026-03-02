@@ -1,0 +1,782 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Element Locations (Hierarchical, Phone-Friendly)</title>
+  <style>
+    :root{
+      --bg:#0b0c10;
+      --panel:#12141b;
+      --card:#171a22;
+      --ink:#e8ecff;
+      --muted:#aab3d6;
+      --line:#2a2f45;
+      --accent:#7aa2ff;
+      --ok:#41d98c;
+      --warn:#ffd166;
+      --bad:#ff5c7a;
+      --radius: 16px;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      background: radial-gradient(1200px 800px at 20% 10%, #1b2040 0%, var(--bg) 55%), var(--bg);
+      color:var(--ink);
+      font-family:var(--sans);
+    }
+
+    /* App frame */
+    .app{
+      max-width: 520px;
+      margin: 0 auto;
+      min-height: 100dvh;
+      display:flex;
+      flex-direction:column;
+    }
+    header{
+      position:sticky; top:0; z-index:10;
+      backdrop-filter: blur(10px);
+      background: rgba(11,12,16,.7);
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+    .topbar{
+      padding: 14px 14px 10px 14px;
+      display:flex; gap:10px; align-items:center; justify-content:space-between;
+    }
+    .left{
+      display:flex; gap:10px; align-items:center;
+      min-width: 0;
+    }
+    .badge{
+      width:34px; height:34px; border-radius:10px;
+      background: linear-gradient(135deg, rgba(122,162,255,.9), rgba(122,162,255,.2));
+      box-shadow: var(--shadow);
+      flex: 0 0 auto;
+    }
+    .titles{
+      min-width:0;
+    }
+    .h1{
+      font-weight:900;
+      letter-spacing:.2px;
+      font-size:14px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .crumb{
+      margin-top:2px;
+      color: var(--muted);
+      font-size:12px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .status{
+      font-family: var(--mono);
+      font-size:11px;
+      color: rgba(170,179,214,.9);
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.04);
+      padding:6px 8px;
+      border-radius: 999px;
+      flex: 0 0 auto;
+    }
+
+    .toolbar{
+      padding: 10px 14px 14px 14px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+    .search{
+      flex:1;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.14);
+      min-width: 0;
+    }
+    .search input{
+      width:100%;
+      background:transparent;
+      border:none;
+      outline:none;
+      color: var(--ink);
+      font-size:13px;
+    }
+    .btn{
+      border:1px solid rgba(122,162,255,.55);
+      background: linear-gradient(135deg, rgba(122,162,255,.9), rgba(122,162,255,.2));
+      color: var(--ink);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-size:12px;
+      font-weight:700;
+      cursor:pointer;
+      user-select:none;
+      white-space:nowrap;
+    }
+    .btn.secondary{
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.05);
+      color: rgba(232,236,255,.9);
+      font-weight:600;
+    }
+    .btn:active{ transform: translateY(1px); }
+
+    /* Screens */
+    main{
+      flex:1;
+      padding: 14px;
+      display:block;
+    }
+    .screen{ display:none; }
+    .screen.active{ display:block; }
+
+    /* Lists */
+    .list{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .node{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .children{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      margin-left:12px;
+      padding-left:10px;
+      border-left:1px dashed rgba(255,255,255,.16);
+    }
+    .item{
+      background: rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: var(--radius);
+      padding: 12px 12px;
+      box-shadow: var(--shadow);
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      cursor:pointer;
+    }
+    .item .meta{
+      min-width:0;
+    }
+    .item .title{
+      font-weight:900;
+      letter-spacing:.2px;
+      font-size:14px;
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+    .chip{
+      font-family: var(--mono);
+      font-size:11px;
+      color: rgba(232,236,255,.9);
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.16);
+      padding:4px 8px;
+      border-radius: 999px;
+    }
+    .sub{
+      margin-top:4px;
+      font-size:12px;
+      color: var(--muted);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .arrow{
+      width:28px; height:28px;
+      border-radius: 12px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.14);
+      display:grid;
+      place-items:center;
+      flex:0 0 auto;
+      color: rgba(232,236,255,.9);
+      font-weight:900;
+    }
+    .row{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-top:6px;
+    }
+    .kpi{
+      font-size:11px;
+      color: rgba(170,179,214,.95);
+      border: 1px dashed rgba(255,255,255,.18);
+      padding: 6px 8px;
+      border-radius: 12px;
+    }
+
+    /* Section title */
+    .sectionTitle{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      margin: 4px 2px 10px 2px;
+    }
+    .sectionTitle h2{
+      margin:0;
+      font-size:14px;
+      font-weight:900;
+      letter-spacing:.2px;
+    }
+    .sectionTitle span{
+      font-size:12px;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    /* Bottom nav */
+    footer{
+      position:sticky; bottom:0;
+      background: rgba(11,12,16,.72);
+      border-top:1px solid rgba(255,255,255,.08);
+      backdrop-filter: blur(10px);
+    }
+    .bottomnav{
+      display:flex;
+      justify-content:space-around;
+      padding: 10px 8px;
+      gap:8px;
+    }
+    .navbtn{
+      flex:1;
+      text-align:center;
+      padding: 10px 8px;
+      border-radius: 14px;
+      font-size:12px;
+      color: rgba(170,179,214,.95);
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.03);
+      cursor:pointer;
+      user-select:none;
+    }
+    .navbtn.active{
+      color: rgba(232,236,255,.95);
+      border-color: rgba(122,162,255,.55);
+      background: rgba(122,162,255,.12);
+    }
+
+    /* Tiny help block */
+    .hint{
+      margin-top:10px;
+      padding: 12px;
+      border-radius: var(--radius);
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.12);
+      color: var(--muted);
+      font-size:12px;
+      line-height:1.35;
+    }
+    .hint b{ color: rgba(232,236,255,.9); }
+    .spacer{ height: 10px; }
+
+    /* “Scroll picker" feel: tall list with sticky section title already achieved. */
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <header>
+      <div class="topbar">
+        <div class="left">
+          <div class="badge" aria-hidden="true"></div>
+          <div class="titles">
+            <div class="h1">Element Locations</div>
+            <div class="crumb" id="crumb">Area</div>
+          </div>
+        </div>
+        <div class="status" id="statusPill">ONLINE</div>
+      </div>
+
+      <div class="toolbar">
+        <div class="search" title="Search all hierarchy levels">
+          <span style="opacity:.8;font-family:var(--mono);font-size:12px;">⌕</span>
+          <input id="q" type="text" placeholder="Global search (Area, Row, Lane, Container, Element)" />
+        </div>
+        <button class="btn secondary" id="backBtn">Collapse All</button>
+        <button class="btn" id="scanBtn">SCAN</button>
+      </div>
+    </header>
+
+    <main>
+      <!-- SCREEN: AREA -->
+      <section class="screen active" id="screen-area" aria-label="Area list">
+        <div class="sectionTitle">
+          <h2>Locations</h2>
+          <span id="count-area"></span>
+        </div>
+        <div class="list" id="list-area"></div>
+        <div class="hint">
+          <b>Single-page hierarchy:</b> expand/collapse cards to drill into Area → Row → Lane → Container → Elements.
+          <div class="spacer"></div>
+          <b>Tip:</b> search is global and matches any level.
+        </div>
+      </section>
+
+      <!-- SCREEN: ROW -->
+      <section class="screen" id="screen-row" aria-label="Row list">
+        <div class="sectionTitle">
+          <h2>Select Row</h2>
+          <span id="count-row"></span>
+        </div>
+        <div class="list" id="list-row"></div>
+      </section>
+
+      <!-- SCREEN: LANE -->
+      <section class="screen" id="screen-lane" aria-label="Lane list">
+        <div class="sectionTitle">
+          <h2>Select Lane</h2>
+          <span id="count-lane"></span>
+        </div>
+        <div class="list" id="list-lane"></div>
+      </section>
+
+      <!-- SCREEN: CONTAINER -->
+      <section class="screen" id="screen-container" aria-label="Container list">
+        <div class="sectionTitle">
+          <h2>Select Container</h2>
+          <span id="count-container"></span>
+        </div>
+        <div class="list" id="list-container"></div>
+      </section>
+
+      <!-- SCREEN: ELEMENTS -->
+      <section class="screen" id="screen-elements" aria-label="Elements list">
+        <div class="sectionTitle">
+          <h2>Elements</h2>
+          <span id="count-elements"></span>
+        </div>
+
+        <div class="list" id="list-elements"></div>
+
+        <div class="hint">
+          <b>Quick actions:</b> tap an element to open detail; long-press could select for batch move/rebook.
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="bottomnav">
+        <div class="navbtn active" id="navLocations">Locations</div>
+        <div class="navbtn" id="navSearch">Search</div>
+        <div class="navbtn" id="navMoves">Moves</div>
+      </div>
+    </footer>
+  </div>
+
+<script>
+  /**
+   * WIREFRAME DATA (placeholder)
+   * Hierarchy:
+   * Area -> Row -> Lane -> Container -> Elements
+   */
+  const DATA = [
+    {
+      id: "yard-west",
+      name: "Yard West",
+      type: "Area",
+      kpis: { rows: 4, lanes: 4 },
+      rows: [
+        { id:"A", lanes: laneSet("A") },
+        { id:"B", lanes: laneSet("B") },
+        { id:"C", lanes: laneSet("C") },
+        { id:"D", lanes: laneSet("D") },
+      ]
+    },
+    {
+      id: "yard-east",
+      name: "Yard East",
+      type: "Area",
+      kpis: { rows: 3, lanes: 4 },
+      rows: [
+        { id:"A", lanes: laneSet("A", true) },
+        { id:"B", lanes: laneSet("B", true) },
+        { id:"C", lanes: laneSet("C", true) },
+      ]
+    },
+    {
+      id: "staging-west",
+      name: "Staging West",
+      type: "Area",
+      kpis: { rows: 1, lanes: 1 },
+      rows: [
+        {
+          id:"Staging",
+          lanes: [
+            {
+              id:"Main",
+              containers: [
+                container("Slot 01","Staging Slot", 6, 2),
+                container("Slot 08","Staging Slot", 6, 5),
+                container("Slot 12","Staging Slot", 6, 6),
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ];
+
+  function laneSet(rowId, fewer=false){
+    const lanes = fewer ? ["1","2","3"] : ["1","2","3","4"];
+    return lanes.map(l => ({
+      id: l,
+      containers: [
+        container(`Rack R-${rowId}${l}`,"Rack", 12, randInt(0,12)),
+        container(`Pre-stack P${l}`,"Pre-stack", 12, randInt(0,12)),
+      ]
+    }));
+  }
+
+  function container(name, type, cap, occ){
+    return {
+      id: `${type}-${name}`.toLowerCase().replace(/\s+/g,"-"),
+      name,
+      type,
+      capacity: cap,
+      occupied: occ,
+      lastUpdated: "09:12",
+      elements: Array.from({length: Math.max(1, Math.min(occ, 8))}, (_,i)=> ({
+        id: `24-10345-${String(i+1).padStart(3,"0")}`,
+        project: "ABC Tower",
+        status: i % 3 === 0 ? "Confirmed" : (i % 3 === 1 ? "Queued" : "Conflict"),
+      }))
+    }
+  }
+
+  function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+  const $ = (id) => document.getElementById(id);
+  const crumb = $("crumb");
+  const backBtn = $("backBtn");
+  const q = $("q");
+  const listRoot = $("list-area");
+  const countRoot = $("count-area");
+
+  ["row","lane","container","elements"].forEach(level => {
+    const el = $("screen-" + level);
+    if (el) el.classList.remove("active");
+  });
+
+  // FILTER/NAV state (replaces expand/collapse tree)
+  const state = {
+    filterKey: null,          // null => top Areas
+    filterPath: "Area",
+  };
+
+  function searchBlob(parts){
+    return parts.filter(Boolean).join(" ").toLowerCase();
+  }
+
+  // Build a tree that also includes parentKey for navigation (back/up)
+  function buildTree(){
+    return DATA.map(area => {
+      const areaPath = area.name;
+
+      const areaNode = {
+        key: `area:${area.id}`,
+        title: area.name,
+        chip: "Area",
+        sub: `${area.kpis.rows} rows - up to ${area.kpis.lanes} lanes`,
+        kpis: [`Rows: ${area.kpis.rows}`, `Lanes: ${area.kpis.lanes}`],
+        path: areaPath,
+        parentKey: null,
+        searchable: searchBlob([area.name, "Area", area.kpis.rows, area.kpis.lanes]),
+        children: []
+      };
+
+      areaNode.children = area.rows.map(row => {
+        const rowPath = `${areaPath} > Row ${row.id}`;
+        const rowNode = {
+          key: `row:${area.id}:${row.id}`,
+          title: `Row ${row.id}`,
+          chip: "Row",
+          sub: `${row.lanes.length} lanes`,
+          kpis: [`Lanes: ${row.lanes.length}`],
+          path: rowPath,
+          parentKey: areaNode.key,
+          searchable: searchBlob([row.id, "Row", rowPath]),
+          children: []
+        };
+
+        rowNode.children = row.lanes.map(lane => {
+          const lanePath = `${rowPath} > Lane ${lane.id}`;
+          const laneNode = {
+            key: `lane:${area.id}:${row.id}:${lane.id}`,
+            title: `Lane ${lane.id}`,
+            chip: "Lane",
+            sub: `${lane.containers.length} containers`,
+            kpis: [`Containers: ${lane.containers.length}`],
+            path: lanePath,
+            parentKey: rowNode.key,
+            searchable: searchBlob([lane.id, "Lane", lanePath]),
+            children: []
+          };
+
+          laneNode.children = lane.containers.map(container => {
+            const ratio = `${container.occupied}/${container.capacity}`;
+            const containerPath = `${lanePath} > ${container.name}`;
+            const containerNode = {
+              key: `container:${area.id}:${row.id}:${lane.id}:${container.id}`,
+              title: container.name,
+              chip: container.type,
+              sub: `Occupancy ${ratio} - updated ${container.lastUpdated}`,
+              kpis: [`Occ: ${ratio}`, `Updated: ${container.lastUpdated}`],
+              path: containerPath,
+              parentKey: laneNode.key,
+              searchable: searchBlob([container.name, container.type, ratio, containerPath]),
+              children: []
+            };
+
+            containerNode.children = container.elements.map(element => ({
+              key: `element:${area.id}:${row.id}:${lane.id}:${container.id}:${element.id}`,
+              title: element.id,
+              chip: element.status,
+              sub: `Project: ${element.project} - Tap for details`,
+              kpis: [element.status],
+              path: `${containerPath} > ${element.id}`,
+              parentKey: containerNode.key,
+              searchable: searchBlob([element.id, element.status, element.project, containerPath]),
+              children: [],
+              onLeafClick: () => alert(`Wireframe: open Element Detail for ${element.id}`),
+            }));
+
+            return containerNode;
+          });
+
+          return laneNode;
+        });
+
+        return rowNode;
+      });
+
+      return areaNode;
+    });
+  }
+
+  function flatten(node, out){
+    out.push(node);
+    node.children.forEach(ch => flatten(ch, out));
+  }
+
+  function buildIndex(tree){
+    const nodes = new Map();        // key -> node
+    const children = new Map();     // key -> childKeys[]
+    const parent = new Map();       // key -> parentKey|null
+
+    tree.forEach(root => {
+      const all = [];
+      flatten(root, all);
+      all.forEach(n => {
+        nodes.set(n.key, n);
+        children.set(n.key, n.children.map(c => c.key));
+        parent.set(n.key, n.parentKey ?? null);
+      });
+    });
+
+    const rootKeys = tree.map(t => t.key);
+    return { nodes, children, parent, rootKeys };
+  }
+
+  // Collect all descendant nodes (deep) starting from a key
+  function collectSubtreeKeys(index, startKey){
+    const out = [];
+    const stack = [startKey];
+    while (stack.length){
+      const k = stack.pop();
+      out.push(k);
+      const kids = index.children.get(k) || [];
+      for (let i = kids.length - 1; i >= 0; i--) stack.push(kids[i]);
+    }
+    return out;
+  }
+
+  function escapeHtml(s){
+    return String(s)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  function renderCard(node){
+    const hasChildren = node.children.length > 0;
+
+    const card = document.createElement("div");
+    card.className = "item";
+    card.innerHTML = `
+      <div class="meta">
+        <div class="title">
+          <span>${escapeHtml(node.title)}</span>
+          <span class="chip">${escapeHtml(node.chip)}</span>
+        </div>
+        <div class="sub">${escapeHtml(node.sub)}</div>
+        ${node.kpis?.length ? `<div class="row">${node.kpis.map(k => `<span class="kpi">${escapeHtml(k)}</span>`).join("")}</div>` : ""}
+      </div>
+      <div class="arrow">${hasChildren ? ">" : "*"}</div>
+    `;
+
+    card.addEventListener("click", () => {
+      // Clicking a node applies it as the filter (shows its children only)
+      if (hasChildren){
+        state.filterKey = node.key;
+        state.filterPath = node.path;
+        q.value = ""; // optional: clear search when drilling via filter click
+        render();
+        return;
+      }
+
+      if (typeof node.onLeafClick === "function") node.onLeafClick();
+    });
+
+    return card;
+  }
+
+  function render(){
+    const tree = buildTree();
+    const index = buildIndex(tree);
+
+    const query = q.value.trim().toLowerCase();
+
+    listRoot.innerHTML = "";
+
+    // Determine current scope:
+    // - If filterKey is null => scope roots are Areas
+    // - If filterKey set => scope is that node’s subtree (for search), and direct children (for browsing)
+    const scopeRootKeys = state.filterKey ? [state.filterKey] : index.rootKeys;
+
+    let itemsToShow = [];
+
+    if (!query){
+      // BROWSING MODE: show only direct children of the selected filter
+      if (!state.filterKey){
+        itemsToShow = scopeRootKeys.map(k => index.nodes.get(k)).filter(Boolean);
+        state.filterPath = "Area";
+      } else {
+        const childKeys = index.children.get(state.filterKey) || [];
+        itemsToShow = childKeys.map(k => index.nodes.get(k)).filter(Boolean);
+      }
+
+      crumb.textContent = state.filterKey ? state.filterPath : "Area";
+      countRoot.textContent = `${itemsToShow.length} items`;
+
+    } else {
+      // SEARCH MODE: search deep within the current scope subtree
+      const searchableKeys = [];
+      scopeRootKeys.forEach(rootKey => {
+        // include root + all descendants
+        searchableKeys.push(...collectSubtreeKeys(index, rootKey));
+      });
+
+      const seen = new Set();
+      const candidates = [];
+      for (const k of searchableKeys){
+        if (seen.has(k)) continue;
+        seen.add(k);
+        const node = index.nodes.get(k);
+        if (!node) continue;
+        if (node.searchable.includes(query)) candidates.push(node);
+      }
+
+      // optional: don't show the scope root itself unless it matches (it will, by logic above)
+      itemsToShow = candidates;
+
+      const scopeLabel = state.filterKey ? ` in ${state.filterPath}` : "";
+      crumb.textContent = `Search: ${q.value}${scopeLabel}`;
+      countRoot.textContent = `${itemsToShow.length} matches`;
+    }
+
+    if (!itemsToShow.length){
+      listRoot.innerHTML = `
+        <div class="hint">
+          No matches for <b>${escapeHtml(q.value || "(no items)")}</b>.
+        </div>
+      `;
+      return;
+    }
+
+    itemsToShow.forEach(node => {
+      listRoot.appendChild(renderCard(node));
+    });
+  }
+
+  // Back / Collapse All behavior:
+  // - If inside a filter: go up one level
+  // - Else: reset everything
+  backBtn.addEventListener("click", () => {
+    const tree = buildTree();
+    const index = buildIndex(tree);
+
+    if (state.filterKey){
+      const parentKey = index.parent.get(state.filterKey);
+      if (parentKey){
+        const parentNode = index.nodes.get(parentKey);
+        state.filterKey = parentKey;
+        state.filterPath = parentNode ? parentNode.path : "Area";
+      } else {
+        state.filterKey = null;
+        state.filterPath = "Area";
+      }
+      q.value = "";
+      render();
+      return;
+    }
+
+    // top-level reset
+    q.value = "";
+    state.filterKey = null;
+    state.filterPath = "Area";
+    render();
+  });
+
+  q.addEventListener("input", render);
+
+  $("scanBtn").addEventListener("click", () => {
+    alert("Wireframe: scan a location tag to jump to a specific Area/Row/Lane/Container.");
+  });
+
+  // Bottom nav placeholders
+  $("navLocations").addEventListener("click", () => {
+    $("navLocations").classList.add("active");
+    $("navSearch").classList.remove("active");
+    $("navMoves").classList.remove("active");
+    q.value = "";
+    state.filterKey = null;
+    state.filterPath = "Area";
+    render();
+  });
+  $("navSearch").addEventListener("click", () => alert("Wireframe: go to Search page"));
+  $("navMoves").addEventListener("click", () => alert("Wireframe: go to Move/Rebook flow"));
+
+  render();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+

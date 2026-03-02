@@ -269,7 +269,7 @@
       margin-top:10px;
     }
 
-    /* Modal-ish â€œpickerâ€ overlay (optional, wireframe-friendly) */
+    /* Modal-ish “picker" overlay (optional, wireframe-friendly) */
     .overlay{
       position:fixed;
       inset:0;
@@ -448,7 +448,7 @@
         </div>
 
         <!-- <div class="hint">
-          <b>Home layout fix:</b> â€œGOâ€ is now in a right-side column using flexbox, so it canâ€™t overlap the title/description text.
+          <b>Home layout fix:</b> “GO" is now in a right-side column using flexbox, so it can't overlap the title/description text.
         </div> -->
       </section>
 
@@ -529,7 +529,7 @@
 
       <div class="hint" style="margin-bottom: 6px;">
         <b>Hierarchy:</b> Area → Row → Lane → Container → Elements<br/>
-        Tap an item to drill down. This replaces the â€œbig gridâ€ on phones.
+        Tap an item to drill down. This replaces the “big grid" on phones.
       </div>
     </div>
   </div>
@@ -721,7 +721,7 @@
           </div>
           <div class="sub">${escapeHtml(it.sub)}</div>
         </div>
-        <div class="arrow">â€º</div>
+        <div class="arrow">›</div>
       `;
       el.addEventListener("click", it.onClick);
       pickerList.appendChild(el);
@@ -735,7 +735,7 @@
     if (p.row) parts.push("Row " + p.row.id);
     if (p.lane) parts.push("Lane " + p.lane.id);
     if (p.container) parts.push(p.container.name);
-    return parts.length ? parts.join("  â€º  ") : "Area";
+    return parts.length ? parts.join("  ›  ") : "Area";
   }
 
   function getItemsForLevel(level){

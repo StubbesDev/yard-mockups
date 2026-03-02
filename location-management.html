@@ -389,7 +389,7 @@
     pendingConfirm = { id: id, action: loc.active ? 'deactivate' : 'reactivate' };
     confirmTitle.textContent = loc.active ? 'Deactivate location' : 'Reactivate location';
     confirmText.textContent = loc.active
-      ? `Are you sure you want to deactivate ${loc.container} in ${loc.area} • ${loc.row} â€º ${loc.lane}? Deactivated locations will be hidden from quick pickers but remain in the system.`
+      ? `Are you sure you want to deactivate ${loc.container} in ${loc.area} • ${loc.row} › ${loc.lane}? Deactivated locations will be hidden from quick pickers but remain in the system.`
       : `Reactivate ${loc.container}? It will be available in pickers again.`;
     okConfirm.textContent = loc.active ? 'Deactivate' : 'Reactivate';
     okConfirm.classList.toggle('danger', loc.active);

@@ -553,15 +553,18 @@
         <div class="segTabs" role="tablist" aria-label="Search mode">
           <div class="seg active" id="tabElements" role="tab" aria-selected="true">Elements</div>
           <div class="seg" id="tabRacks" role="tab" aria-selected="false">Racks</div>
+          <div class="seg" id="tabLoadSheet" role="tab" aria-selected="false">Loadsheet</div>
         </div>
 
         <div class="stack">
-          <div class="filterDock">
-            <button class="btn secondary filterToggle" id="toggleFiltersBtn" type="button" aria-label="Open filters">
-              <span>⚲</span>
-              <span class="pill" id="filterBadge">none</span>
-            </button>
-            <div class="filterSummary" id="filterSummary">No filters applied</div>
+          <div class="card">
+            <div class="filterDock">
+              <button class="btn secondary filterToggle" id="toggleFiltersBtn" type="button" aria-label="Open filters">
+                <span>⚲</span>
+                <span class="pill" id="filterBadge">none</span>
+              </button>
+              <div class="filterSummary" id="filterSummary">No filters applied</div>
+            </div>
           </div>
 
           <div class="card filterPanel" id="filterPanel" hidden>
@@ -592,28 +595,29 @@
                 <input id="query" type="text" placeholder="e.g. 24-10345-001" />
               </div>
               <button class="btn" id="scanBtn" type="button">SCAN</button>
+              <button class="goBtn" id="searchBtn" type="button">⌕</button>
             </div>
 
             <div style="height:10px"></div>
 
             <!-- Primary search action (same pattern as Home cards: text left, button right) -->
-            <div class="inlineActionCard primary">
+            <!-- <div class="inlineActionCard primary">
               <div class="inlineActionText">
                 <p class="inlineActionTitle">Run search</p>
                 <div class="inlineActionSub">Shows results list. Supports multi-select for move/rebook.</div>
               </div>
               <button class="goBtn" id="searchBtn" type="button">Search</button>
-            </div>
+            </div> -->
           </div>
 
           <!-- Batch via loadsheet -->
-          <div class="inlineActionCard">
+          <!-- <div class="inlineActionCard">
             <div class="inlineActionText">
               <p class="inlineActionTitle">Batch search (loadsheet)</p>
               <div class="inlineActionSub">Scan loadsheet barcode → fetch multiple elements at once</div>
             </div>
             <button class="goBtn secondary" id="openBatch" type="button">OPEN</button>
-          </div>
+          </div> -->
 
           <!-- Results preview -->
           <div class="results" id="resultsBox">
@@ -631,9 +635,9 @@
             </div>
           </div>
 
-          <div class="hint">
+          <!-- <div class="hint">
             <b>Search layout fix (same as Home):</b> key actions use a “text-left / button-right” flex pattern, so the GO/OPEN buttons can't sit on top of text on small screens.
-          </div>
+          </div> -->
         </div>
       </section>
 

@@ -3,11 +3,11 @@
 ## Scope This Covers
 This schema is designed for the wireframe features currently shown in this repo:
 - Manage location hierarchy (area -> row -> lane -> container), activate/deactivate, capacity and occupancy.
-- Search elements and racks by ID/barcode/project/location.
+- Search by element, rack, stack/pre-stack, project, and location grid path.
 - View element and rack location details.
 - Move/rebook single or multiple elements with conflict checks and full history.
-- Scan loadsheets and act on selected elements.
-- Track offline queued operations and sync results.
+- Scan loadsheets, track loadsheet dates, and act on selected elements.
+- Track offline queued operations, retries, and sync results.
 - Determine what should be loaded/delivered next.
 
 ## Core Design Choices
@@ -79,7 +79,7 @@ Constraints:
 - unique(`row_id`, `code`)
 
 ### 5) `containers`
-Purpose: final assignable location node (rack, pre-stack, staging slot).
+Purpose: final assignable location node (rack, pre-stack/stack, staging slot).
 
 | Column | Type | Notes |
 |---|---|---|
@@ -99,6 +99,7 @@ Constraints:
 Indexes:
 - btree(`container_type`)
 - btree(`active`)
+- btree(`name`)
 
 ### 6) `racks`
 Purpose: searchable rack identity and shipping metadata (separate from location container name).
@@ -232,9 +233,17 @@ Purpose: track uploaded/scanned loadsheets.
 | `loadsheet_code` | text unique not null | e.g., `LS-2026-000184` |
 | `source_system` | text null | |
 | `parsed_at` | timestamptz null | |
+| `load_date` | date null | planned load date from sheet |
+| `delivery_date` | date null | planned delivery date from sheet |
+| `scheduled_departure_at` | timestamptz null | if present in source |
 | `status` | text not null | `NEW`, `PARSED`, `PARTIAL`, `FAILED`, `CLOSED` |
 | `created_by_user_id` | uuid null | |
 | `created_at` | timestamptz not null | |
+
+Indexes:
+- btree(`load_date`)
+- btree(`delivery_date`)
+- btree(`scheduled_departure_at`)
 
 ### 13) `loadsheet_items`
 Purpose: element lines from loadsheet and yard match status.
@@ -248,6 +257,9 @@ Purpose: element lines from loadsheet and yard match status.
 | `element_id` | uuid FK -> elements.id null | null when unknown/not found |
 | `yard_match_status` | text not null | `OK`, `MISSING`, `NOT_IN_YARD`, `UNKNOWN` |
 | `current_container_id` | uuid FK -> containers.id null | snapshot at parse/review |
+| `planned_load_at` | timestamptz null | per-line schedule if provided |
+| `planned_deliver_at` | timestamptz null | per-line schedule if provided |
+| `sequence_no` | int null | load order in the sheet |
 | `selected_for_action` | boolean default false | UI selection state |
 | `created_at` | timestamptz not null | |
 
@@ -257,6 +269,9 @@ Constraints:
 Indexes:
 - btree(`loadsheet_id`, `yard_match_status`)
 - btree(`element_id`)
+- btree(`loadsheet_id`, `sequence_no`)
+- btree(`planned_load_at`)
+- btree(`planned_deliver_at`)
 
 ### 14) `dispatch_plans`
 Purpose: outbound delivery/loading plan header.
@@ -317,21 +332,49 @@ Indexes:
 - btree(`device_id`, `status`, `created_at`)
 - unique(`dedupe_key`) where `dedupe_key is not null`
 
+### 17) `sync_attempts`
+Purpose: per-attempt telemetry for offline queue retries and diagnostics.
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | uuid PK | |
+| `sync_queue_id` | uuid FK -> sync_queue.id | |
+| `attempt_no` | int not null | |
+| `started_at` | timestamptz not null | |
+| `finished_at` | timestamptz null | |
+| `result` | text not null | `SUCCESS`, `RETRYABLE_ERROR`, `FATAL_ERROR` |
+| `http_status` | int null | |
+| `error_code` | text null | |
+| `error_message` | text null | |
+
+Constraints:
+- unique(`sync_queue_id`, `attempt_no`)
+
+Indexes:
+- btree(`sync_queue_id`, `attempt_no`)
+- btree(`started_at desc`)
+
 ## Relationship Summary
 - `areas -> rows -> lanes -> containers` is the managed hierarchy.
 - `elements.current_container_id` gives fast "where is it now".
 - `element_movements` stores complete movement history.
 - `move_batches` + `move_batch_items` model multi-select rebook/move flow and conflicts.
 - `loadsheets` + `loadsheet_items` support batch scan/review/selection.
+- `loadsheets` + `loadsheet_items` also hold load/delivery dates and line sequence.
 - `dispatch_plan_items.sequence_no` is the source of truth for "load/deliver next".
 - `sync_queue` captures offline operations until acknowledged.
+- `sync_attempts` stores retry history for offline/debug visibility.
 
 ## High-Value Queries This Enables
 - **Find element by scan**: `barcode` or `element_code`, include current location path.
 - **Find rack and leave order**: rack by code/barcode, ordered by `leave_at`.
+- **Find stack/pre-stack quickly**: filter `containers` by `container_type='PRE_STACK'` + `name`.
+- **Grid path search**: join `areas -> rows -> lanes -> containers -> elements` and search by any path token.
+- **Project search**: list element/rack locations filtered by `project_id`.
 - **Location occupancy**: count active elements grouped by container vs `capacity`.
 - **Move conflict detection**: compare `expected_container_id` with element current container at submit.
 - **Loadsheet triage**: group lines by `yard_match_status` (`OK`, `MISSING`, `NOT_IN_YARD`).
+- **Loadsheet date views**: sort by `planned_load_at` / `planned_deliver_at` or header `load_date` / `delivery_date`.
 - **What loads next**: first `dispatch_plan_items` row with `load_status='PENDING'` ordered by `sequence_no`.
 
 ## Suggested Enums (or controlled text)
@@ -340,6 +383,7 @@ Indexes:
 - `batch_item_result`: `MOVED`, `CONFLICT`, `SKIPPED`, `FAILED`
 - `yard_match_status`: `OK`, `MISSING`, `NOT_IN_YARD`, `UNKNOWN`
 - `dispatch_item_status`: `PENDING`, `STAGED`, `LOADED`, `DELIVERED`, `SKIPPED`
+- `sync_attempt_result`: `SUCCESS`, `RETRYABLE_ERROR`, `FATAL_ERROR`
 
 ## Minimal MVP Cut (if you want to phase delivery)
 Phase 1 tables:

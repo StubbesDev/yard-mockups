@@ -583,8 +583,22 @@
       font-weight:800;
       color:var(--ink);
       white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
+      overflow-x:auto;
+      -webkit-overflow-scrolling:touch;
+    }
+    .locCrumbLink{
+      cursor:pointer;
+      color:var(--accent);
+      text-decoration:none;
+    }
+    .locCrumbLink:hover{ text-decoration:underline; }
+    .locCrumbLink:last-child{
+      color:var(--ink);
+      cursor:default;
+    }
+    .locCrumbSep{
+      color:var(--muted);
+      margin:0 2px;
     }
     .locDrillList{
       display:flex;
@@ -1643,100 +1657,78 @@
 
   /* ============================================================
      LOCATION DRILL-DOWN MODULE (loc_ prefix)
+     Hierarchy: Section > Row > Stack/Rack > Element
      ============================================================ */
   const LOC_TREE = {
-    name: "All Areas",
+    name: "Sections",
     children: [
-      { name: "Yard West", type: "Area", children: [
-        { name: "Row A", type: "Row", children: [
-          { name: "Lane 1", type: "Lane", children: [
-            { name: "Rack R-A1", type: "Rack", sub: "Capacity 12 - Occupied 5", children: [] },
-            { name: "Pre-stack P1", type: "Pre-stack", sub: "Capacity 12 - Occupied 4", children: [] },
+      { name: "Section A", type: "Section", children: [
+        { name: "Row 1", type: "Row", children: [
+          { name: "Rack R-A1-01", type: "Rack", sub: "12 elements - 5 occupied", children: [
+            { name: "24-10345-001", type: "Element", sub: "Wall panel - north core - ABC Tower", children: [] },
+            { name: "24-10345-002", type: "Element", sub: "Spandrel panel - bronze - ABC Tower", children: [] },
+            { name: "24-10345-011", type: "Element", sub: "Storefront transom - Summit Plaza", children: [] },
+            { name: "24-10345-004", type: "Element", sub: "Canopy beam section - Harbor Point", children: [] },
+            { name: "24-10345-009", type: "Element", sub: "Sunshade blade set - Northline Labs", children: [] },
           ]},
-          { name: "Lane 2", type: "Lane", children: [
-            { name: "Rack R-A2", type: "Rack", sub: "Capacity 12 - Occupied 9", children: [] },
-            { name: "Pre-stack P2", type: "Pre-stack", sub: "Capacity 12 - Occupied 7", children: [] },
-          ]},
-          { name: "Lane 3", type: "Lane", children: [
-            { name: "Rack R-A3", type: "Rack", sub: "Capacity 12 - Occupied 3", children: [] },
-            { name: "Pre-stack P3", type: "Pre-stack", sub: "Capacity 12 - Occupied 2", children: [] },
-          ]},
-          { name: "Lane 4", type: "Lane", children: [
-            { name: "Rack R-A4", type: "Rack", sub: "Capacity 12 - Occupied 8", children: [] },
-            { name: "Pre-stack P4", type: "Pre-stack", sub: "Capacity 12 - Occupied 6", children: [] },
+          { name: "Stack S-A1-01", type: "Stack", sub: "12 elements - 7 occupied", children: [
+            { name: "24-10345-003", type: "Element", sub: "Column cover - east face - ABC Tower", children: [] },
+            { name: "24-10345-007", type: "Element", sub: "GFRC coping panel - River Medical", children: [] },
+            { name: "24-10345-010", type: "Element", sub: "Entry canopy rib - Summit Plaza", children: [] },
           ]},
         ]},
-        { name: "Row B", type: "Row", children: [
-          { name: "Lane 1", type: "Lane", children: [
-            { name: "Rack R-B1", type: "Rack", sub: "Capacity 12 - Occupied 2", children: [] },
-            { name: "Pre-stack P1", type: "Pre-stack", sub: "Capacity 12 - Occupied 11", children: [] },
+        { name: "Row 2", type: "Row", children: [
+          { name: "Rack R-A2-01", type: "Rack", sub: "12 elements - 9 occupied", children: [
+            { name: "24-10345-005", type: "Element", sub: "Curtain wall unit - corner - Harbor Point", children: [] },
+            { name: "24-10345-008", type: "Element", sub: "Mechanical screen frame - Northline Labs", children: [] },
           ]},
-          { name: "Lane 2", type: "Lane", children: [
-            { name: "Rack R-B2", type: "Rack", sub: "Capacity 12 - Occupied 7", children: [] },
-            { name: "Pre-stack P2", type: "Pre-stack", sub: "Capacity 12 - Occupied 3", children: [] },
+          { name: "Stack S-A2-01", type: "Stack", sub: "12 elements - 3 occupied", children: [
+            { name: "24-10345-006", type: "Element", sub: "Podium mullion set - River Medical", children: [] },
+            { name: "24-10345-012", type: "Element", sub: "Parapet return panel - Summit Plaza", children: [] },
           ]},
-          { name: "Lane 3", type: "Lane", children: [
-            { name: "Rack R-B3", type: "Rack", sub: "Capacity 12 - Occupied 8", children: [] },
-            { name: "Pre-stack P3", type: "Pre-stack", sub: "Capacity 12 - Occupied 5", children: [] },
-          ]},
+          { name: "Rack R-A2-02", type: "Rack", sub: "12 elements - 6 occupied", children: [] },
         ]},
-        { name: "Row C", type: "Row", children: [
-          { name: "Lane 1", type: "Lane", children: [
-            { name: "Rack R-C1", type: "Rack", sub: "Capacity 12 - Occupied 10", children: [] },
-            { name: "Pre-stack P1", type: "Pre-stack", sub: "Capacity 12 - Occupied 4", children: [] },
-          ]},
-          { name: "Lane 2", type: "Lane", children: [
-            { name: "Rack R-C2", type: "Rack", sub: "Capacity 12 - Occupied 6", children: [] },
-            { name: "Pre-stack P2", type: "Pre-stack", sub: "Capacity 12 - Occupied 9", children: [] },
-          ]},
-        ]},
-        { name: "Row D", type: "Row", children: [
-          { name: "Lane 1", type: "Lane", children: [
-            { name: "Rack R-D1", type: "Rack", sub: "Capacity 12 - Occupied 1", children: [] },
-            { name: "Pre-stack P1", type: "Pre-stack", sub: "Capacity 12 - Occupied 7", children: [] },
-          ]},
-          { name: "Lane 2", type: "Lane", children: [
-            { name: "Rack R-D2", type: "Rack", sub: "Capacity 12 - Occupied 6", children: [] },
-            { name: "Pre-stack P2", type: "Pre-stack", sub: "Capacity 12 - Occupied 3", children: [] },
-          ]},
+        { name: "Row 3", type: "Row", children: [
+          { name: "Rack R-A3-01", type: "Rack", sub: "12 elements - 4 occupied", children: [] },
+          { name: "Stack S-A3-01", type: "Stack", sub: "12 elements - 8 occupied", children: [] },
+          { name: "Rack R-A3-02", type: "Rack", sub: "12 elements - 2 occupied", children: [] },
         ]},
       ]},
-      { name: "Yard East", type: "Area", children: [
-        { name: "Row A", type: "Row", children: [
-          { name: "Lane 1", type: "Lane", children: [
-            { name: "Rack R-A1", type: "Rack", sub: "Capacity 12 - Occupied 4", children: [] },
-            { name: "Pre-stack P1", type: "Pre-stack", sub: "Capacity 12 - Occupied 6", children: [] },
-          ]},
-          { name: "Lane 2", type: "Lane", children: [
-            { name: "Rack R-A2", type: "Rack", sub: "Capacity 12 - Occupied 9", children: [] },
-          ]},
-          { name: "Lane 3", type: "Lane", children: [
-            { name: "Rack R-A3", type: "Rack", sub: "Capacity 12 - Occupied 7", children: [] },
-          ]},
+      { name: "Section B", type: "Section", children: [
+        { name: "Row 1", type: "Row", children: [
+          { name: "Rack R-B1-01", type: "Rack", sub: "12 elements - 10 occupied", children: [] },
+          { name: "Stack S-B1-01", type: "Stack", sub: "12 elements - 5 occupied", children: [] },
+          { name: "Rack R-B1-02", type: "Rack", sub: "12 elements - 7 occupied", children: [] },
         ]},
-        { name: "Row B", type: "Row", children: [
-          { name: "Lane 1", type: "Lane", children: [
-            { name: "Rack R-B1", type: "Rack", sub: "Capacity 12 - Occupied 5", children: [] },
-          ]},
-          { name: "Lane 2", type: "Lane", children: [
-            { name: "Rack R-B2", type: "Rack", sub: "Capacity 12 - Occupied 8", children: [] },
-          ]},
+        { name: "Row 2", type: "Row", children: [
+          { name: "Rack R-B2-01", type: "Rack", sub: "12 elements - 3 occupied", children: [] },
+          { name: "Stack S-B2-01", type: "Stack", sub: "12 elements - 11 occupied", children: [] },
         ]},
-        { name: "Row C", type: "Row", children: [
-          { name: "Lane 1", type: "Lane", children: [
-            { name: "Rack R-C1", type: "Rack", sub: "Capacity 12 - Occupied 4", children: [] },
-            { name: "Pre-stack P3", type: "Pre-stack", sub: "Capacity 12 - Occupied 3", children: [] },
-          ]},
-          { name: "Lane 3", type: "Lane", children: [
-            { name: "Pre-stack P3", type: "Pre-stack", sub: "Capacity 12 - Occupied 10", children: [] },
-          ]},
+        { name: "Row 3", type: "Row", children: [
+          { name: "Rack R-B3-01", type: "Rack", sub: "12 elements - 8 occupied", children: [] },
+          { name: "Stack S-B3-01", type: "Stack", sub: "12 elements - 6 occupied", children: [] },
+          { name: "Stack S-B3-02", type: "Stack", sub: "12 elements - 4 occupied", children: [] },
         ]},
       ]},
-      { name: "Staging West", type: "Area", children: [
-        { name: "Main", type: "Row", children: [
-          { name: "Slot 01", type: "Staging Slot", sub: "Capacity 6 - Occupied 2", children: [] },
-          { name: "Slot 08", type: "Staging Slot", sub: "Capacity 6 - Occupied 5", children: [] },
-          { name: "Slot 12", type: "Staging Slot", sub: "Capacity 6 - Occupied 6", children: [] },
+      { name: "Section C", type: "Section", children: [
+        { name: "Row 1", type: "Row", children: [
+          { name: "Rack R-C1-01", type: "Rack", sub: "12 elements - 9 occupied", children: [] },
+          { name: "Stack S-C1-01", type: "Stack", sub: "12 elements - 2 occupied", children: [] },
+        ]},
+        { name: "Row 2", type: "Row", children: [
+          { name: "Rack R-C2-01", type: "Rack", sub: "12 elements - 7 occupied", children: [] },
+          { name: "Stack S-C2-01", type: "Stack", sub: "12 elements - 5 occupied", children: [] },
+        ]},
+      ]},
+      { name: "Staging", type: "Section", children: [
+        { name: "Inbound", type: "Row", children: [
+          { name: "Slot 01", type: "Rack", sub: "6 elements - 2 occupied", children: [] },
+          { name: "Slot 02", type: "Rack", sub: "6 elements - 5 occupied", children: [] },
+          { name: "Slot 03", type: "Rack", sub: "6 elements - 6 occupied", children: [] },
+        ]},
+        { name: "Outbound", type: "Row", children: [
+          { name: "Slot 04", type: "Rack", sub: "6 elements - 1 occupied", children: [] },
+          { name: "Slot 05", type: "Rack", sub: "6 elements - 3 occupied", children: [] },
         ]},
       ]},
     ],
@@ -1753,11 +1745,6 @@
     return loc_navStack[loc_navStack.length - 1];
   }
 
-  function loc_breadcrumbText(){
-    if (loc_navStack.length <= 1) return "Area";
-    return loc_navStack.slice(1).map(n => n.name).join(" > ");
-  }
-
   function loc_childSummary(node){
     if (node.sub) return node.sub;
     const c = node.children.length;
@@ -1767,11 +1754,42 @@
     return Object.entries(types).map(([t,n]) => `${n} ${t}${n > 1 ? "s" : ""}`).join(" - ");
   }
 
+  function loc_renderBreadcrumb(){
+    locBreadcrumb.innerHTML = "";
+    // Root link
+    const rootSpan = document.createElement("span");
+    rootSpan.className = "locCrumbLink";
+    rootSpan.textContent = "Sections";
+    rootSpan.addEventListener("click", () => {
+      loc_navStack.length = 1;
+      loc_render();
+    });
+    locBreadcrumb.appendChild(rootSpan);
+
+    // Each level after root
+    for (let i = 1; i < loc_navStack.length; i++){
+      const sep = document.createElement("span");
+      sep.className = "locCrumbSep";
+      sep.textContent = " > ";
+      locBreadcrumb.appendChild(sep);
+
+      const link = document.createElement("span");
+      link.className = "locCrumbLink";
+      link.textContent = loc_navStack[i].name;
+      const depth = i;
+      link.addEventListener("click", () => {
+        loc_navStack.length = depth + 1;
+        loc_render();
+      });
+      locBreadcrumb.appendChild(link);
+    }
+  }
+
   function loc_render(){
     const current = loc_currentNode();
     const items = current.children;
 
-    locBreadcrumb.textContent = loc_breadcrumbText();
+    loc_renderBreadcrumb();
     locItemCount.textContent = `${items.length} items`;
     locBackBtn.disabled = loc_navStack.length <= 1;
     locDrillList.innerHTML = "";

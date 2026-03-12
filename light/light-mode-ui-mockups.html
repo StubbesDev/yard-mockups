@@ -1925,18 +1925,41 @@
           </div>
           <div class="locSub">${escapeHtml(loc_childSummary(node))}</div>
         </div>
-        ${isSelectable ? '<div class="pill ' + (isSelected ? 'selected' : '') + '" style="flex:0 0 auto;cursor:pointer;">' + (isSelected ? 'SELECTED' : 'SELECT') + '</div>' : ''}
-        ${(!isSelectable && hasChildren) ? '<div class="locDrillArrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>' : ''}
+        <div style="display:flex;gap:6px;align-items:center;flex:0 0 auto;">
+          ${isSelectable ? '<div class="pill locSelectPill ' + (isSelected ? 'selected' : '') + '" style="cursor:pointer;">' + (isSelected ? 'SELECTED' : 'SELECT') + '</div>' : ''}
+          ${hasChildren ? '<div class="locDrillArrow locDrillBtn" style="cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>' : ''}
+        </div>
       `;
-      div.addEventListener("click", () => {
-        if (isSelectable){
+      // Select pill click
+      const pill = div.querySelector(".locSelectPill");
+      if (pill){
+        pill.addEventListener("click", (e) => {
+          e.stopPropagation();
           if (selectedElementIds.has(node.name)) selectedElementIds.delete(node.name);
           else selectedElementIds.add(node.name);
           loc_render();
           updateSelectionControls();
-        } else if (hasChildren){
+        });
+      }
+      // Drill-down click (chevron or row body for non-selectable)
+      const drillBtn = div.querySelector(".locDrillBtn");
+      if (drillBtn){
+        drillBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
           loc_navStack.push(node);
           loc_render();
+        });
+      }
+      // Row click: drill if has children, otherwise select
+      div.addEventListener("click", () => {
+        if (hasChildren){
+          loc_navStack.push(node);
+          loc_render();
+        } else if (isSelectable){
+          if (selectedElementIds.has(node.name)) selectedElementIds.delete(node.name);
+          else selectedElementIds.add(node.name);
+          loc_render();
+          updateSelectionControls();
         }
       });
       locDrillList.appendChild(div);

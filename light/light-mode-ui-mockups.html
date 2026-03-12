@@ -57,20 +57,18 @@
     }
     .titles{ min-width:0; }
     .h1{
-      font-weight:900;
+      font-weight:950;
       letter-spacing:.2px;
-      font-size:14px;
+      font-size:16px;
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
     }
-    .crumb{
+    .headerSub{
       margin-top:2px;
       color: var(--muted);
-      font-size:12px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
+      font-size:11px;
+      line-height:1.35;
     }
     .status{
       font-family: var(--mono);
@@ -491,8 +489,12 @@
       display:flex;
       align-items:center;
       gap:8px;
-      margin-bottom:6px;
+      margin-bottom:8px;
       flex-wrap:wrap;
+      padding:10px;
+      border-radius: var(--radius);
+      border:1px solid rgba(47,143,87,.45);
+      background: rgba(47,143,87,.08);
     }
     .resultsList{
       display:flex;
@@ -739,8 +741,8 @@
         <div class="left">
           <div class="badge" aria-hidden="true"></div>
           <div class="titles">
-            <div class="h1" id="headerTitle">Yard App</div>
-            <div class="crumb" id="headerSub">Home</div>
+            <div class="h1" id="headerTitle">Search inventory</div>
+            <div class="headerSub" id="headerSub">Elements, stacks, racks, loadsheets, locations - scan barcodes - filter by project/area</div>
           </div>
         </div>
         <div class="status" id="statusPill">ONLINE</div>
@@ -750,8 +752,6 @@
     <main>
       <!-- ===================== SEARCH (Home) ===================== -->
       <section class="screen active" id="search">
-        <div class="pageTitle">Search inventory</div>
-        <div class="pageSub">Elements, stacks, racks, loadsheets, locations - scan barcodes - filter by project/area</div>
 
         <!-- Tabs -->
         <div class="segTabs" role="tablist" aria-label="Search mode">
@@ -760,6 +760,13 @@
           <div class="seg" id="tabRacks" role="tab" aria-selected="false">Rack</div>
           <div class="seg" id="tabLoadSheet" role="tab" aria-selected="false">Loadsheet</div>
           <div class="seg" id="tabLocation" role="tab" aria-selected="false">Location</div>
+        </div>
+
+        <!-- Selection bar (persistent across all tabs) -->
+        <div class="resultsActions" id="selectionActions" style="display:none;">
+          <div class="pill" id="selectedCount">0 selected</div>
+          <button class="btn secondary" id="clearSelectedBtn" type="button">Clear</button>
+          <button class="btn" id="rebookBtn" type="button" disabled>Rebook selected</button>
         </div>
 
         <div class="stack" id="searchClassicUI">
@@ -811,11 +818,6 @@
             <div class="resultsTop">
               <div class="t">Results</div>
               <div class="n" id="resultsCount">0 found</div>
-            </div>
-            <div class="resultsActions" id="selectionActions">
-              <div class="pill" id="selectedCount">0 selected</div>
-              <button class="btn secondary" id="clearSelectedBtn" type="button">Clear</button>
-              <button class="btn" id="rebookBtn" type="button" disabled>Rebook selected</button>
             </div>
             <div class="resultsList" id="resultsList">
               <div class="resultsEmpty">Run a search to view matching results.</div>
@@ -874,7 +876,7 @@
 
             <div style="display:flex;gap:10px;margin-top:12px;">
               <button id="lsBackToScan" class="btn secondary" type="button">Back</button>
-              <button id="lsNextAction" class="btn" type="button" disabled>Move selected</button>
+              <button id="lsNextAction" class="btn" type="button" disabled>Rebook selected</button>
             </div>
           </article>
         </div>
@@ -895,8 +897,6 @@
 
         <!-- Step 1: Select items -->
         <div id="rbStep1">
-          <div class="pageTitle">Select items to move</div>
-          <div class="pageSub">Scan or type IDs. Batch supported (multi-element).</div>
 
           <div class="rb-stepper">
             <div class="rb-dot on"></div><div class="rb-dot"></div><div class="rb-dot"></div><div class="rb-dot"></div>
@@ -953,8 +953,6 @@
 
         <!-- Step 2: Verify initial -->
         <div id="rbStep2" style="display:none;">
-          <div class="pageTitle">Verify initial location</div>
-          <div class="pageSub">Prevents conflicts if items were moved by someone else.</div>
 
           <div class="rb-stepper">
             <div class="rb-dot on"></div><div class="rb-dot on"></div><div class="rb-dot"></div><div class="rb-dot"></div>
@@ -1011,8 +1009,6 @@
 
         <!-- Step 3: New location -->
         <div id="rbStep3" style="display:none;">
-          <div class="pageTitle">Choose new location</div>
-          <div class="pageSub">Scan destination tag or pick hierarchy (Area -> Row -> Lane -> Container).</div>
 
           <div class="rb-stepper">
             <div class="rb-dot on"></div><div class="rb-dot on"></div><div class="rb-dot on"></div><div class="rb-dot"></div>
@@ -1069,8 +1065,6 @@
 
         <!-- Step 4: Review -->
         <div id="rbStep4" style="display:none;">
-          <div class="pageTitle">Review changes</div>
-          <div class="pageSub">Confirm before submitting. Offline-safe queues operations.</div>
 
           <div class="rb-stepper">
             <div class="rb-dot on"></div><div class="rb-dot on"></div><div class="rb-dot on"></div><div class="rb-dot on"></div>
@@ -1118,8 +1112,6 @@
 
         <!-- Result states -->
         <div id="rbResult" style="display:none;">
-          <div class="pageTitle">Result</div>
-          <div class="pageSub">Success + offline queued + conflict patterns.</div>
 
           <div class="stack">
             <div class="notice ok">
@@ -1161,7 +1153,7 @@
     <footer>
       <div class="bottomnav">
         <div class="navbtn active" id="navSearch">Search</div>
-        <div class="navbtn" id="navMoves">Moves</div>
+        <div class="navbtn" id="navMoves">Rebook</div>
       </div>
     </footer>
   </div>
@@ -1189,17 +1181,15 @@
   function showScreen(id){
     mainScreens.forEach(s => document.getElementById(s).classList.toggle("active", s === id));
 
-    const titles = { search:"Yard App", moves:"Move / Rebook" };
-    headerTitle.textContent = titles[id] || id;
-    headerSub.textContent = (id === "search") ? "Search" : "Page: /" + id;
+    if (id === "search") {
+      headerTitle.textContent = "Search inventory";
+      headerSub.textContent = "Elements, stacks, racks, loadsheets, locations - scan barcodes - filter by project/area";
+    } else if (id === "moves") {
+      rb_updateHeader();
+    }
 
     document.getElementById("navSearch").classList.toggle("active", id === "search");
     document.getElementById("navMoves").classList.toggle("active", id === "moves");
-
-    // Update header for moves
-    if (id === "moves"){
-      rb_updateHeader();
-    }
   }
 
   document.getElementById("navSearch").addEventListener("click", ()=>showScreen("search"));
@@ -1248,6 +1238,9 @@
     searchClassicUI.style.display = (!isLoadsheet && !isLocation) ? "flex" : "none";
     loadsheetUI.style.display = isLoadsheet ? "flex" : "none";
     locationUI.style.display = isLocation ? "flex" : "none";
+
+    // Always update selection bar visibility
+    updateSelectionControls();
 
     if (isLocation){
       closeFilters();
@@ -1403,24 +1396,18 @@
           <div class="loc">${escapeHtml(it.loc)}</div>
         </div>
         <div class="pill ${selectedElementIds.has(it.id) ? "selected" : ""}">
-          ${mode === "elements" || mode === "stacks"
-            ? (selectedElementIds.has(it.id) ? "SELECTED" : "SELECT")
-            : "DETAILS"}
+          ${selectedElementIds.has(it.id) ? "SELECTED" : "SELECT"}
         </div>
       </div>
     `).join("");
   }
 
   function updateSelectionControls(){
-    const isElementMode = mode === "elements";
     const totalSelected = selectedElementIds.size;
     selectedCount.textContent = `${totalSelected} selected`;
-    rebookBtn.disabled = !totalSelected || !isElementMode;
-    clearSelectedBtn.disabled = !totalSelected || !isElementMode;
-    selectionActions.style.display = isElementMode ? "flex" : "none";
-    if (!isElementMode && totalSelected){
-      selectedElementIds.clear();
-    }
+    rebookBtn.disabled = !totalSelected;
+    clearSelectedBtn.disabled = !totalSelected;
+    selectionActions.style.display = totalSelected ? "flex" : "none";
   }
 
   function runSearch(){
@@ -1488,13 +1475,9 @@
     if (!row) return;
     const idText = row.getAttribute("data-id") || "";
     if (!idText) return;
-    if (mode === "elements"){
-      if (selectedElementIds.has(idText)) selectedElementIds.delete(idText);
-      else selectedElementIds.add(idText);
-      renderResults(currentSearchResults);
-      return;
-    }
-    alert(`Wireframe: open Rack Detail for ${idText}`);
+    if (selectedElementIds.has(idText)) selectedElementIds.delete(idText);
+    else selectedElementIds.add(idText);
+    renderResults(currentSearchResults);
   });
 
   clearSelectedBtn.addEventListener("click", ()=>{
@@ -1664,7 +1647,7 @@
     children: [
       { name: "Section A", type: "Section", children: [
         { name: "Row 1", type: "Row", children: [
-          { name: "Rack R-A1-01", type: "Rack", sub: "12 elements - 5 occupied", children: [
+          { name: "Rack R-A1-01", type: "Rack", sub: "5 elements", children: [
             { name: "24-10345-001", type: "Element", sub: "Wall panel - north core - ABC Tower", children: [] },
             { name: "24-10345-002", type: "Element", sub: "Spandrel panel - bronze - ABC Tower", children: [] },
             { name: "24-10345-011", type: "Element", sub: "Storefront transom - Summit Plaza", children: [] },
@@ -1853,12 +1836,22 @@
   }
 
   function rb_updateHeader(){
-    const step1 = document.getElementById("rbStep1");
-    if (step1.style.display !== "none") headerSub.textContent = "Step 1 of 4";
-    else if (document.getElementById("rbStep2").style.display !== "none") headerSub.textContent = "Step 2 of 4";
-    else if (document.getElementById("rbStep3").style.display !== "none") headerSub.textContent = "Step 3 of 4";
-    else if (document.getElementById("rbStep4").style.display !== "none") headerSub.textContent = "Step 4 of 4";
-    else headerSub.textContent = "Result";
+    const steps = [
+      { id:"rbStep1", title:"Select items to move", sub:"Scan or type IDs. Batch supported (multi-element)." },
+      { id:"rbStep2", title:"Verify initial location", sub:"Prevents conflicts if items were moved by someone else." },
+      { id:"rbStep3", title:"Choose new location", sub:"Scan destination tag or pick hierarchy (Area -> Row -> Lane -> Container)." },
+      { id:"rbStep4", title:"Review changes", sub:"Confirm before submitting. Offline-safe queues operations." },
+      { id:"rbResult", title:"Result", sub:"Success + offline queued + conflict patterns." },
+    ];
+    for (const s of steps) {
+      if (document.getElementById(s.id).style.display !== "none") {
+        headerTitle.textContent = s.title;
+        headerSub.textContent = s.sub;
+        return;
+      }
+    }
+    headerTitle.textContent = "Rebook";
+    headerSub.textContent = "";
   }
 
   function rb_pillClass(status){

@@ -758,7 +758,7 @@
           <button class="cogBtn" id="cogBtn" type="button" aria-label="Settings">&#9881;</button>
           <div class="titles">
             <div class="h1" id="headerTitle">Search inventory</div>
-            <div class="headerSub" id="headerSub">Elements, stacks, racks, loadsheets, locations - scan barcodes - filter by project/area</div>
+            <div class="headerSub" id="headerSub">Elements, stacks, racks, loadsheets, locations - scan barcodes - filter by project/section</div>
           </div>
         </div>
         <div class="status" id="statusPill">ONLINE</div>
@@ -804,7 +804,7 @@
                 <select class="nativeSelect" id="filterProject"></select>
               </div>
               <div>
-                <div class="fieldLabel">Location area</div>
+                <div class="fieldLabel">Section</div>
                 <select class="nativeSelect" id="filterArea"></select>
               </div>
             </div>
@@ -913,28 +913,32 @@
         <!-- CREATE CARD -->
         <section class="card" aria-labelledby="lmCreateTitle">
           <div id="lmCreateTitle" class="fieldLabel" style="font-weight:900;font-size:14px;color:var(--ink);margin:0 0 4px 0;">Create new location</div>
-          <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">Add an area/row/lane/container. Keep hierarchy consistent.</div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">Section &rsaquo; Row or Lane &rsaquo; Rack / Trailer / Element</div>
 
-          <div class="fieldLabel">Hierarchy</div>
-          <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
-            <div class="input" style="flex:1;min-width:100px;">
-              <input id="lmAreaInput" placeholder="Area (e.g. Yard West)" />
-            </div>
-            <div class="input" style="flex:0 0 80px;">
-              <input id="lmRowInput" placeholder="Row" />
-            </div>
-            <div class="input" style="flex:0 0 80px;">
-              <input id="lmLaneInput" placeholder="Lane" />
+          <div class="fieldLabel">Section</div>
+          <div style="display:flex;gap:8px;margin-bottom:8px;">
+            <div class="input" style="flex:1;">
+              <input id="lmSectionInput" placeholder="Section (e.g. Section A, Staging)" />
             </div>
           </div>
 
-          <div class="fieldLabel">Container</div>
+          <div class="fieldLabel">Row or Lane</div>
+          <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+            <div class="input" style="flex:1;min-width:120px;">
+              <input id="lmRowLaneInput" placeholder="Name (e.g. Row 1, Lane 3, Inbound)" />
+            </div>
+            <div class="input" style="flex:0 0 100px;">
+              <input id="lmRowLaneType" placeholder="Row or Lane" />
+            </div>
+          </div>
+
+          <div class="fieldLabel">Container (optional — leave blank for loose element positions)</div>
           <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
             <div class="input" style="flex:2;min-width:120px;">
-              <input id="lmContainerName" placeholder="Container name (e.g. Rack R-12)" />
+              <input id="lmContainerName" placeholder="Name (e.g. Rack R-A1-01, Trailer T-B1-01)" />
             </div>
             <div class="input" style="flex:1;min-width:80px;">
-              <input id="lmContainerType" placeholder="Type (Rack / Pre-stack)" />
+              <input id="lmContainerType" placeholder="Rack / Trailer" />
             </div>
           </div>
 
@@ -951,7 +955,7 @@
             <button id="lmResetCreate" class="btn secondary" type="button">Reset</button>
           </div>
 
-          <div class="hint">If Area/Row/Lane don't exist yet they will be created. You can deactivate locations below.</div>
+          <div class="hint">If Section/Row/Lane don't exist yet they will be created. You can deactivate locations below.</div>
         </section>
 
         <!-- EXISTING LOCATIONS LIST -->
@@ -1130,11 +1134,11 @@
 
               <div class="fieldLabel">Or select manually</div>
               <div class="stack" style="gap:10px;">
-                <div class="input"><span style="opacity:.8;font-family:var(--mono);font-size:12px;">&#x25BE;</span><input value="Area: Yard West" readonly></div>
+                <div class="input"><span style="opacity:.8;font-family:var(--mono);font-size:12px;">&#x25BE;</span><input value="Section: Section A" readonly></div>
                 <div class="input"><span style="opacity:.8;font-family:var(--mono);font-size:12px;">&#x25BE;</span><input value="Row: C" readonly></div>
                 <div class="input"><span style="opacity:.8;font-family:var(--mono);font-size:12px;">&#x25BE;</span><input value="Lane: 1" readonly></div>
                 <div class="input" style="border-color: rgba(47,143,87,.55); background: rgba(47,143,87,.08);">
-                  <span style="opacity:.9;font-family:var(--mono);font-size:12px;">&#x25BE;</span><input value="Container: Pre-stack P2" readonly>
+                  <span style="opacity:.9;font-family:var(--mono);font-size:12px;">&#x25BE;</span><input value="Rack: R-A1-02" readonly>
                 </div>
               </div>
             </div>
@@ -1176,7 +1180,7 @@
               <div class="fieldLabel">Summary</div>
               <div class="notice">
                 <b>From:</b> <span id="rbFromSummary">Row B -> Lane 3 -> Rack R-12</span><br/>
-                <b>To:</b> <span id="rbToSummary">Row C -> Lane 1 -> Pre-stack P2</span><br/>
+                <b>To:</b> <span id="rbToSummary">Section A -> Row 1 -> Rack R-A1-02</span><br/>
                 <b>Type:</b> <span id="rbTypeSummary">Rebook</span><br/>
                 <b>Items:</b> <span id="rbItemsSummary">0</span>
               </div>
@@ -1216,7 +1220,7 @@
           <div class="stack">
             <div class="notice ok">
               <b>Success</b><br/>
-              <span id="rbSuccessMsg">3 items moved to Row C / Lane 1 / Pre-stack P2</span>
+              <span id="rbSuccessMsg">3 items moved to Section A / Row 1 / Rack R-A1-02</span>
               <div class="row" style="margin-top:10px;">
                 <button class="btn secondary" id="rbViewItems" type="button">View updated items</button>
                 <button class="btn" id="rbNewMove" type="button">New move</button>
@@ -1284,7 +1288,7 @@
 
     if (id === "search") {
       headerTitle.textContent = "Search inventory";
-      headerSub.textContent = "Elements, stacks, racks, loadsheets, locations - scan barcodes - filter by project/area";
+      headerSub.textContent = "Elements, stacks, racks, loadsheets, locations - scan barcodes - filter by project/section";
     } else if (id === "moves") {
       rb_updateHeader();
     } else if (id === "settings") {
@@ -1364,7 +1368,7 @@
     };
     const placeholders = {
       elements: "e.g. 24-10345-001",
-      stacks: "e.g. Pre-stack P2",
+      stacks: "e.g. Rack R-A1-01",
       racks: "e.g. R-12",
     };
     queryLabel.textContent = labels[mode] || labels.elements;
@@ -1398,38 +1402,38 @@
 
   const MOCK_DATA = {
     elements: [
-      { id:"24-10345-001", barcode:"ELM-001-A7", desc:"Wall panel - north core", project:"ABC Tower", area:"Yard West", loc:"Yard West - Row B - Lane 3 - Rack R-B3-12" },
-      { id:"24-10345-002", barcode:"ELM-002-F1", desc:"Spandrel panel - bronze", project:"ABC Tower", area:"Staging West", loc:"Staging West - Slot 08" },
-      { id:"24-10345-003", barcode:"ELM-003-C4", desc:"Column cover - east face", project:"ABC Tower", area:"Yard East", loc:"Yard East - Row C - Lane 1 - Pre-stack P1" },
-      { id:"24-10345-004", barcode:"ELM-004-K2", desc:"Canopy beam section", project:"Harbor Point", area:"Yard West", loc:"Yard West - Row A - Lane 4 - Rack R-A4-03" },
-      { id:"24-10345-005", barcode:"ELM-005-M9", desc:"Curtain wall unit - corner", project:"Harbor Point", area:"Yard East", loc:"Yard East - Row B - Lane 2 - Rack R-B2-05" },
-      { id:"24-10345-006", barcode:"ELM-006-P6", desc:"Podium mullion set", project:"River Medical", area:"Staging West", loc:"Staging West - Slot 12" },
-      { id:"24-10345-007", barcode:"ELM-007-T3", desc:"GFRC coping panel", project:"River Medical", area:"Yard West", loc:"Yard West - Row D - Lane 1 - Pre-stack P1" },
-      { id:"24-10345-008", barcode:"ELM-008-H8", desc:"Mechanical screen frame", project:"Northline Labs", area:"Yard East", loc:"Yard East - Row A - Lane 3 - Rack R-A3-07" },
-      { id:"24-10345-009", barcode:"ELM-009-Q5", desc:"Sunshade blade set", project:"Northline Labs", area:"Yard West", loc:"Yard West - Row C - Lane 2 - Rack R-C2-10" },
-      { id:"24-10345-010", barcode:"ELM-010-W2", desc:"Entry canopy rib", project:"Summit Plaza", area:"Yard East", loc:"Yard East - Row C - Lane 3 - Pre-stack P3" },
-      { id:"24-10345-011", barcode:"ELM-011-D0", desc:"Storefront transom", project:"Summit Plaza", area:"Yard West", loc:"Yard West - Row B - Lane 1 - Rack R-B1-02" },
-      { id:"24-10345-012", barcode:"ELM-012-R4", desc:"Parapet return panel", project:"Summit Plaza", area:"Staging West", loc:"Staging West - Slot 01" },
+      { id:"24-10345-001", barcode:"ELM-001-A7", desc:"Wall panel - north core", project:"ABC Tower", area:"Section A", loc:"Section A - Row 1 - Rack R-A1-01" },
+      { id:"24-10345-002", barcode:"ELM-002-F1", desc:"Spandrel panel - bronze", project:"ABC Tower", area:"Staging", loc:"Staging - Inbound - Trailer T-IN-01" },
+      { id:"24-10345-003", barcode:"ELM-003-C4", desc:"Column cover - east face", project:"ABC Tower", area:"Section A", loc:"Section A - Row 1 - Rack R-A1-02" },
+      { id:"24-10345-004", barcode:"ELM-004-K2", desc:"Canopy beam section", project:"Harbor Point", area:"Section A", loc:"Section A - Row 2 - Rack R-A2-01" },
+      { id:"24-10345-005", barcode:"ELM-005-M9", desc:"Curtain wall unit - corner", project:"Harbor Point", area:"Section B", loc:"Section B - Row 1 - Rack R-B1-01" },
+      { id:"24-10345-006", barcode:"ELM-006-P6", desc:"Podium mullion set", project:"River Medical", area:"Section A", loc:"Section A - Row 2 - Trailer T-A2-01" },
+      { id:"24-10345-007", barcode:"ELM-007-T3", desc:"GFRC coping panel", project:"River Medical", area:"Section C", loc:"Section C - Row 1 - Rack R-C1-01" },
+      { id:"24-10345-008", barcode:"ELM-008-H8", desc:"Mechanical screen frame", project:"Northline Labs", area:"Section B", loc:"Section B - Row 2 - Rack R-B2-01" },
+      { id:"24-10345-009", barcode:"ELM-009-Q5", desc:"Sunshade blade set", project:"Northline Labs", area:"Section A", loc:"Section A - Lane 3 - Rack R-A3-01" },
+      { id:"24-10345-010", barcode:"ELM-010-W2", desc:"Entry canopy rib", project:"Summit Plaza", area:"Section C", loc:"Section C - Lane 2 (loose)" },
+      { id:"24-10345-011", barcode:"ELM-011-D0", desc:"Storefront transom", project:"Summit Plaza", area:"Section B", loc:"Section B - Lane 3 - Trailer T-B3-01" },
+      { id:"24-10345-012", barcode:"ELM-012-R4", desc:"Parapet return panel", project:"Summit Plaza", area:"Staging", loc:"Staging - Outbound - Trailer T-OUT-01" },
     ],
     stacks: [
-      { id:"Pre-stack P1", barcode:"STK-P1-YW", desc:"Pre-stack - Lane 1", project:"ABC Tower", area:"Yard West", loc:"Yard West - Row C - Lane 1", elements:4, capacity:12 },
-      { id:"Pre-stack P2", barcode:"STK-P2-YW", desc:"Pre-stack - Lane 2", project:"Harbor Point", area:"Yard West", loc:"Yard West - Row C - Lane 2", elements:7, capacity:12 },
-      { id:"Pre-stack P3", barcode:"STK-P3-YE", desc:"Pre-stack - Lane 3", project:"Summit Plaza", area:"Yard East", loc:"Yard East - Row C - Lane 3", elements:3, capacity:12 },
-      { id:"Pre-stack P4", barcode:"STK-P4-YW", desc:"Pre-stack - Lane 4", project:"River Medical", area:"Yard West", loc:"Yard West - Row D - Lane 4", elements:9, capacity:12 },
-      { id:"Pre-stack P1-E", barcode:"STK-P1E-YE", desc:"Pre-stack - Lane 1 East", project:"Northline Labs", area:"Yard East", loc:"Yard East - Row A - Lane 1", elements:2, capacity:12 },
-      { id:"Pre-stack P2-E", barcode:"STK-P2E-YE", desc:"Pre-stack - Lane 2 East", project:"ABC Tower", area:"Yard East", loc:"Yard East - Row B - Lane 2", elements:6, capacity:12 },
+      { id:"Rack R-A1-01", barcode:"RCK-A101", desc:"Rack - Row 1", project:"ABC Tower", area:"Section A", loc:"Section A - Row 1", elements:5, capacity:12 },
+      { id:"Rack R-A2-01", barcode:"RCK-A201", desc:"Rack - Row 2", project:"Harbor Point", area:"Section A", loc:"Section A - Row 2", elements:2, capacity:12 },
+      { id:"Rack R-B1-01", barcode:"RCK-B101", desc:"Rack - Row 1", project:"Summit Plaza", area:"Section B", loc:"Section B - Row 1", elements:10, capacity:12 },
+      { id:"Trailer T-A2-01", barcode:"TRL-A201", desc:"Trailer - Row 2", project:"River Medical", area:"Section A", loc:"Section A - Row 2", elements:4, capacity:8 },
+      { id:"Trailer T-B3-01", barcode:"TRL-B301", desc:"Trailer - Lane 3", project:"Northline Labs", area:"Section B", loc:"Section B - Lane 3", elements:6, capacity:10 },
+      { id:"Trailer T-IN-01", barcode:"TRL-IN01", desc:"Trailer - Inbound", project:"ABC Tower", area:"Staging", loc:"Staging - Inbound", elements:12, capacity:14 },
     ],
     racks: [
-      { id:"R-A4-03", barcode:"RACK-A403", project:"Harbor Point", area:"Yard West", leaves:"2026-03-04", loc:"Yard West - Row A - Lane 4 - Slot 3" },
-      { id:"R-B3-12", barcode:"RACK-B312", project:"ABC Tower", area:"Yard West", leaves:"2026-03-03", loc:"Yard West - Row B - Lane 3 - Slot 12" },
-      { id:"R-B2-05", barcode:"RACK-B205", project:"Harbor Point", area:"Yard East", leaves:"2026-03-06", loc:"Yard East - Row B - Lane 2 - Slot 5" },
-      { id:"R-C2-10", barcode:"RACK-C210", project:"Northline Labs", area:"Yard West", leaves:"2026-03-07", loc:"Yard West - Row C - Lane 2 - Slot 10" },
-      { id:"R-A3-07", barcode:"RACK-A307", project:"Northline Labs", area:"Yard East", leaves:"2026-03-05", loc:"Yard East - Row A - Lane 3 - Slot 7" },
-      { id:"R-B1-02", barcode:"RACK-B102", project:"Summit Plaza", area:"Yard West", leaves:"2026-03-08", loc:"Yard West - Row B - Lane 1 - Slot 2" },
-      { id:"R-D4-11", barcode:"RACK-D411", project:"River Medical", area:"Yard West", leaves:"2026-03-09", loc:"Yard West - Row D - Lane 4 - Slot 11" },
-      { id:"R-C1-04", barcode:"RACK-C104", project:"River Medical", area:"Yard East", leaves:"2026-03-10", loc:"Yard East - Row C - Lane 1 - Slot 4" },
-      { id:"R-A2-09", barcode:"RACK-A209", project:"ABC Tower", area:"Yard East", leaves:"2026-03-11", loc:"Yard East - Row A - Lane 2 - Slot 9" },
-      { id:"R-D2-06", barcode:"RACK-D206", project:"Summit Plaza", area:"Yard West", leaves:"2026-03-12", loc:"Yard West - Row D - Lane 2 - Slot 6" },
+      { id:"R-A1-01", barcode:"RACK-A101", project:"ABC Tower", area:"Section A", leaves:"2026-03-04", loc:"Section A - Row 1" },
+      { id:"R-A1-02", barcode:"RACK-A102", project:"ABC Tower", area:"Section A", leaves:"2026-03-03", loc:"Section A - Row 1" },
+      { id:"R-A2-01", barcode:"RACK-A201", project:"Harbor Point", area:"Section A", leaves:"2026-03-06", loc:"Section A - Row 2" },
+      { id:"R-A2-02", barcode:"RACK-A202", project:"Harbor Point", area:"Section A", leaves:"2026-03-07", loc:"Section A - Row 2" },
+      { id:"R-A3-01", barcode:"RACK-A301", project:"Northline Labs", area:"Section A", leaves:"2026-03-05", loc:"Section A - Lane 3" },
+      { id:"R-B1-01", barcode:"RACK-B101", project:"Summit Plaza", area:"Section B", leaves:"2026-03-08", loc:"Section B - Row 1" },
+      { id:"R-B1-02", barcode:"RACK-B102", project:"Summit Plaza", area:"Section B", leaves:"2026-03-09", loc:"Section B - Row 1" },
+      { id:"R-B2-01", barcode:"RACK-B201", project:"River Medical", area:"Section B", leaves:"2026-03-10", loc:"Section B - Row 2" },
+      { id:"R-B3-01", barcode:"RACK-B301", project:"Northline Labs", area:"Section B", leaves:"2026-03-11", loc:"Section B - Lane 3" },
+      { id:"R-C1-01", barcode:"RACK-C101", project:"River Medical", area:"Section C", leaves:"2026-03-12", loc:"Section C - Row 1" },
     ],
   };
 
@@ -1468,7 +1472,7 @@
   function updateFilterSummary(){
     const parts = [];
     if (activeFilters.project) parts.push(`Project: ${activeFilters.project}`);
-    if (activeFilters.area) parts.push(`Area: ${activeFilters.area}`);
+    if (activeFilters.area) parts.push(`Section: ${activeFilters.area}`);
     filterSummary.textContent = parts.length ? parts.join(" | ") : "No filters applied";
     const count = getFilterCount();
     filterBadge.textContent = count ? `${count}` : "none";
@@ -1629,11 +1633,11 @@
   const lsNextAction = document.getElementById("lsNextAction");
 
   const lsSampleElements = [
-    { id: "24-10345-001", loc: "Row B - Lane 3 - Rack R-B3-12", status: "OK" },
-    { id: "24-10345-002", loc: "Staging West - Slot 08", status: "OK" },
-    { id: "24-10345-003", loc: "Row C - Lane 1 - Pre-stack P1", status: "MISSING" },
-    { id: "24-10345-004", loc: "Yard West - Row A - Lane 4 - Rack R-A4-03", status: "OK" },
-    { id: "24-10345-005", loc: "Yard East - Row B - Lane 2 - Rack R-B2-05", status: "OK" },
+    { id: "24-10345-001", loc: "Section A - Row 1 - Rack R-A1-01", status: "OK" },
+    { id: "24-10345-002", loc: "Staging - Inbound - Trailer T-IN-01", status: "OK" },
+    { id: "24-10345-003", loc: "Section A - Row 1 - Rack R-A1-02", status: "MISSING" },
+    { id: "24-10345-004", loc: "Section A - Row 2 - Rack R-A2-01", status: "OK" },
+    { id: "24-10345-005", loc: "Section B - Row 1 - Rack R-B1-01", status: "OK" },
     { id: "24-10345-006", loc: "Not in yard", status: "NOT IN YARD" },
   ];
 
@@ -1752,7 +1756,7 @@
      Hierarchy: Section > Row > Stack/Rack > Element
      ============================================================ */
   const LOC_TREE = {
-    name: "Sections",
+    name: "Yard",
     children: [
       { name: "Section A", type: "Section", children: [
         { name: "Row 1", type: "Row", children: [
@@ -1763,64 +1767,67 @@
             { name: "24-10345-004", type: "Element", sub: "Canopy beam section - Harbor Point", children: [] },
             { name: "24-10345-009", type: "Element", sub: "Sunshade blade set - Northline Labs", children: [] },
           ]},
-          { name: "Stack S-A1-01", type: "Stack", sub: "12 elements - 7 occupied", children: [
+          { name: "Rack R-A1-02", type: "Rack", sub: "3 elements", children: [
             { name: "24-10345-003", type: "Element", sub: "Column cover - east face - ABC Tower", children: [] },
             { name: "24-10345-007", type: "Element", sub: "GFRC coping panel - River Medical", children: [] },
             { name: "24-10345-010", type: "Element", sub: "Entry canopy rib - Summit Plaza", children: [] },
           ]},
+          { name: "24-10345-013", type: "Element", sub: "Loose panel - awaiting rack assignment", children: [] },
         ]},
         { name: "Row 2", type: "Row", children: [
-          { name: "Rack R-A2-01", type: "Rack", sub: "12 elements - 9 occupied", children: [
+          { name: "Rack R-A2-01", type: "Rack", sub: "2 elements", children: [
             { name: "24-10345-005", type: "Element", sub: "Curtain wall unit - corner - Harbor Point", children: [] },
             { name: "24-10345-008", type: "Element", sub: "Mechanical screen frame - Northline Labs", children: [] },
           ]},
-          { name: "Stack S-A2-01", type: "Stack", sub: "12 elements - 3 occupied", children: [
+          { name: "Trailer T-A2-01", type: "Trailer", sub: "4 elements - ready for dispatch", children: [
             { name: "24-10345-006", type: "Element", sub: "Podium mullion set - River Medical", children: [] },
             { name: "24-10345-012", type: "Element", sub: "Parapet return panel - Summit Plaza", children: [] },
+            { name: "24-10345-014", type: "Element", sub: "Corner mullion - River Medical", children: [] },
+            { name: "24-10345-015", type: "Element", sub: "Slab edge cover - ABC Tower", children: [] },
           ]},
-          { name: "Rack R-A2-02", type: "Rack", sub: "12 elements - 6 occupied", children: [] },
+          { name: "Rack R-A2-02", type: "Rack", sub: "6 elements", children: [] },
         ]},
-        { name: "Row 3", type: "Row", children: [
-          { name: "Rack R-A3-01", type: "Rack", sub: "12 elements - 4 occupied", children: [] },
-          { name: "Stack S-A3-01", type: "Stack", sub: "12 elements - 8 occupied", children: [] },
-          { name: "Rack R-A3-02", type: "Rack", sub: "12 elements - 2 occupied", children: [] },
+        { name: "Lane 3", type: "Lane", children: [
+          { name: "24-10345-016", type: "Element", sub: "Oversize spandrel - ground floor - ABC Tower", children: [] },
+          { name: "24-10345-017", type: "Element", sub: "Double-height mullion set - Harbor Point", children: [] },
+          { name: "Rack R-A3-01", type: "Rack", sub: "4 elements", children: [] },
         ]},
       ]},
       { name: "Section B", type: "Section", children: [
         { name: "Row 1", type: "Row", children: [
-          { name: "Rack R-B1-01", type: "Rack", sub: "12 elements - 10 occupied", children: [] },
-          { name: "Stack S-B1-01", type: "Stack", sub: "12 elements - 5 occupied", children: [] },
-          { name: "Rack R-B1-02", type: "Rack", sub: "12 elements - 7 occupied", children: [] },
+          { name: "Rack R-B1-01", type: "Rack", sub: "10 elements", children: [] },
+          { name: "Trailer T-B1-01", type: "Trailer", sub: "8 elements - loading", children: [] },
+          { name: "Rack R-B1-02", type: "Rack", sub: "7 elements", children: [] },
         ]},
         { name: "Row 2", type: "Row", children: [
-          { name: "Rack R-B2-01", type: "Rack", sub: "12 elements - 3 occupied", children: [] },
-          { name: "Stack S-B2-01", type: "Stack", sub: "12 elements - 11 occupied", children: [] },
+          { name: "Rack R-B2-01", type: "Rack", sub: "3 elements", children: [] },
+          { name: "24-10345-018", type: "Element", sub: "Loose cladding panel - Summit Plaza", children: [] },
         ]},
-        { name: "Row 3", type: "Row", children: [
-          { name: "Rack R-B3-01", type: "Rack", sub: "12 elements - 8 occupied", children: [] },
-          { name: "Stack S-B3-01", type: "Stack", sub: "12 elements - 6 occupied", children: [] },
-          { name: "Stack S-B3-02", type: "Stack", sub: "12 elements - 4 occupied", children: [] },
+        { name: "Lane 3", type: "Lane", children: [
+          { name: "Rack R-B3-01", type: "Rack", sub: "8 elements", children: [] },
+          { name: "Trailer T-B3-01", type: "Trailer", sub: "6 elements - dispatched", children: [] },
         ]},
       ]},
       { name: "Section C", type: "Section", children: [
         { name: "Row 1", type: "Row", children: [
-          { name: "Rack R-C1-01", type: "Rack", sub: "12 elements - 9 occupied", children: [] },
-          { name: "Stack S-C1-01", type: "Stack", sub: "12 elements - 2 occupied", children: [] },
+          { name: "Rack R-C1-01", type: "Rack", sub: "9 elements", children: [] },
+          { name: "Trailer T-C1-01", type: "Trailer", sub: "2 elements - staging", children: [] },
         ]},
-        { name: "Row 2", type: "Row", children: [
-          { name: "Rack R-C2-01", type: "Rack", sub: "12 elements - 7 occupied", children: [] },
-          { name: "Stack S-C2-01", type: "Stack", sub: "12 elements - 5 occupied", children: [] },
+        { name: "Lane 2", type: "Lane", children: [
+          { name: "Rack R-C2-01", type: "Rack", sub: "7 elements", children: [] },
+          { name: "24-10345-019", type: "Element", sub: "Curtain wall corner - Northline Labs", children: [] },
+          { name: "24-10345-020", type: "Element", sub: "Canopy fascia - Harbor Point", children: [] },
         ]},
       ]},
       { name: "Staging", type: "Section", children: [
-        { name: "Inbound", type: "Row", children: [
-          { name: "Slot 01", type: "Rack", sub: "6 elements - 2 occupied", children: [] },
-          { name: "Slot 02", type: "Rack", sub: "6 elements - 5 occupied", children: [] },
-          { name: "Slot 03", type: "Rack", sub: "6 elements - 6 occupied", children: [] },
+        { name: "Inbound", type: "Lane", children: [
+          { name: "Trailer T-IN-01", type: "Trailer", sub: "12 elements - unloading", children: [] },
+          { name: "24-10345-021", type: "Element", sub: "Loose panel - awaiting inspection", children: [] },
+          { name: "24-10345-022", type: "Element", sub: "Damaged return - River Medical", children: [] },
         ]},
-        { name: "Outbound", type: "Row", children: [
-          { name: "Slot 04", type: "Rack", sub: "6 elements - 1 occupied", children: [] },
-          { name: "Slot 05", type: "Rack", sub: "6 elements - 3 occupied", children: [] },
+        { name: "Outbound", type: "Lane", children: [
+          { name: "Trailer T-OUT-01", type: "Trailer", sub: "6 elements - sealed", children: [] },
+          { name: "Trailer T-OUT-02", type: "Trailer", sub: "3 elements - loading", children: [] },
         ]},
       ]},
     ],
@@ -1930,9 +1937,9 @@
   const rbSteps = ["rbStep1","rbStep2","rbStep3","rbStep4","rbResult"];
 
   let rb_sel = [
-    { id:"24-10345-001", loc:"Row B - Lane 3 - Rack R-12", status:"Confirmed" },
-    { id:"24-10345-002", loc:"Staging West - Slot 08", status:"Queued" },
-    { id:"24-10345-003", loc:"Row C - Lane 1 - Pre-stack P2", status:"Conflict" },
+    { id:"24-10345-001", loc:"Section A - Row 1 - Rack R-A1-01", status:"Confirmed" },
+    { id:"24-10345-002", loc:"Staging - Inbound - Trailer T-IN-01", status:"Queued" },
+    { id:"24-10345-003", loc:"Section B - Row 2 - Rack R-B2-01", status:"Conflict" },
   ];
   let rb_selected = new Set(rb_sel.map(s => s.id));
   let rb_moveType = "Rebook";
@@ -1948,7 +1955,7 @@
     const steps = [
       { id:"rbStep1", title:"Select items to move", sub:"Scan or type IDs. Batch supported (multi-element)." },
       { id:"rbStep2", title:"Verify initial location", sub:"Prevents conflicts if items were moved by someone else." },
-      { id:"rbStep3", title:"Choose new location", sub:"Scan destination tag or pick hierarchy (Area -> Row -> Lane -> Container)." },
+      { id:"rbStep3", title:"Choose new location", sub:"Scan destination tag or pick hierarchy (Section -> Row/Lane -> Rack/Trailer)." },
       { id:"rbStep4", title:"Review changes", sub:"Confirm before submitting. Offline-safe queues operations." },
       { id:"rbResult", title:"Result", sub:"Success + offline queued + conflict patterns." },
     ];
@@ -2067,7 +2074,7 @@
 
   document.getElementById("rbSubmitBtn").addEventListener("click", ()=>{
     document.getElementById("rbSuccessMsg").textContent =
-      `${rb_selected.size} items moved to Row C / Lane 1 / Pre-stack P2`;
+      `${rb_selected.size} items moved to Section A / Row 1 / Rack R-A1-02`;
     rb_showStep("rbResult");
   });
 
@@ -2092,9 +2099,12 @@
      LOCATION MANAGEMENT MODULE (lm_ prefix)
      ============================================================ */
   const lm_initialLocations = [
-    { id:"yard-west|A|1|rack-r-a1", area:"Yard West", row:"A", lane:"1", container:"Rack R-A1", type:"Rack", capacity:12, occupied:5, active:true },
-    { id:"yard-west|B|3|rack-r-b3", area:"Yard West", row:"B", lane:"3", container:"Rack R-B3", type:"Rack", capacity:12, occupied:8, active:true },
-    { id:"staging-west|Staging|Main|slot-08", area:"Staging West", row:"Staging", lane:"Main", container:"Slot 08", type:"Staging Slot", capacity:6, occupied:2, active:false },
+    { id:"section-a|row-1|rack-r-a1-01", section:"Section A", rowLane:"Row 1", rowLaneType:"Row", container:"Rack R-A1-01", containerType:"Rack", capacity:12, occupied:5, active:true },
+    { id:"section-a|row-2|trailer-t-a2-01", section:"Section A", rowLane:"Row 2", rowLaneType:"Row", container:"Trailer T-A2-01", containerType:"Trailer", capacity:8, occupied:4, active:true },
+    { id:"section-b|row-1|rack-r-b1-01", section:"Section B", rowLane:"Row 1", rowLaneType:"Row", container:"Rack R-B1-01", containerType:"Rack", capacity:12, occupied:10, active:true },
+    { id:"section-b|lane-3|trailer-t-b3-01", section:"Section B", rowLane:"Lane 3", rowLaneType:"Lane", container:"Trailer T-B3-01", containerType:"Trailer", capacity:10, occupied:6, active:true },
+    { id:"staging|inbound|trailer-t-in-01", section:"Staging", rowLane:"Inbound", rowLaneType:"Lane", container:"Trailer T-IN-01", containerType:"Trailer", capacity:14, occupied:12, active:true },
+    { id:"staging|outbound|", section:"Staging", rowLane:"Outbound", rowLaneType:"Lane", container:"", containerType:"", capacity:null, occupied:0, active:false },
   ];
 
   let lm_locations = structuredClone(lm_initialLocations);
@@ -2102,9 +2112,9 @@
   const lmCountTag = document.getElementById("lmCountTag");
   const lmFilterInput = document.getElementById("lmFilter");
 
-  const lmAreaInput = document.getElementById("lmAreaInput");
-  const lmRowInput = document.getElementById("lmRowInput");
-  const lmLaneInput = document.getElementById("lmLaneInput");
+  const lmSectionInput = document.getElementById("lmSectionInput");
+  const lmRowLaneInput = document.getElementById("lmRowLaneInput");
+  const lmRowLaneType = document.getElementById("lmRowLaneType");
   const lmContainerName = document.getElementById("lmContainerName");
   const lmContainerType = document.getElementById("lmContainerType");
   const lmCapacity = document.getElementById("lmCapacity");
@@ -2119,32 +2129,33 @@
 
   let lm_pendingConfirm = null;
 
-  function lm_makeId(area,row,lane,container){
+  function lm_makeId(section, rowLane, container){
     const slug = s => String(s||"").toLowerCase().replace(/[^\w\-]+/g,"-").replace(/-+/g,"-").replace(/(^-|-$)/g,"");
-    return [slug(area), slug(row), slug(lane), slug(container)].join("|");
+    return [slug(section), slug(rowLane), slug(container)].join("|");
   }
 
   function lm_renderList(){
     const q = lmFilterInput.value.trim().toLowerCase();
     const filtered = lm_locations.filter(loc => {
       if (!q) return true;
-      return loc.area.toLowerCase().includes(q) || loc.row.toLowerCase().includes(q) ||
-             loc.lane.toLowerCase().includes(q) || loc.container.toLowerCase().includes(q) ||
-             loc.type.toLowerCase().includes(q);
+      return loc.section.toLowerCase().includes(q) || loc.rowLane.toLowerCase().includes(q) ||
+             loc.container.toLowerCase().includes(q) || loc.containerType.toLowerCase().includes(q) ||
+             loc.rowLaneType.toLowerCase().includes(q);
     });
 
     lmLocList.innerHTML = "";
     filtered.forEach(loc => {
       const div = document.createElement("div");
       div.style.cssText = "background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:12px;padding:10px;display:flex;justify-content:space-between;align-items:center;gap:10px;";
+      const displayName = loc.container ? escapeHtml(loc.container) : escapeHtml(loc.rowLane) + " (no container)";
       div.innerHTML = `
         <div style="min-width:0">
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-            <span style="font-family:var(--mono);font-size:11px;color:var(--muted)">${escapeHtml(loc.area)}</span>
-            <span style="font-weight:800;font-size:13px;">${escapeHtml(loc.container)}</span>
+            <span style="font-family:var(--mono);font-size:11px;color:var(--muted)">${escapeHtml(loc.section)}</span>
+            <span style="font-weight:800;font-size:13px;">${displayName}</span>
             <span style="font-family:var(--mono);font-size:11px;padding:3px 6px;border-radius:999px;border:1px solid ${loc.active ? 'rgba(47,143,87,.6)' : 'rgba(214,166,58,.7)'};background:${loc.active ? 'rgba(47,143,87,.08)' : 'rgba(214,166,58,.06)'};color:${loc.active ? 'var(--ink)' : 'var(--muted)'}">${loc.active ? 'active' : 'inactive'}</span>
           </div>
-          <div style="font-size:11px;color:var(--muted);margin-top:3px;">${escapeHtml(loc.row)} &bull; Lane ${escapeHtml(loc.lane)} &bull; ${escapeHtml(loc.type)} &bull; ${loc.occupied||0}/${loc.capacity||'-'} occupied</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:3px;">${escapeHtml(loc.rowLaneType)}: ${escapeHtml(loc.rowLane)}${loc.containerType ? ' &bull; ' + escapeHtml(loc.containerType) : ''}${loc.capacity ? ' &bull; ' + (loc.occupied||0) + '/' + loc.capacity + ' occupied' : ''}</div>
         </div>
         <div style="display:flex;gap:6px;flex-shrink:0;">
           <button class="btn secondary lmEditBtn" data-id="${loc.id}" style="padding:6px 8px;font-size:11px;">Edit</button>
@@ -2161,20 +2172,20 @@
   function lm_openEdit(id){
     const loc = lm_locations.find(l=>l.id===id);
     if (!loc) return;
-    lmAreaInput.value = loc.area;
-    lmRowInput.value = loc.row;
-    lmLaneInput.value = loc.lane;
+    lmSectionInput.value = loc.section;
+    lmRowLaneInput.value = loc.rowLane;
+    lmRowLaneType.value = loc.rowLaneType;
     lmContainerName.value = loc.container;
-    lmContainerType.value = loc.type;
+    lmContainerType.value = loc.containerType;
     lmCapacity.value = loc.capacity || "";
     lmCreateBtn.dataset.editId = id;
     lmCreateBtn.textContent = "Save changes";
   }
 
   function lm_clearForm(){
-    lmAreaInput.value = "";
-    lmRowInput.value = "";
-    lmLaneInput.value = "";
+    lmSectionInput.value = "";
+    lmRowLaneInput.value = "";
+    lmRowLaneType.value = "";
     lmContainerName.value = "";
     lmContainerType.value = "";
     lmCapacity.value = "";
@@ -2183,28 +2194,28 @@
   }
 
   lmCreateBtn.addEventListener("click", ()=>{
-    const area = lmAreaInput.value.trim();
-    const row = lmRowInput.value.trim();
-    const lane = lmLaneInput.value.trim();
+    const section = lmSectionInput.value.trim();
+    const rowLane = lmRowLaneInput.value.trim();
+    const rowLaneType = lmRowLaneType.value.trim() || "Row";
     const container = lmContainerName.value.trim();
-    const type = lmContainerType.value.trim() || "Rack";
+    const containerType = lmContainerType.value.trim() || (container ? "Rack" : "");
     const capacity = lmCapacity.value ? Number(lmCapacity.value) : null;
 
-    if (!area || !container || !row || !lane) return alert("Please fill Area, Row, Lane and Container name.");
+    if (!section || !rowLane) return alert("Please fill at least Section and Row/Lane.");
 
-    const id = lm_makeId(area, row, lane, container);
+    const id = lm_makeId(section, rowLane, container);
     const editId = lmCreateBtn.dataset.editId;
 
     if (editId){
       const idx = lm_locations.findIndex(l=>l.id===editId);
       if (idx >= 0){
-        lm_locations[idx] = { id, area, row, lane, container, type, capacity, occupied: lm_locations[idx].occupied||0, active: lm_locations[idx].active };
+        lm_locations[idx] = { id, section, rowLane, rowLaneType, container, containerType, capacity, occupied: lm_locations[idx].occupied||0, active: lm_locations[idx].active };
       } else {
-        lm_locations.push({ id, area, row, lane, container, type, capacity, occupied:0, active:true });
+        lm_locations.push({ id, section, rowLane, rowLaneType, container, containerType, capacity, occupied:0, active:true });
       }
     } else {
       if (lm_locations.some(l=>l.id===id)) return alert("Location already exists.");
-      lm_locations.push({ id, area, row, lane, container, type, capacity, occupied:0, active:true });
+      lm_locations.push({ id, section, rowLane, rowLaneType, container, containerType, capacity, occupied:0, active:true });
     }
     lm_clearForm();
     lm_renderList();
@@ -2218,9 +2229,10 @@
     if (!loc) return;
     lm_pendingConfirm = { id, action: loc.active ? "deactivate" : "reactivate" };
     lmConfirmTitle.textContent = loc.active ? "Deactivate location" : "Reactivate location";
+    const locLabel = loc.container || loc.rowLane;
     lmConfirmText.textContent = loc.active
-      ? `Deactivate ${loc.container} in ${loc.area} \u2022 ${loc.row} \u203A ${loc.lane}? It will be hidden from quick pickers.`
-      : `Reactivate ${loc.container}? It will be available in pickers again.`;
+      ? `Deactivate ${locLabel} in ${loc.section} \u203A ${loc.rowLane}? It will be hidden from quick pickers.`
+      : `Reactivate ${locLabel}? It will be available in pickers again.`;
     lmOkConfirm.textContent = loc.active ? "Deactivate" : "Reactivate";
     lmOkConfirm.classList.toggle("danger", loc.active);
     lmConfirmOverlay.style.display = "flex";
@@ -2241,7 +2253,7 @@
   });
 
   document.getElementById("lmExport").addEventListener("click", ()=>{
-    const csv = lm_locations.map(l=>[l.area,l.row,l.lane,l.container,l.type,l.capacity||"",l.active?"active":"inactive"].join(",")).join("\n");
+    const csv = lm_locations.map(l=>[l.section,l.rowLane,l.rowLaneType,l.container,l.containerType,l.capacity||"",l.active?"active":"inactive"].join(",")).join("\n");
     navigator.clipboard?.writeText(csv).then(()=>alert("Locations copied as CSV")).catch(()=>alert("CSV:\n\n"+csv));
   });
 

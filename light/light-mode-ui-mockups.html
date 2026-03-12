@@ -872,18 +872,9 @@
                 <div class="inlineActionTitle">Elements referenced by loadsheet</div>
                 <div class="n" id="lsFoundCount">0 found</div>
               </div>
-              <div class="lsReviewActions">
-                <button id="lsSelectAll" class="btn secondary" type="button">Select all</button>
-                <button id="lsClearSel" class="btn secondary" type="button">Clear</button>
-              </div>
             </div>
 
             <div class="lsResults" id="lsFoundList"></div>
-
-            <div style="display:flex;gap:10px;margin-top:12px;">
-              <button id="lsBackToScan" class="btn secondary" type="button">Back</button>
-              <button id="lsNextAction" class="btn" type="button" disabled>Rebook selected</button>
-            </div>
           </article>
         </div>
 
@@ -1728,10 +1719,6 @@
   const lsReviewCard = document.getElementById("lsReviewCard");
   const lsFoundList = document.getElementById("lsFoundList");
   const lsFoundCount = document.getElementById("lsFoundCount");
-  const lsSelectAll = document.getElementById("lsSelectAll");
-  const lsClearSel = document.getElementById("lsClearSel");
-  const lsBackToScan = document.getElementById("lsBackToScan");
-  const lsNextAction = document.getElementById("lsNextAction");
 
   const lsSampleElements = [
     { id: "24-10345-001", loc: "Section A - Row 1 - Rack R-A1-01" },
@@ -1783,9 +1770,6 @@
     lsReviewBtn.disabled = !enable;
   }
 
-  function lsUpdateActionState(){
-    lsNextAction.disabled = lsSelected.size === 0;
-  }
 
   function lsToggleSelect(id){
     if (lsSelected.has(id)){
@@ -1894,7 +1878,6 @@
       }
     });
     lsFoundCount.textContent = `${lsFound.length} found`;
-    lsUpdateActionState();
   }
 
   function lsLoadSample(sheetCode){
@@ -1921,43 +1904,9 @@
     lsReviewCard.scrollIntoView({ behavior:"smooth", block:"center" });
   });
 
-  lsSelectAll.addEventListener("click", ()=>{
-    lsSelected = new Set(lsFound.map(x => x.id));
-    lsFound.forEach(x => selectedElementIds.add(x.id));
-    lsRenderFound();
-    updateSelectionControls();
-  });
-
-  lsClearSel.addEventListener("click", ()=>{
-    lsSelected.forEach(id => selectedElementIds.delete(id));
-    lsSelected.clear();
-    lsRenderFound();
-    updateSelectionControls();
-  });
-
-  lsBackToScan.addEventListener("click", ()=>{
-    lsSetCollapsed(false);
-    lsReviewCard.style.display = "none";
-  });
-
   lsExpandBtn.addEventListener("click", ()=>{
     lsSetCollapsed(false);
     lsReviewCard.style.display = "none";
-  });
-
-  lsNextAction.addEventListener("click", ()=>{
-    if (!lsSelected.size){
-      alert("Select at least one element to continue.");
-      return;
-    }
-    // Populate rebook from loadsheet selection
-    rb_sel = MOCK_DATA.elements
-      .filter(item => lsSelected.has(item.id))
-      .map(item => ({ id: item.id, loc: item.loc, status: "Confirmed" }));
-    rb_selected = new Set(rb_sel.map(s => s.id));
-    rb_renderSelection();
-    rb_showStep("rbStep1");
-    showScreen("moves");
   });
 
   /* ============================================================

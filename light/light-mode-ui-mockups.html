@@ -1329,6 +1329,7 @@
   let mode = "elements";
   function setMode(m){
     mode = m;
+    expandedIds.clear();
     const isLoadsheet = mode === "loadsheet";
     const isLocation = mode === "location";
 
@@ -1417,16 +1418,16 @@
       { id:"Trailer T-IN-01", barcode:"TRL-IN01", desc:"Trailer - Inbound", project:"ABC Tower", area:"Staging", loc:"Staging - Inbound", elements:12, capacity:14 },
     ],
     racks: [
-      { id:"R-A1-01", barcode:"RACK-A101", project:"ABC Tower", area:"Section A", leaves:"2026-03-04", loc:"Section A - Row 1" },
-      { id:"R-A1-02", barcode:"RACK-A102", project:"ABC Tower", area:"Section A", leaves:"2026-03-03", loc:"Section A - Row 1" },
-      { id:"R-A2-01", barcode:"RACK-A201", project:"Harbor Point", area:"Section A", leaves:"2026-03-06", loc:"Section A - Row 2" },
-      { id:"R-A2-02", barcode:"RACK-A202", project:"Harbor Point", area:"Section A", leaves:"2026-03-07", loc:"Section A - Row 2" },
-      { id:"R-A3-01", barcode:"RACK-A301", project:"Northline Labs", area:"Section A", leaves:"2026-03-05", loc:"Section A - Lane 3" },
-      { id:"R-B1-01", barcode:"RACK-B101", project:"Summit Plaza", area:"Section B", leaves:"2026-03-08", loc:"Section B - Row 1" },
-      { id:"R-B1-02", barcode:"RACK-B102", project:"Summit Plaza", area:"Section B", leaves:"2026-03-09", loc:"Section B - Row 1" },
-      { id:"R-B2-01", barcode:"RACK-B201", project:"River Medical", area:"Section B", leaves:"2026-03-10", loc:"Section B - Row 2" },
-      { id:"R-B3-01", barcode:"RACK-B301", project:"Northline Labs", area:"Section B", leaves:"2026-03-11", loc:"Section B - Lane 3" },
-      { id:"R-C1-01", barcode:"RACK-C101", project:"River Medical", area:"Section C", leaves:"2026-03-12", loc:"Section C - Row 1" },
+      { id:"Rack R-A1-01", barcode:"RACK-A101", project:"ABC Tower", area:"Section A", leaves:"2026-03-04", loc:"Section A - Row 1" },
+      { id:"Rack R-A1-02", barcode:"RACK-A102", project:"ABC Tower", area:"Section A", leaves:"2026-03-03", loc:"Section A - Row 1" },
+      { id:"Rack R-A2-01", barcode:"RACK-A201", project:"Harbor Point", area:"Section A", leaves:"2026-03-06", loc:"Section A - Row 2" },
+      { id:"Rack R-A2-02", barcode:"RACK-A202", project:"Harbor Point", area:"Section A", leaves:"2026-03-07", loc:"Section A - Row 2" },
+      { id:"Rack R-A3-01", barcode:"RACK-A301", project:"Northline Labs", area:"Section A", leaves:"2026-03-05", loc:"Section A - Lane 3" },
+      { id:"Rack R-B1-01", barcode:"RACK-B101", project:"Summit Plaza", area:"Section B", leaves:"2026-03-08", loc:"Section B - Row 1" },
+      { id:"Rack R-B1-02", barcode:"RACK-B102", project:"Summit Plaza", area:"Section B", leaves:"2026-03-09", loc:"Section B - Row 1" },
+      { id:"Rack R-B2-01", barcode:"RACK-B201", project:"River Medical", area:"Section B", leaves:"2026-03-10", loc:"Section B - Row 2" },
+      { id:"Rack R-B3-01", barcode:"RACK-B301", project:"Northline Labs", area:"Section B", leaves:"2026-03-11", loc:"Section B - Lane 3" },
+      { id:"Rack R-C1-01", barcode:"RACK-C101", project:"River Medical", area:"Section C", leaves:"2026-03-12", loc:"Section C - Row 1" },
     ],
   };
 
@@ -1483,6 +1484,20 @@
     filterPanel.hidden = true;
   }
 
+  // Find a node in LOC_TREE by name (for drill-down from search results)
+  function loc_findNode(node, name){
+    if (node.name === name) return node;
+    if (node.children){
+      for (const child of node.children){
+        const found = loc_findNode(child, name);
+        if (found) return found;
+      }
+    }
+    return null;
+  }
+
+  const expandedIds = new Set(); // tracks which search results are expanded
+
   function renderResults(items){
     currentSearchResults = items;
     resultsCount.textContent = `${items.length} found`;
@@ -1495,17 +1510,82 @@
       return;
     }
 
-    resultsList.innerHTML = items.map(it => `
-      <div class="rowItem ${selectedElementIds.has(it.id) ? "selected" : ""}" data-id="${escapeHtml(it.id)}">
+    const isDrillable = (mode === "stacks" || mode === "racks");
+    resultsList.innerHTML = "";
+
+    items.forEach(it => {
+      const isSelected = selectedElementIds.has(it.id);
+      const treeNode = isDrillable ? loc_findNode(LOC_TREE, it.id) : null;
+      const hasChildren = treeNode && treeNode.children && treeNode.children.length > 0;
+      const isExpanded = expandedIds.has(it.id);
+
+      const row = document.createElement("div");
+      row.className = "rowItem" + (isSelected ? " selected" : "");
+      row.setAttribute("data-id", it.id);
+      row.innerHTML = `
         <div class="meta">
           <div class="id">${escapeHtml(it.id)}</div>
-          <div class="loc">${escapeHtml(it.loc)}</div>
+          <div class="loc">${escapeHtml(it.loc)}${it.elements != null ? ' &bull; ' + it.elements + '/' + (it.capacity||'?') + ' elements' : ''}</div>
         </div>
-        <div class="pill ${selectedElementIds.has(it.id) ? "selected" : ""}">
-          ${selectedElementIds.has(it.id) ? "SELECTED" : "SELECT"}
+        <div style="display:flex;gap:6px;align-items:center;flex:0 0 auto;">
+          <div class="pill rowSelectPill ${isSelected ? "selected" : ""}" style="cursor:pointer;">
+            ${isSelected ? "SELECTED" : "SELECT"}
+          </div>
+          ${hasChildren ? '<div class="locDrillArrow rowDrillBtn" style="cursor:pointer;transform:rotate(' + (isExpanded ? '90' : '0') + 'deg);transition:transform .15s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>' : ''}
         </div>
-      </div>
-    `).join("");
+      `;
+
+      // Select pill
+      row.querySelector(".rowSelectPill").addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (selectedElementIds.has(it.id)) selectedElementIds.delete(it.id);
+        else selectedElementIds.add(it.id);
+        renderResults(currentSearchResults);
+        updateSelectionControls();
+      });
+
+      // Drill-down chevron
+      const drillBtn = row.querySelector(".rowDrillBtn");
+      if (drillBtn){
+        drillBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (expandedIds.has(it.id)) expandedIds.delete(it.id);
+          else expandedIds.add(it.id);
+          renderResults(currentSearchResults);
+        });
+      }
+
+      resultsList.appendChild(row);
+
+      // Render expanded children
+      if (hasChildren && isExpanded){
+        const childContainer = document.createElement("div");
+        childContainer.style.cssText = "margin:0 0 4px 16px;";
+        treeNode.children.forEach(child => {
+          const childSelected = selectedElementIds.has(child.name);
+          const childRow = document.createElement("div");
+          childRow.className = "rowItem" + (childSelected ? " selected" : "");
+          childRow.style.cssText = "margin-top:4px;";
+          childRow.innerHTML = `
+            <div class="meta">
+              <div class="id">${escapeHtml(child.name)}</div>
+              <div class="loc">${escapeHtml(child.sub || child.type || "")}</div>
+            </div>
+            <div class="pill ${childSelected ? "selected" : ""}" style="flex:0 0 auto;cursor:pointer;">
+              ${childSelected ? "SELECTED" : "SELECT"}
+            </div>
+          `;
+          childRow.addEventListener("click", () => {
+            if (selectedElementIds.has(child.name)) selectedElementIds.delete(child.name);
+            else selectedElementIds.add(child.name);
+            renderResults(currentSearchResults);
+            updateSelectionControls();
+          });
+          childContainer.appendChild(childRow);
+        });
+        resultsList.appendChild(childContainer);
+      }
+    });
   }
 
   function updateSelectionControls(){
@@ -1575,16 +1655,7 @@
   });
   query.addEventListener("input", runSearch);
 
-  resultsList.addEventListener("click", (e)=>{
-    const row = e.target.closest(".rowItem");
-    if (!row) return;
-    const idText = row.getAttribute("data-id") || "";
-    if (!idText) return;
-    if (selectedElementIds.has(idText)) selectedElementIds.delete(idText);
-    else selectedElementIds.add(idText);
-    renderResults(currentSearchResults);
-    updateSelectionControls();
-  });
+  // Click handling is now done inside renderResults per-row
 
   clearSelectedBtn.addEventListener("click", ()=>{
     selectedElementIds.clear();

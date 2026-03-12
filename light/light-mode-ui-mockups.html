@@ -1497,6 +1497,30 @@
   }
 
   const expandedIds = new Set(); // tracks which search results are expanded
+  const containerTypes = new Set(["Rack","Trailer","Stack"]);
+
+  // Collect all descendant element names from a tree node
+  function loc_collectElements(node){
+    const result = [];
+    if (!node.children) return result;
+    node.children.forEach(child => {
+      if (child.type === "Element") result.push(child.name);
+      result.push(...loc_collectElements(child));
+    });
+    return result;
+  }
+
+  // Toggle a container: select/deselect it and all its child elements
+  function toggleContainerSelection(id, treeNode){
+    const childIds = treeNode ? loc_collectElements(treeNode) : [];
+    if (selectedElementIds.has(id)){
+      selectedElementIds.delete(id);
+      childIds.forEach(cid => selectedElementIds.delete(cid));
+    } else {
+      selectedElementIds.add(id);
+      childIds.forEach(cid => selectedElementIds.add(cid));
+    }
+  }
 
   function renderResults(items){
     currentSearchResults = items;
@@ -1538,8 +1562,12 @@
       // Select pill
       row.querySelector(".rowSelectPill").addEventListener("click", (e) => {
         e.stopPropagation();
-        if (selectedElementIds.has(it.id)) selectedElementIds.delete(it.id);
-        else selectedElementIds.add(it.id);
+        if (treeNode && containerTypes.has(treeNode.type)){
+          toggleContainerSelection(it.id, treeNode);
+        } else {
+          if (selectedElementIds.has(it.id)) selectedElementIds.delete(it.id);
+          else selectedElementIds.add(it.id);
+        }
         renderResults(currentSearchResults);
         updateSelectionControls();
       });
@@ -2006,8 +2034,12 @@
       if (pill){
         pill.addEventListener("click", (e) => {
           e.stopPropagation();
-          if (selectedElementIds.has(node.name)) selectedElementIds.delete(node.name);
-          else selectedElementIds.add(node.name);
+          if (containerTypes.has(node.type)){
+            toggleContainerSelection(node.name, node);
+          } else {
+            if (selectedElementIds.has(node.name)) selectedElementIds.delete(node.name);
+            else selectedElementIds.add(node.name);
+          }
           loc_render();
           updateSelectionControls();
         });
@@ -2021,7 +2053,7 @@
           loc_render();
         });
       }
-      // Row click: drill if has children, otherwise select
+      // Row click: drill if has children, otherwise toggle selection
       div.addEventListener("click", () => {
         if (hasChildren){
           loc_navStack.push(node);

@@ -1107,20 +1107,16 @@
               <div style="height:10px"></div>
 
               <div class="fieldLabel">Or select manually</div>
-              <div class="stack" style="gap:10px;">
-                <div class="input"><span style="opacity:.8;font-family:var(--mono);font-size:12px;">&#x25BE;</span><input value="Section: Section A" readonly></div>
-                <div class="input"><span style="opacity:.8;font-family:var(--mono);font-size:12px;">&#x25BE;</span><input value="Row: C" readonly></div>
-                <div class="input"><span style="opacity:.8;font-family:var(--mono);font-size:12px;">&#x25BE;</span><input value="Lane: 1" readonly></div>
-                <div class="input" style="border-color: rgba(47,143,87,.55); background: rgba(47,143,87,.08);">
-                  <span style="opacity:.9;font-family:var(--mono);font-size:12px;">&#x25BE;</span><input value="Rack: R-A1-02" readonly>
-                </div>
+              <div class="stack" style="gap:8px;">
+                <div class="input"><select id="rbDestSection"><option value="">Section…</option></select></div>
+                <div class="input"><select id="rbDestRowLane"><option value="">Row / Lane…</option></select></div>
+                <div class="input" id="rbDestSlotWrap"><select id="rbDestSlot"><option value="">Rack / Trailer / Loose…</option></select></div>
               </div>
             </div>
 
-            <div class="notice">
+            <div class="notice" id="rbDestNotice" style="display:none;">
               <b>Destination details</b><br/>
-              Capacity: 12 - Occupied: 7<br/>
-              Last updated: 08:55
+              <span id="rbDestDetails"></span>
             </div>
 
             <div class="inlineActionCard primary">
@@ -2130,6 +2126,7 @@
       document.getElementById(s).style.display = (s === id) ? "block" : "none";
     });
     rb_updateHeader();
+    if (id === "rbStep3" && typeof rb_populateSections === "function") rb_populateSections();
   }
 
   function rb_updateHeader(){
@@ -2208,10 +2205,95 @@
   document.getElementById("rbBackTo2").addEventListener("click", ()=>rb_showStep("rbStep2"));
 
   document.getElementById("rbScanDest").addEventListener("click", ()=>alert("Wireframe: scan destination location tag (auto-fill hierarchy)."));
+
+  // --- Step 3 cascading destination dropdowns ---
+  const rbDestSection = document.getElementById("rbDestSection");
+  const rbDestRowLane = document.getElementById("rbDestRowLane");
+  const rbDestSlot = document.getElementById("rbDestSlot");
+  const rbDestSlotWrap = document.getElementById("rbDestSlotWrap");
+  const rbDestNotice = document.getElementById("rbDestNotice");
+  const rbDestDetails = document.getElementById("rbDestDetails");
+
+  function rb_populateSections(){
+    rbDestSection.innerHTML = '<option value="">Section…</option>';
+    (LOC_TREE.children || []).forEach(sec => {
+      if (sec.type === "Section") rbDestSection.innerHTML += `<option value="${escapeHtml(sec.name)}">${escapeHtml(sec.name)}</option>`;
+    });
+    rb_populateRowLanes();
+  }
+
+  function rb_populateRowLanes(){
+    rbDestRowLane.innerHTML = '<option value="">Row / Lane…</option>';
+    const secNode = (LOC_TREE.children || []).find(c => c.name === rbDestSection.value);
+    if (secNode){
+      (secNode.children || []).forEach(rl => {
+        if (rl.type === "Row" || rl.type === "Lane"){
+          rbDestRowLane.innerHTML += `<option value="${escapeHtml(rl.name)}">${escapeHtml(rl.type)}: ${escapeHtml(rl.name)}</option>`;
+        }
+      });
+    }
+    rb_populateSlots();
+  }
+
+  function rb_populateSlots(){
+    rbDestSlot.innerHTML = '<option value="">Rack / Trailer / Loose…</option>';
+    const secNode = (LOC_TREE.children || []).find(c => c.name === rbDestSection.value);
+    const rlNode = secNode && (secNode.children || []).find(c => c.name === rbDestRowLane.value);
+    if (rlNode){
+      (rlNode.children || []).forEach(slot => {
+        if (slot.type === "Rack" || slot.type === "Trailer"){
+          const cap = slot.sub || "";
+          rbDestSlot.innerHTML += `<option value="${escapeHtml(slot.name)}">${escapeHtml(slot.name)}${cap ? ' ('+escapeHtml(cap)+')' : ''}</option>`;
+        }
+      });
+      // Also offer placing loose in the row/lane directly
+      rbDestSlot.innerHTML += `<option value="__loose__">Place loose in ${escapeHtml(rbDestRowLane.value)}</option>`;
+    }
+    rb_updateDestDetails();
+  }
+
+  function rb_getDestLabel(){
+    const parts = [];
+    if (rbDestSection.value) parts.push(rbDestSection.value);
+    if (rbDestRowLane.value) parts.push(rbDestRowLane.value);
+    if (rbDestSlot.value && rbDestSlot.value !== "__loose__") parts.push(rbDestSlot.value);
+    else if (rbDestSlot.value === "__loose__") parts.push("(loose)");
+    return parts.join(" › ");
+  }
+
+  function rb_updateDestDetails(){
+    const slot = rbDestSlot.value;
+    rbDestSlotWrap.style.borderColor = slot ? "rgba(47,143,87,.55)" : "";
+    rbDestSlotWrap.style.background = slot ? "rgba(47,143,87,.08)" : "";
+    if (!slot){
+      rbDestNotice.style.display = "none";
+      return;
+    }
+    rbDestNotice.style.display = "";
+    if (slot === "__loose__"){
+      rbDestDetails.textContent = `Items will be placed loose in ${rbDestRowLane.value}.`;
+    } else {
+      const secNode = (LOC_TREE.children || []).find(c => c.name === rbDestSection.value);
+      const rlNode = secNode && (secNode.children || []).find(c => c.name === rbDestRowLane.value);
+      const slotNode = rlNode && (rlNode.children || []).find(c => c.name === slot);
+      const sub = slotNode && slotNode.sub ? slotNode.sub : "No capacity info";
+      rbDestDetails.textContent = `${slot} — ${sub}`;
+    }
+  }
+
+  rbDestSection.addEventListener("change", rb_populateRowLanes);
+  rbDestRowLane.addEventListener("change", rb_populateSlots);
+  rbDestSlot.addEventListener("change", rb_updateDestDetails);
+
   document.getElementById("rbToStep4").addEventListener("click", ()=>{
+    if (!rbDestSlot.value){
+      alert("Please select a destination.");
+      return;
+    }
     document.getElementById("rbTypeSummary").textContent = "Rebook";
     document.getElementById("rbItemsSummary").textContent = String(rb_selected.size);
 
+    const destLabel = rb_getDestLabel();
     const reviewList = document.getElementById("rbReviewList");
     reviewList.innerHTML = "";
     rb_sel.filter(s => rb_selected.has(s.id)).forEach(s=>{
@@ -2220,7 +2302,7 @@
       row.innerHTML = `
         <div class="meta">
           <div class="id">${escapeHtml(s.id)}</div>
-          <div class="loc">${escapeHtml(s.loc)}</div>
+          <div class="loc">${escapeHtml(s.loc)} → ${escapeHtml(destLabel)}</div>
         </div>
       `;
       reviewList.appendChild(row);
@@ -2232,7 +2314,7 @@
 
   document.getElementById("rbSubmitBtn").addEventListener("click", ()=>{
     document.getElementById("rbSuccessMsg").textContent =
-      `${rb_selected.size} items moved to Section A / Row 1 / Rack R-A1-02`;
+      `${rb_selected.size} items moved to ${rb_getDestLabel()}`;
     rb_showStep("rbResult");
   });
 

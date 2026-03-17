@@ -457,8 +457,8 @@
       width:100%;
       padding: 8px 10px;
       border-radius: 12px;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.14);
+      border:1px solid rgba(0,0,0,.15);
+      background: rgba(255,255,255,.85);
       color: var(--ink);
       font-size:13px;
       outline:none;
@@ -800,6 +800,10 @@
               <div>
                 <div class="fieldLabel">Section</div>
                 <select class="nativeSelect" id="filterArea"></select>
+              </div>
+              <div>
+                <div class="fieldLabel">Row</div>
+                <select class="nativeSelect" id="filterRow"></select>
               </div>
             </div>
             <div class="filterActions">
@@ -1298,6 +1302,7 @@
   const filterPanel = document.getElementById("filterPanel");
   const filterProject = document.getElementById("filterProject");
   const filterArea = document.getElementById("filterArea");
+  const filterRow = document.getElementById("filterRow");
   const applyFiltersBtn = document.getElementById("applyFiltersBtn");
   const clearFiltersBtn = document.getElementById("clearFiltersBtn");
   const cancelFiltersBtn = document.getElementById("cancelFiltersBtn");
@@ -1353,7 +1358,7 @@
       return;
     }
     populateFilterOptions();
-    if (query.value.trim() || activeFilters.project || activeFilters.area) runSearch();
+    if (query.value.trim() || activeFilters.project || activeFilters.area || activeFilters.row) runSearch();
     else renderResults([]);
   }
   tabElements.addEventListener("click", ()=>setMode("elements"));
@@ -1368,8 +1373,8 @@
   const clearSelectedBtn = document.getElementById("clearSelectedBtn");
   const rebookBtn = document.getElementById("rebookBtn");
   const MAX_RESULTS = 24;
-  const activeFilters = { project:"", area:"" };
-  const draftFilters = { project:"", area:"" };
+  const activeFilters = { project:"", area:"", row:"" };
+  const draftFilters = { project:"", area:"", row:"" };
   const selectedElementIds = new Set();
   let currentSearchResults = [];
 
@@ -1454,29 +1459,41 @@
     ).join("");
   }
 
+  function extractRow(loc){
+    if (!loc) return "";
+    const parts = loc.split(" - ");
+    return parts.length >= 2 ? parts[1] : "";
+  }
+
   function populateFilterOptions(){
     const source = getSourceData();
     const projects = [...new Set(source.map(item => item.project))].sort();
     const areas = [...new Set(source.map(item => item.area))].sort();
+    const rows = [...new Set(source.map(item => extractRow(item.loc)).filter(Boolean))].sort();
     filterProject.innerHTML = toOptions(projects);
     filterArea.innerHTML = toOptions(areas);
+    filterRow.innerHTML = toOptions(rows);
     if (!projects.includes(activeFilters.project)) activeFilters.project = "";
     if (!areas.includes(activeFilters.area)) activeFilters.area = "";
+    if (!rows.includes(activeFilters.row)) activeFilters.row = "";
     draftFilters.project = activeFilters.project;
     draftFilters.area = activeFilters.area;
+    draftFilters.row = activeFilters.row;
     filterProject.value = draftFilters.project;
     filterArea.value = draftFilters.area;
+    filterRow.value = draftFilters.row;
     updateFilterSummary();
   }
 
   function getFilterCount(){
-    return Number(Boolean(activeFilters.project)) + Number(Boolean(activeFilters.area));
+    return Number(Boolean(activeFilters.project)) + Number(Boolean(activeFilters.area)) + Number(Boolean(activeFilters.row));
   }
 
   function updateFilterSummary(){
     const parts = [];
     if (activeFilters.project) parts.push(`Project: ${activeFilters.project}`);
     if (activeFilters.area) parts.push(`Section: ${activeFilters.area}`);
+    if (activeFilters.row) parts.push(`Row: ${activeFilters.row}`);
     filterSummary.textContent = parts.length ? parts.join(" | ") : "No filters applied";
     const count = getFilterCount();
     filterBadge.textContent = count ? `${count}` : "none";
@@ -1485,8 +1502,10 @@
   function openFilters(){
     draftFilters.project = activeFilters.project;
     draftFilters.area = activeFilters.area;
+    draftFilters.row = activeFilters.row;
     filterProject.value = draftFilters.project;
     filterArea.value = draftFilters.area;
+    filterRow.value = draftFilters.row;
     filterPanel.hidden = false;
   }
 
@@ -1640,7 +1659,8 @@
     const results = source.filter(item => {
       const projectMatch = !activeFilters.project || item.project === activeFilters.project;
       const areaMatch = !activeFilters.area || item.area === activeFilters.area;
-      if (!projectMatch || !areaMatch) return false;
+      const rowMatch = !activeFilters.row || extractRow(item.loc) === activeFilters.row;
+      if (!projectMatch || !areaMatch || !rowMatch) return false;
       if (!searchText) return true;
       let haystack;
       if (mode === "elements") haystack = `${item.id} ${item.barcode} ${item.desc} ${item.project} ${item.area} ${item.loc}`.toLowerCase();
@@ -1667,6 +1687,7 @@
   applyFiltersBtn.addEventListener("click", ()=>{
     activeFilters.project = filterProject.value;
     activeFilters.area = filterArea.value;
+    activeFilters.row = filterRow.value;
     updateFilterSummary();
     closeFilters();
     runSearch();
@@ -1675,8 +1696,10 @@
   clearFiltersBtn.addEventListener("click", ()=>{
     activeFilters.project = "";
     activeFilters.area = "";
+    activeFilters.row = "";
     filterProject.value = "";
     filterArea.value = "";
+    filterRow.value = "";
     updateFilterSummary();
     closeFilters();
     runSearch();
@@ -1685,6 +1708,7 @@
   cancelFiltersBtn.addEventListener("click", ()=>{
     filterProject.value = activeFilters.project;
     filterArea.value = activeFilters.area;
+    filterRow.value = activeFilters.row;
     closeFilters();
   });
 

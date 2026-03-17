@@ -747,6 +747,63 @@
     }
 
     .spacer{ height: 10px; }
+
+    /* ===== DETAILS MODAL ===== */
+    .detailOverlay{
+      position:fixed;inset:0;
+      background:rgba(0,0,0,.55);
+      display:none;
+      align-items:flex-end;
+      justify-content:center;
+      z-index:70;
+    }
+    .detailOverlay.open{ display:flex; }
+    .detailSheet{
+      width:min(520px,100%);
+      max-height:85vh;
+      overflow-y:auto;
+      background:var(--bg);
+      border-radius:18px 18px 0 0;
+      padding:16px 16px 24px;
+      border:1px solid rgba(255,255,255,.06);
+      box-shadow:var(--shadow);
+    }
+    .detailSheet .detailHeader{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:12px;
+    }
+    .detailSheet .detailTitle{
+      font-weight:950;
+      font-size:15px;
+      font-family:var(--mono);
+    }
+    .detailSheet .detailClose{
+      background:none;border:none;
+      font-size:22px;color:var(--muted);
+      cursor:pointer;padding:0 4px;
+    }
+    .detailSheet .detailRow{
+      display:flex;
+      justify-content:space-between;
+      padding:8px 0;
+      border-bottom:1px solid rgba(0,0,0,.06);
+      font-size:13px;
+    }
+    .detailSheet .detailRow:last-child{ border-bottom:none; }
+    .detailSheet .detailLabel{
+      color:var(--muted);
+      font-weight:600;
+      flex:0 0 auto;
+      margin-right:12px;
+    }
+    .detailSheet .detailValue{
+      text-align:right;
+      font-family:var(--mono);
+      font-size:12px;
+      word-break:break-all;
+    }
   </style>
 </head>
 
@@ -970,6 +1027,17 @@
           <div class="hint">Deactivated locations remain in the system but are excluded from quick-pickers. Reactivate whenever needed.</div>
         </section>
       </section>
+
+      <!-- Details modal -->
+      <div class="detailOverlay" id="detailOverlay">
+        <div class="detailSheet">
+          <div class="detailHeader">
+            <div class="detailTitle" id="detailTitle"></div>
+            <button class="detailClose" id="detailClose" type="button">&times;</button>
+          </div>
+          <div id="detailBody"></div>
+        </div>
+      </div>
 
       <!-- Confirm modal for location management -->
       <div style="position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:60;" id="lmConfirmOverlay">
@@ -1384,38 +1452,38 @@
 
   const MOCK_DATA = {
     elements: [
-      { id:"24-10345-001", barcode:"ELM-001-A7", desc:"Wall panel - north core", project:"ABC Tower", area:"Section A", loc:"Section A - Row 1 - Rack R-A1-01" },
-      { id:"24-10345-002", barcode:"ELM-002-F1", desc:"Spandrel panel - bronze", project:"ABC Tower", area:"Staging", loc:"Staging - Inbound - Trailer T-IN-01" },
-      { id:"24-10345-003", barcode:"ELM-003-C4", desc:"Column cover - east face", project:"ABC Tower", area:"Section A", loc:"Section A - Row 1 - Rack R-A1-02" },
-      { id:"24-10345-004", barcode:"ELM-004-K2", desc:"Canopy beam section", project:"Harbor Point", area:"Section A", loc:"Section A - Row 2 - Rack R-A2-01" },
-      { id:"24-10345-005", barcode:"ELM-005-M9", desc:"Curtain wall unit - corner", project:"Harbor Point", area:"Section B", loc:"Section B - Row 1 - Rack R-B1-01" },
-      { id:"24-10345-006", barcode:"ELM-006-P6", desc:"Podium mullion set", project:"River Medical", area:"Section A", loc:"Section A - Row 2 - Trailer T-A2-01" },
-      { id:"24-10345-007", barcode:"ELM-007-T3", desc:"GFRC coping panel", project:"River Medical", area:"Section C", loc:"Section C - Row 1 - Rack R-C1-01" },
-      { id:"24-10345-008", barcode:"ELM-008-H8", desc:"Mechanical screen frame", project:"Northline Labs", area:"Section B", loc:"Section B - Row 2 - Rack R-B2-01" },
-      { id:"24-10345-009", barcode:"ELM-009-Q5", desc:"Sunshade blade set", project:"Northline Labs", area:"Section A", loc:"Section A - Lane 3 - Rack R-A3-01" },
-      { id:"24-10345-010", barcode:"ELM-010-W2", desc:"Entry canopy rib", project:"Summit Plaza", area:"Section C", loc:"Section C - Lane 2 (loose)" },
-      { id:"24-10345-011", barcode:"ELM-011-D0", desc:"Storefront transom", project:"Summit Plaza", area:"Section B", loc:"Section B - Lane 3 - Trailer T-B3-01" },
-      { id:"24-10345-012", barcode:"ELM-012-R4", desc:"Parapet return panel", project:"Summit Plaza", area:"Staging", loc:"Staging - Outbound - Trailer T-OUT-01" },
-      { id:"24-10345-013", barcode:"ELM-013-B5", desc:"Slab edge cover - level 3", project:"ABC Tower", area:"Section A", loc:"Section A - Row 1 - Rack R-A1-01" },
-      { id:"24-10345-014", barcode:"ELM-014-J7", desc:"Corner mullion assembly", project:"River Medical", area:"Section A", loc:"Section A - Row 2 - Trailer T-A2-01" },
-      { id:"24-10345-015", barcode:"ELM-015-N3", desc:"Precast spandrel - level 8", project:"ABC Tower", area:"Section A", loc:"Section A - Row 1 - Rack R-A1-02" },
-      { id:"24-10345-016", barcode:"ELM-016-G1", desc:"Oversize spandrel - ground floor", project:"ABC Tower", area:"Section A", loc:"Section A - Lane 3 (loose)" },
-      { id:"24-10345-017", barcode:"ELM-017-V8", desc:"Double-height mullion set", project:"Harbor Point", area:"Section A", loc:"Section A - Lane 3 (loose)" },
-      { id:"24-10345-018", barcode:"ELM-018-L6", desc:"Cladding panel - south face", project:"Summit Plaza", area:"Section B", loc:"Section B - Row 2 (loose)" },
-      { id:"24-10345-019", barcode:"ELM-019-X4", desc:"Curtain wall corner unit", project:"Northline Labs", area:"Section C", loc:"Section C - Lane 2 (loose)" },
-      { id:"24-10345-020", barcode:"ELM-020-S9", desc:"Canopy fascia panel", project:"Harbor Point", area:"Section C", loc:"Section C - Lane 2 (loose)" },
-      { id:"24-10345-021", barcode:"ELM-021-U2", desc:"Window frame assembly", project:"River Medical", area:"Staging", loc:"Staging - Inbound (loose)" },
-      { id:"24-10345-022", barcode:"ELM-022-Z6", desc:"Damaged return panel", project:"River Medical", area:"Staging", loc:"Staging - Inbound (loose)" },
-      { id:"24-10345-023", barcode:"ELM-023-E8", desc:"Louver blade set - mech floor", project:"Northline Labs", area:"Section B", loc:"Section B - Row 1 - Rack R-B1-01" },
-      { id:"24-10345-024", barcode:"ELM-024-I1", desc:"Soffit panel - lobby", project:"Harbor Point", area:"Section B", loc:"Section B - Row 1 - Rack R-B1-02" },
-      { id:"24-10345-025", barcode:"ELM-025-O7", desc:"Reveal trim - typical floor", project:"Summit Plaza", area:"Section C", loc:"Section C - Row 1 - Rack R-C1-01" },
-      { id:"24-10345-026", barcode:"ELM-026-Y3", desc:"Balcony rail section", project:"Harbor Point", area:"Section A", loc:"Section A - Row 2 - Rack R-A2-02" },
-      { id:"24-10345-027", barcode:"ELM-027-A2", desc:"Fire-rated panel - stair core", project:"ABC Tower", area:"Section B", loc:"Section B - Lane 3 - Trailer T-B3-01" },
-      { id:"24-10345-028", barcode:"ELM-028-F9", desc:"Metal screen panel", project:"Northline Labs", area:"Section A", loc:"Section A - Lane 3 - Rack R-A3-01" },
-      { id:"24-10345-029", barcode:"ELM-029-C1", desc:"Skylight glazing unit", project:"Summit Plaza", area:"Staging", loc:"Staging - Outbound - Trailer T-OUT-01" },
-      { id:"24-10345-030", barcode:"ELM-030-K8", desc:"Precast column cover - L2", project:"River Medical", area:"Section C", loc:"Section C - Row 1 - Rack R-C1-01" },
-      { id:"24-10345-031", barcode:"ELM-031-M4", desc:"Entrance canopy glass", project:"Harbor Point", area:"Staging", loc:"Staging - Outbound - Trailer T-OUT-02" },
-      { id:"24-10345-032", barcode:"ELM-032-P2", desc:"Unitized curtain wall - L5", project:"ABC Tower", area:"Staging", loc:"Staging - Inbound - Trailer T-IN-01" },
+      { id:"24-10345-001", barcode:"ELM-001-A7", desc:"Wall panel - north core", project:"ABC Tower", area:"Section A", loc:"Section A - Row 1 - Rack R-A1-01", drawingNo:"DWG-ABC-101", stack:"Stack S-A1-01" },
+      { id:"24-10345-002", barcode:"ELM-002-F1", desc:"Spandrel panel - bronze", project:"ABC Tower", area:"Staging", loc:"Staging - Inbound - Trailer T-IN-01", drawingNo:"DWG-ABC-102", stack:"Stack S-STG-01" },
+      { id:"24-10345-003", barcode:"ELM-003-C4", desc:"Column cover - east face", project:"ABC Tower", area:"Section A", loc:"Section A - Row 1 - Rack R-A1-02", drawingNo:"DWG-ABC-103", stack:"Stack S-A1-02" },
+      { id:"24-10345-004", barcode:"ELM-004-K2", desc:"Canopy beam section", project:"Harbor Point", area:"Section A", loc:"Section A - Row 2 - Rack R-A2-01", drawingNo:"DWG-HP-201", stack:"Stack S-A2-01" },
+      { id:"24-10345-005", barcode:"ELM-005-M9", desc:"Curtain wall unit - corner", project:"Harbor Point", area:"Section B", loc:"Section B - Row 1 - Rack R-B1-01", drawingNo:"DWG-HP-202", stack:"Stack S-B1-01" },
+      { id:"24-10345-006", barcode:"ELM-006-P6", desc:"Podium mullion set", project:"River Medical", area:"Section A", loc:"Section A - Row 2 - Trailer T-A2-01", drawingNo:"DWG-RM-301", stack:"Stack S-A2-01" },
+      { id:"24-10345-007", barcode:"ELM-007-T3", desc:"GFRC coping panel", project:"River Medical", area:"Section C", loc:"Section C - Row 1 - Rack R-C1-01", drawingNo:"DWG-RM-302", stack:"Stack S-C1-01" },
+      { id:"24-10345-008", barcode:"ELM-008-H8", desc:"Mechanical screen frame", project:"Northline Labs", area:"Section B", loc:"Section B - Row 2 - Rack R-B2-01", drawingNo:"DWG-NL-401", stack:"Stack S-B2-01" },
+      { id:"24-10345-009", barcode:"ELM-009-Q5", desc:"Sunshade blade set", project:"Northline Labs", area:"Section A", loc:"Section A - Lane 3 - Rack R-A3-01", drawingNo:"DWG-NL-402", stack:"Stack S-A3-01" },
+      { id:"24-10345-010", barcode:"ELM-010-W2", desc:"Entry canopy rib", project:"Summit Plaza", area:"Section C", loc:"Section C - Lane 2 (loose)", drawingNo:"DWG-SP-501", stack:"—" },
+      { id:"24-10345-011", barcode:"ELM-011-D0", desc:"Storefront transom", project:"Summit Plaza", area:"Section B", loc:"Section B - Lane 3 - Trailer T-B3-01", drawingNo:"DWG-SP-502", stack:"Stack S-B3-01" },
+      { id:"24-10345-012", barcode:"ELM-012-R4", desc:"Parapet return panel", project:"Summit Plaza", area:"Staging", loc:"Staging - Outbound - Trailer T-OUT-01", drawingNo:"DWG-SP-503", stack:"Stack S-STG-02" },
+      { id:"24-10345-013", barcode:"ELM-013-B5", desc:"Slab edge cover - level 3", project:"ABC Tower", area:"Section A", loc:"Section A - Row 1 - Rack R-A1-01", drawingNo:"DWG-ABC-104", stack:"Stack S-A1-01" },
+      { id:"24-10345-014", barcode:"ELM-014-J7", desc:"Corner mullion assembly", project:"River Medical", area:"Section A", loc:"Section A - Row 2 - Trailer T-A2-01", drawingNo:"DWG-RM-303", stack:"Stack S-A2-01" },
+      { id:"24-10345-015", barcode:"ELM-015-N3", desc:"Precast spandrel - level 8", project:"ABC Tower", area:"Section A", loc:"Section A - Row 1 - Rack R-A1-02", drawingNo:"DWG-ABC-105", stack:"Stack S-A1-02" },
+      { id:"24-10345-016", barcode:"ELM-016-G1", desc:"Oversize spandrel - ground floor", project:"ABC Tower", area:"Section A", loc:"Section A - Lane 3 (loose)", drawingNo:"DWG-ABC-106", stack:"—" },
+      { id:"24-10345-017", barcode:"ELM-017-V8", desc:"Double-height mullion set", project:"Harbor Point", area:"Section A", loc:"Section A - Lane 3 (loose)", drawingNo:"DWG-HP-203", stack:"—" },
+      { id:"24-10345-018", barcode:"ELM-018-L6", desc:"Cladding panel - south face", project:"Summit Plaza", area:"Section B", loc:"Section B - Row 2 (loose)", drawingNo:"DWG-SP-504", stack:"—" },
+      { id:"24-10345-019", barcode:"ELM-019-X4", desc:"Curtain wall corner unit", project:"Northline Labs", area:"Section C", loc:"Section C - Lane 2 (loose)", drawingNo:"DWG-NL-403", stack:"—" },
+      { id:"24-10345-020", barcode:"ELM-020-S9", desc:"Canopy fascia panel", project:"Harbor Point", area:"Section C", loc:"Section C - Lane 2 (loose)", drawingNo:"DWG-HP-204", stack:"—" },
+      { id:"24-10345-021", barcode:"ELM-021-U2", desc:"Window frame assembly", project:"River Medical", area:"Staging", loc:"Staging - Inbound (loose)", drawingNo:"DWG-RM-304", stack:"—" },
+      { id:"24-10345-022", barcode:"ELM-022-Z6", desc:"Damaged return panel", project:"River Medical", area:"Staging", loc:"Staging - Inbound (loose)", drawingNo:"DWG-RM-305", stack:"—" },
+      { id:"24-10345-023", barcode:"ELM-023-E8", desc:"Louver blade set - mech floor", project:"Northline Labs", area:"Section B", loc:"Section B - Row 1 - Rack R-B1-01", drawingNo:"DWG-NL-404", stack:"Stack S-B1-01" },
+      { id:"24-10345-024", barcode:"ELM-024-I1", desc:"Soffit panel - lobby", project:"Harbor Point", area:"Section B", loc:"Section B - Row 1 - Rack R-B1-02", drawingNo:"DWG-HP-205", stack:"Stack S-B1-02" },
+      { id:"24-10345-025", barcode:"ELM-025-O7", desc:"Reveal trim - typical floor", project:"Summit Plaza", area:"Section C", loc:"Section C - Row 1 - Rack R-C1-01", drawingNo:"DWG-SP-505", stack:"Stack S-C1-01" },
+      { id:"24-10345-026", barcode:"ELM-026-Y3", desc:"Balcony rail section", project:"Harbor Point", area:"Section A", loc:"Section A - Row 2 - Rack R-A2-02", drawingNo:"DWG-HP-206", stack:"Stack S-A2-01" },
+      { id:"24-10345-027", barcode:"ELM-027-A2", desc:"Fire-rated panel - stair core", project:"ABC Tower", area:"Section B", loc:"Section B - Lane 3 - Trailer T-B3-01", drawingNo:"DWG-ABC-107", stack:"Stack S-B3-01" },
+      { id:"24-10345-028", barcode:"ELM-028-F9", desc:"Metal screen panel", project:"Northline Labs", area:"Section A", loc:"Section A - Lane 3 - Rack R-A3-01", drawingNo:"DWG-NL-405", stack:"Stack S-A3-01" },
+      { id:"24-10345-029", barcode:"ELM-029-C1", desc:"Skylight glazing unit", project:"Summit Plaza", area:"Staging", loc:"Staging - Outbound - Trailer T-OUT-01", drawingNo:"DWG-SP-506", stack:"Stack S-STG-02" },
+      { id:"24-10345-030", barcode:"ELM-030-K8", desc:"Precast column cover - L2", project:"River Medical", area:"Section C", loc:"Section C - Row 1 - Rack R-C1-01", drawingNo:"DWG-RM-306", stack:"Stack S-C1-01" },
+      { id:"24-10345-031", barcode:"ELM-031-M4", desc:"Entrance canopy glass", project:"Harbor Point", area:"Staging", loc:"Staging - Outbound - Trailer T-OUT-02", drawingNo:"DWG-HP-207", stack:"Stack S-STG-02" },
+      { id:"24-10345-032", barcode:"ELM-032-P2", desc:"Unitized curtain wall - L5", project:"ABC Tower", area:"Staging", loc:"Staging - Inbound - Trailer T-IN-01", drawingNo:"DWG-ABC-108", stack:"Stack S-STG-01" },
     ],
     stacks: [
       { id:"Stack S-A1-01", barcode:"STK-A101", desc:"Stack - Row 1 Bay 1", project:"ABC Tower", area:"Section A", loc:"Section A - Row 1", elements:5, capacity:8 },
@@ -1590,10 +1658,15 @@
       const row = document.createElement("div");
       row.className = "rowItem" + (isSelected ? " selected" : "");
       row.setAttribute("data-id", it.id);
+      const elementExtra = (mode === "elements" && it.drawingNo)
+        ? `<div class="loc" style="margin-top:2px;">${escapeHtml(it.drawingNo)} &bull; ${escapeHtml(it.stack || '—')}</div>`
+        : '';
+
       row.innerHTML = `
         <div class="meta">
-          <div class="id">${escapeHtml(it.id)}</div>
+          <div class="id"><span class="rowDetailLink" style="cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;">${escapeHtml(it.id)}</span></div>
           <div class="loc">${escapeHtml(it.loc)}${it.elements != null ? ' &bull; ' + it.elements + '/' + (it.capacity||'?') + ' elements' : ''}</div>
+          ${elementExtra}
         </div>
         <div style="display:flex;gap:6px;align-items:center;flex:0 0 auto;">
           <div class="pill rowSelectPill ${isSelected ? "selected" : ""}" style="cursor:pointer;">
@@ -1602,6 +1675,12 @@
           ${hasChildren ? '<div class="locDrillArrow rowDrillBtn" style="cursor:pointer;transform:rotate(' + (isExpanded ? '90' : '0') + 'deg);transition:transform .15s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>' : ''}
         </div>
       `;
+
+      // Detail link
+      row.querySelector(".rowDetailLink").addEventListener("click", (e) => {
+        e.stopPropagation();
+        openDetailModal(it);
+      });
 
       // Select pill
       row.querySelector(".rowSelectPill").addEventListener("click", (e) => {
@@ -1666,6 +1745,46 @@
     const onSearch = document.getElementById("search").classList.contains("active");
     footerBar.style.display = (totalSelected && onSearch) ? "block" : "none";
     updateSelectAllBtn();
+  }
+
+  /* ---- Details modal ---- */
+  const detailOverlay = document.getElementById("detailOverlay");
+  const detailTitle = document.getElementById("detailTitle");
+  const detailBody = document.getElementById("detailBody");
+  document.getElementById("detailClose").addEventListener("click", ()=> detailOverlay.classList.remove("open"));
+  detailOverlay.addEventListener("click", (e)=>{ if(e.target===detailOverlay) detailOverlay.classList.remove("open"); });
+
+  function detailRow(label, value){
+    return `<div class="detailRow"><span class="detailLabel">${escapeHtml(label)}</span><span class="detailValue">${escapeHtml(value || '—')}</span></div>`;
+  }
+
+  function openDetailModal(item){
+    detailTitle.textContent = item.id;
+    let html = '';
+    if (mode === "elements"){
+      html += detailRow("Description", item.desc);
+      html += detailRow("Barcode", item.barcode);
+      html += detailRow("Drawing No.", item.drawingNo);
+      html += detailRow("Project", item.project);
+      html += detailRow("Section", item.area);
+      html += detailRow("Stack", item.stack);
+      html += detailRow("Location", item.loc);
+    } else if (mode === "stacks"){
+      html += detailRow("Description", item.desc);
+      html += detailRow("Barcode", item.barcode);
+      html += detailRow("Project", item.project);
+      html += detailRow("Section", item.area);
+      html += detailRow("Location", item.loc);
+      html += detailRow("Elements", (item.elements != null ? item.elements + ' / ' + (item.capacity||'?') + ' capacity' : '—'));
+    } else if (mode === "racks"){
+      html += detailRow("Barcode", item.barcode);
+      html += detailRow("Project", item.project);
+      html += detailRow("Section", item.area);
+      html += detailRow("Location", item.loc);
+      html += detailRow("Leaves", item.leaves);
+    }
+    detailBody.innerHTML = html;
+    detailOverlay.classList.add("open");
   }
 
   function runSearch(){

@@ -400,6 +400,10 @@
       background:#1a1a2e;
       color:var(--ink);
     }
+    #rbDestSection option, #rbDestRowLane option, #rbDestSlot option{
+      background:#fff;
+      color:#1a1a2e;
+    }
 
     .select{
       width:100%;
@@ -1267,9 +1271,9 @@
 
               <div class="fieldLabel">Or select manually</div>
               <div class="stack" style="gap:8px;">
-                <div class="input"><select id="rbDestSection"><option value="">Section…</option></select></div>
-                <div class="input"><select id="rbDestRowLane"><option value="">Row / Lane…</option></select></div>
-                <div class="input" id="rbDestSlotWrap"><select id="rbDestSlot"><option value="">Rack / Trailer / Loose…</option></select></div>
+                <div class="input" style="background:#fff;border-color:rgba(0,0,0,.15);"><select id="rbDestSection" style="color:#1a1a2e;"><option value="">Section…</option></select></div>
+                <div class="input" style="background:#fff;border-color:rgba(0,0,0,.15);"><select id="rbDestRowLane" style="color:#1a1a2e;"><option value="">Row / Lane…</option></select></div>
+                <div class="input" style="background:#fff;border-color:rgba(0,0,0,.15);" id="rbDestSlotWrap"><select id="rbDestSlot" style="color:#1a1a2e;"><option value="">Rack / Trailer / Loose…</option></select></div>
               </div>
             </div>
 
@@ -2913,11 +2917,43 @@
 
   function lm_renderList(){
     const q = lmFilterInput.value.trim().toLowerCase();
+    // First pass: find locations that directly match the search (excluding type)
+    const directMatch = new Set();
+    if (q) {
+      lm_locations.forEach(loc => {
+        if ((loc.section||"").toLowerCase().includes(q) || (loc.rowLane||"").toLowerCase().includes(q) ||
+            (loc.container||"").toLowerCase().includes(q) || (loc.name||"").toLowerCase().includes(q)) {
+          directMatch.add(loc.id);
+        }
+      });
+    }
+    // Second pass: also include parents of matched items so user can navigate the hierarchy
+    const parentIds = new Set();
+    if (q) {
+      directMatch.forEach(id => {
+        const loc = lm_locations.find(l => l.id === id);
+        if (!loc) return;
+        const locType = loc.type || (loc.containerType ? loc.containerType.toLowerCase() : (loc.rowLaneType ? loc.rowLaneType.toLowerCase() : "section"));
+        // If it's a rack/trailer, its parents are the row/lane and section
+        if (locType === "rack" || locType === "trailer") {
+          lm_locations.forEach(p => {
+            const pType = p.type || (p.containerType ? p.containerType.toLowerCase() : (p.rowLaneType ? p.rowLaneType.toLowerCase() : "section"));
+            if (pType === "section" && p.name === loc.section) parentIds.add(p.id);
+            if ((pType === "row" || pType === "lane") && p.section === loc.section && p.name === loc.rowLane) parentIds.add(p.id);
+          });
+        }
+        // If it's a row/lane, its parent is the section
+        if (locType === "row" || locType === "lane") {
+          lm_locations.forEach(p => {
+            const pType = p.type || (p.containerType ? p.containerType.toLowerCase() : (p.rowLaneType ? p.rowLaneType.toLowerCase() : "section"));
+            if (pType === "section" && p.name === loc.section) parentIds.add(p.id);
+          });
+        }
+      });
+    }
     const filtered = lm_locations.filter(loc => {
       if (!q) return true;
-      return (loc.section||"").toLowerCase().includes(q) || (loc.rowLane||"").toLowerCase().includes(q) ||
-             (loc.container||"").toLowerCase().includes(q) || (loc.name||"").toLowerCase().includes(q) ||
-             (loc.type||"").toLowerCase().includes(q);
+      return directMatch.has(loc.id) || parentIds.has(loc.id);
     });
 
     lmLocList.innerHTML = "";

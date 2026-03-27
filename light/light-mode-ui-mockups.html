@@ -3985,6 +3985,14 @@
     ],
   };
 
+  // Assign unique _uid to every item so duplicates with the same id are individually selectable
+  (function(){
+    let counter = 0;
+    ["elements","stacks","racks"].forEach(key => {
+      YARD_DATA[key].forEach(item => { item._uid = `${key}-${counter++}`; });
+    });
+  })();
+
   function getSourceData(){
     if (mode === "elements") return YARD_DATA.elements;
     if (mode === "stacks") return YARD_DATA.stacks;
@@ -4072,7 +4080,7 @@
     const result = [];
     if (!node.children) return result;
     node.children.forEach(child => {
-      if (child.type === "Element") result.push(child.name);
+      if (child.type === "Element") result.push(child.uid);
       result.push(...loc_collectElements(child));
     });
     return result;
@@ -4095,7 +4103,7 @@
       selectAllBtn.style.display = "none";
       return;
     }
-    const allSelected = currentSearchResults.every(it => selectedElementIds.has(it.id));
+    const allSelected = currentSearchResults.every(it => selectedElementIds.has(it._uid));
     selectAllBtn.style.display = "";
     selectAllBtn.textContent = allSelected ? "Deselect all" : "Select all";
   }
@@ -4117,10 +4125,10 @@
     resultsList.innerHTML = "";
 
     items.forEach(it => {
-      const isSelected = selectedElementIds.has(it.id);
+      const isSelected = selectedElementIds.has(it._uid);
       const treeNode = isDrillable ? loc_findNode(LOC_TREE, it.id) : null;
       const hasChildren = treeNode && treeNode.children && treeNode.children.length > 0;
-      const isExpanded = expandedIds.has(it.id);
+      const isExpanded = expandedIds.has(it._uid);
 
       const row = document.createElement("div");
       row.className = "rowItem" + (isSelected ? " selected" : "");
@@ -4153,10 +4161,10 @@
       row.querySelector(".rowSelectPill").addEventListener("click", (e) => {
         e.stopPropagation();
         if (treeNode && containerTypes.has(treeNode.type)){
-          toggleContainerSelection(it.id, treeNode);
+          toggleContainerSelection(it._uid, treeNode);
         } else {
-          if (selectedElementIds.has(it.id)) selectedElementIds.delete(it.id);
-          else selectedElementIds.add(it.id);
+          if (selectedElementIds.has(it._uid)) selectedElementIds.delete(it._uid);
+          else selectedElementIds.add(it._uid);
         }
         renderResults(currentSearchResults);
         updateSelectionControls();
@@ -4167,8 +4175,8 @@
       if (drillBtn){
         drillBtn.addEventListener("click", (e) => {
           e.stopPropagation();
-          if (expandedIds.has(it.id)) expandedIds.delete(it.id);
-          else expandedIds.add(it.id);
+          if (expandedIds.has(it._uid)) expandedIds.delete(it._uid);
+          else expandedIds.add(it._uid);
           renderResults(currentSearchResults);
         });
       }
@@ -4180,7 +4188,8 @@
         const childContainer = document.createElement("div");
         childContainer.style.cssText = "margin:0 0 4px 16px;";
         treeNode.children.forEach(child => {
-          const childSelected = selectedElementIds.has(child.name);
+          const childKey = child.uid || child.name;
+          const childSelected = selectedElementIds.has(childKey);
           const childRow = document.createElement("div");
           childRow.className = "rowItem" + (childSelected ? " selected" : "");
           childRow.style.cssText = "margin-top:4px;";
@@ -4194,8 +4203,8 @@
             </div>
           `;
           childRow.addEventListener("click", () => {
-            if (selectedElementIds.has(child.name)) selectedElementIds.delete(child.name);
-            else selectedElementIds.add(child.name);
+            if (selectedElementIds.has(childKey)) selectedElementIds.delete(childKey);
+            else selectedElementIds.add(childKey);
             renderResults(currentSearchResults);
             updateSelectionControls();
           });
@@ -4329,11 +4338,11 @@
   });
 
   selectAllBtn.addEventListener("click", ()=>{
-    const allSelected = currentSearchResults.every(it => selectedElementIds.has(it.id));
+    const allSelected = currentSearchResults.every(it => selectedElementIds.has(it._uid));
     if (allSelected){
-      currentSearchResults.forEach(it => selectedElementIds.delete(it.id));
+      currentSearchResults.forEach(it => selectedElementIds.delete(it._uid));
     } else {
-      currentSearchResults.forEach(it => selectedElementIds.add(it.id));
+      currentSearchResults.forEach(it => selectedElementIds.add(it._uid));
     }
     renderResults(currentSearchResults);
     loc_render();
@@ -4348,15 +4357,17 @@
     const seen = new Set();
     rb_sel = [];
     allItems.forEach(item => {
-      if (selectedElementIds.has(item.id) && !seen.has(item.id)) {
-        seen.add(item.id);
+      if (selectedElementIds.has(item._uid) && !seen.has(item._uid)) {
+        seen.add(item._uid);
         rb_sel.push({ id: item.id, loc: item.loc });
       }
     });
-    // Also include any location-tree selections not in yard data
-    selectedElementIds.forEach(id => {
-      if (!seen.has(id)){
-        rb_sel.push({ id, loc: "(from location browse)" });
+    // Also include any location-tree selections (uid-based) not in yard data
+    selectedElementIds.forEach(uid => {
+      if (!seen.has(uid)){
+        const displayName = uid.includes("/") ? uid.split("/").pop().replace(/#\d+$/, "") : uid;
+        const locPath = uid.includes("/") ? uid.split("/").slice(1, -1).join(" > ") : "(from location browse)";
+        rb_sel.push({ id: displayName, loc: locPath || "(from location browse)" });
       }
     });
     rb_selected = new Set(rb_sel.map(s => s.id));
@@ -4792,6 +4803,30 @@
     ],
   };
 
+  // Assign unique uid to every node based on its path in the tree
+  (function assignUids(node, prefix){
+    node.uid = prefix || "Yard";
+    if (node.children){
+      const counts = {};
+      node.children.forEach(child => {
+        // Handle duplicate names at the same level by appending an index
+        const key = child.name;
+        counts[key] = (counts[key] || 0) + 1;
+        const suffix = counts[key] > 1 ? `#${counts[key]}` : "";
+        assignUids(child, `${node.uid}/${child.name}${suffix}`);
+      });
+      // Go back and fix the first occurrence if there were duplicates
+      const revisit = {};
+      node.children.forEach(child => {
+        const base = child.name;
+        if (counts[base] > 1 && !revisit[base]){
+          revisit[base] = true;
+          child.uid = `${node.uid}/${base}#1`;
+        }
+      });
+    }
+  })(LOC_TREE);
+
   // Navigation stack: each entry is a node reference
   const loc_navStack = [LOC_TREE];
   const locDrillList = document.getElementById("locDrillList");
@@ -4913,7 +4948,7 @@
 
       matches.slice(0, 50).forEach(({node, path}) => {
         const isSelectable = selectableTypes.has(node.type);
-        const isSelected = selectedElementIds.has(node.name);
+        const isSelected = selectedElementIds.has(node.uid);
         const hasChildren = node.children && node.children.length > 0;
         const div = document.createElement("div");
         div.className = "locDrillItem" + (isSelected ? " selected" : "");
@@ -4944,10 +4979,10 @@
           pill.addEventListener("click", (e) => {
             e.stopPropagation();
             if (containerTypes.has(node.type)){
-              toggleContainerSelection(node.name, node);
+              toggleContainerSelection(node.uid, node);
             } else {
-              if (selectedElementIds.has(node.name)) selectedElementIds.delete(node.name);
-              else selectedElementIds.add(node.name);
+              if (selectedElementIds.has(node.uid)) selectedElementIds.delete(node.uid);
+              else selectedElementIds.add(node.uid);
             }
             loc_render();
             updateSelectionControls();
@@ -4957,7 +4992,6 @@
         if (drillBtn){
           drillBtn.addEventListener("click", (e) => {
             e.stopPropagation();
-            // Navigate into this node: clear search, set nav stack to this path
             locSearchInput.value = "";
             loc_searchText = "";
             loc_navStack.length = 1;
@@ -4973,8 +5007,8 @@
             path.forEach(p => loc_navStack.push(p));
             loc_render();
           } else if (isSelectable){
-            if (selectedElementIds.has(node.name)) selectedElementIds.delete(node.name);
-            else selectedElementIds.add(node.name);
+            if (selectedElementIds.has(node.uid)) selectedElementIds.delete(node.uid);
+            else selectedElementIds.add(node.uid);
             loc_render();
             updateSelectionControls();
           }
@@ -5004,7 +5038,7 @@
     items.forEach(node => {
       const hasChildren = node.children && node.children.length > 0;
       const isSelectable = selectableTypes.has(node.type);
-      const isSelected = selectedElementIds.has(node.name);
+      const isSelected = selectedElementIds.has(node.uid);
       const div = document.createElement("div");
       div.className = "locDrillItem" + (isSelected ? " selected" : "");
       div.innerHTML = `
@@ -5026,10 +5060,10 @@
         pill.addEventListener("click", (e) => {
           e.stopPropagation();
           if (containerTypes.has(node.type)){
-            toggleContainerSelection(node.name, node);
+            toggleContainerSelection(node.uid, node);
           } else {
-            if (selectedElementIds.has(node.name)) selectedElementIds.delete(node.name);
-            else selectedElementIds.add(node.name);
+            if (selectedElementIds.has(node.uid)) selectedElementIds.delete(node.uid);
+            else selectedElementIds.add(node.uid);
           }
           loc_render();
           updateSelectionControls();
@@ -5050,8 +5084,8 @@
           loc_navStack.push(node);
           loc_render();
         } else if (isSelectable){
-          if (selectedElementIds.has(node.name)) selectedElementIds.delete(node.name);
-          else selectedElementIds.add(node.name);
+          if (selectedElementIds.has(node.uid)) selectedElementIds.delete(node.uid);
+          else selectedElementIds.add(node.uid);
           loc_render();
           updateSelectionControls();
         }

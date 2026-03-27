@@ -1506,8 +1506,8 @@
     };
     const placeholders = {
       elements: "e.g. L-1_1 or ABA",
-      stacks: "e.g. Stack S-A1-01",
-      racks: "e.g. R-12",
+      stacks: "e.g. STK-A04-01 or BEE",
+      racks: "e.g. RCK-A07-01 or BEE",
     };
     queryLabel.textContent = labels[mode] || labels.elements;
     query.placeholder = placeholders[mode] || placeholders.elements;
@@ -1608,7 +1608,7 @@
     if (currentSearchResults.length) renderResults(sortResults(currentSearchResults));
   });
 
-  const MOCK_DATA = {
+  const YARD_DATA = {
     elements: [
       {"id": "S-1_1", "barcode": "25207L01", "desc": "", "project": "Unassigned", "area": "HC Yard A", "loc": "HC Yard A - HC-A28", "drawingNo": "", "stack": ""},
       {"id": "S-2_5", "barcode": "26018L01", "desc": "", "project": "Unassigned", "area": "HC Yard A", "loc": "HC Yard A - HC-A24", "drawingNo": "", "stack": ""},
@@ -3919,42 +3919,46 @@
       {"id": "SR-8_4", "barcode": "21338000", "desc": "WZG", "project": "WZG", "area": "HC Yard A", "loc": "HC Yard A - HC-A07", "drawingNo": "", "stack": ""}
     ],
     stacks: [
-      { id:"Stack S-A1-01", barcode:"STK-A101", desc:"Stack - Row 1 Bay 1", project:"ABC Tower", area:"Section A", loc:"Section A - Row 1", elements:5, capacity:8 },
-      { id:"Stack S-A1-02", barcode:"STK-A102", desc:"Stack - Row 1 Bay 2", project:"ABC Tower", area:"Section A", loc:"Section A - Row 1", elements:3, capacity:8 },
-      { id:"Stack S-A2-01", barcode:"STK-A201", desc:"Stack - Row 2 Bay 1", project:"Harbor Point", area:"Section A", loc:"Section A - Row 2", elements:6, capacity:8 },
-      { id:"Stack S-A3-01", barcode:"STK-A301", desc:"Stack - Lane 3 Bay 1", project:"Northline Labs", area:"Section A", loc:"Section A - Lane 3", elements:4, capacity:6 },
-      { id:"Stack S-B1-01", barcode:"STK-B101", desc:"Stack - Row 1 Bay 1", project:"Summit Plaza", area:"Section B", loc:"Section B - Row 1", elements:7, capacity:8 },
-      { id:"Stack S-B1-02", barcode:"STK-B102", desc:"Stack - Row 1 Bay 2", project:"Summit Plaza", area:"Section B", loc:"Section B - Row 1", elements:4, capacity:8 },
-      { id:"Stack S-B2-01", barcode:"STK-B201", desc:"Stack - Row 2 Bay 1", project:"River Medical", area:"Section B", loc:"Section B - Row 2", elements:3, capacity:6 },
-      { id:"Stack S-B3-01", barcode:"STK-B301", desc:"Stack - Lane 3 Bay 1", project:"Northline Labs", area:"Section B", loc:"Section B - Lane 3", elements:6, capacity:8 },
-      { id:"Stack S-C1-01", barcode:"STK-C101", desc:"Stack - Row 1 Bay 1", project:"River Medical", area:"Section C", loc:"Section C - Row 1", elements:5, capacity:8 },
-      { id:"Stack S-C1-02", barcode:"STK-C102", desc:"Stack - Row 1 Bay 2", project:"ABC Tower", area:"Section C", loc:"Section C - Row 1", elements:2, capacity:6 },
-      { id:"Stack S-C2-01", barcode:"STK-C201", desc:"Stack - Lane 2 Bay 1", project:"Harbor Point", area:"Section C", loc:"Section C - Lane 2", elements:4, capacity:6 },
-      { id:"Stack S-STG-01", barcode:"STK-STG01", desc:"Stack - Inbound staging", project:"River Medical", area:"Staging", loc:"Staging - Inbound", elements:8, capacity:10 },
-      { id:"Stack S-STG-02", barcode:"STK-STG02", desc:"Stack - Outbound staging", project:"Summit Plaza", area:"Staging", loc:"Staging - Outbound", elements:3, capacity:10 },
+      { id:"STK-A03-01", barcode:"STK25001", desc:"Stack A03 Bay 1", project:"ABA", area:"HC Yard A", loc:"HC Yard A - HC-A03", elements:12, capacity:20 },
+      { id:"STK-A03-02", barcode:"STK25002", desc:"Stack A03 Bay 2", project:"BLV", area:"HC Yard A", loc:"HC Yard A - HC-A03", elements:8, capacity:20 },
+      { id:"STK-A04-01", barcode:"STK25003", desc:"Stack A04 Bay 1", project:"ABA", area:"HC Yard A", loc:"HC Yard A - HC-A04", elements:18, capacity:24 },
+      { id:"STK-A04-02", barcode:"STK25004", desc:"Stack A04 Bay 2", project:"BEE", area:"HC Yard A", loc:"HC Yard A - HC-A04", elements:14, capacity:24 },
+      { id:"STK-A04-03", barcode:"STK25005", desc:"Stack A04 Bay 3", project:"BRT", area:"HC Yard A", loc:"HC Yard A - HC-A04", elements:6, capacity:24 },
+      { id:"STK-A05-01", barcode:"STK25006", desc:"Stack A05 Bay 1", project:"CCC", area:"HC Yard A", loc:"HC Yard A - HC-A05", elements:10, capacity:16 },
+      { id:"STK-A05-02", barcode:"STK25007", desc:"Stack A05 Bay 2", project:"ABA", area:"HC Yard A", loc:"HC Yard A - HC-A05", elements:7, capacity:16 },
+      { id:"STK-A07-01", barcode:"STK25008", desc:"Stack A07 Bay 1", project:"BEE", area:"HC Yard A", loc:"HC Yard A - HC-A07", elements:15, capacity:20 },
+      { id:"STK-A07-02", barcode:"STK25009", desc:"Stack A07 Bay 2", project:"CAB", area:"HC Yard A", loc:"HC Yard A - HC-A07", elements:9, capacity:20 },
+      { id:"STK-A08-01", barcode:"STK25010", desc:"Stack A08 Bay 1", project:"BRT", area:"HC Yard A", loc:"HC Yard A - HC-A08", elements:11, capacity:16 },
+      { id:"STK-A09-01", barcode:"STK25011", desc:"Stack A09 Bay 1", project:"BEE", area:"HC Yard A", loc:"HC Yard A - HC-A09", elements:8, capacity:16 },
+      { id:"STK-A10-01", barcode:"STK25012", desc:"Stack A10 Bay 1", project:"BER", area:"HC Yard A", loc:"HC Yard A - HC-A10", elements:13, capacity:20 },
+      { id:"STK-A12-01", barcode:"STK25013", desc:"Stack A12 Bay 1", project:"ARG", area:"HC Yard A", loc:"HC Yard A - HC-A12", elements:5, capacity:12 },
+      { id:"STK-A22-01", barcode:"STK25014", desc:"Stack A22 Bay 1", project:"CCC", area:"HC Yard A", loc:"HC Yard A - HC-A22", elements:20, capacity:24 },
+      { id:"STK-A26-01", barcode:"STK25015", desc:"Stack A26 Bay 1", project:"BNY", area:"HC Yard A", loc:"HC Yard A - HC-A26", elements:4, capacity:12 },
+      { id:"STK-A27-01", barcode:"STK25016", desc:"Stack A27 Bay 1", project:"BEE", area:"HC Yard A", loc:"HC Yard A - HC-A27", elements:6, capacity:12 },
+      { id:"STK-A30-01", barcode:"STK25017", desc:"Stack A30 Bay 1", project:"BEE", area:"HC Yard A", loc:"HC Yard A - HC-A30", elements:5, capacity:10 },
     ],
     racks: [
-      { id:"Rack R-A1-01", barcode:"RACK-A101", project:"ABC Tower", area:"Section A", leaves:"2026-03-04", loc:"Section A - Row 1" },
-      { id:"Rack R-A1-02", barcode:"RACK-A102", project:"ABC Tower", area:"Section A", leaves:"2026-03-03", loc:"Section A - Row 1" },
-      { id:"Rack R-A2-01", barcode:"RACK-A201", project:"Harbor Point", area:"Section A", leaves:"2026-03-06", loc:"Section A - Row 2" },
-      { id:"Rack R-A2-02", barcode:"RACK-A202", project:"Harbor Point", area:"Section A", leaves:"2026-03-07", loc:"Section A - Row 2" },
-      { id:"Rack R-A3-01", barcode:"RACK-A301", project:"Northline Labs", area:"Section A", leaves:"2026-03-05", loc:"Section A - Lane 3" },
-      { id:"Rack R-B1-01", barcode:"RACK-B101", project:"Summit Plaza", area:"Section B", leaves:"2026-03-08", loc:"Section B - Row 1" },
-      { id:"Rack R-B1-02", barcode:"RACK-B102", project:"Summit Plaza", area:"Section B", leaves:"2026-03-09", loc:"Section B - Row 1" },
-      { id:"Rack R-B2-01", barcode:"RACK-B201", project:"River Medical", area:"Section B", leaves:"2026-03-10", loc:"Section B - Row 2" },
-      { id:"Rack R-B3-01", barcode:"RACK-B301", project:"Northline Labs", area:"Section B", leaves:"2026-03-11", loc:"Section B - Lane 3" },
-      { id:"Rack R-C1-01", barcode:"RACK-C101", project:"River Medical", area:"Section C", leaves:"2026-03-12", loc:"Section C - Row 1" },
-      { id:"Rack R-C2-01", barcode:"RACK-C201", project:"Northline Labs", area:"Section C", leaves:"2026-03-15", loc:"Section C - Lane 2" },
-      { id:"Rack R-A1-03", barcode:"RACK-A103", project:"River Medical", area:"Section A", leaves:"2026-03-18", loc:"Section A - Row 1" },
-      { id:"Rack R-B2-02", barcode:"RACK-B202", project:"Harbor Point", area:"Section B", leaves:"2026-03-20", loc:"Section B - Row 2" },
-      { id:"Rack R-C1-02", barcode:"RACK-C102", project:"ABC Tower", area:"Section C", leaves:"2026-03-22", loc:"Section C - Row 1" },
+      { id:"RCK-A03-01", barcode:"RCK25001", project:"ABA", area:"HC Yard A", leaves:"2026-03-04", loc:"HC Yard A - HC-A03" },
+      { id:"RCK-A03-02", barcode:"RCK25002", project:"BLV", area:"HC Yard A", leaves:"2026-03-06", loc:"HC Yard A - HC-A03" },
+      { id:"RCK-A04-01", barcode:"RCK25003", project:"BEE", area:"HC Yard A", leaves:"2026-03-08", loc:"HC Yard A - HC-A04" },
+      { id:"RCK-A04-02", barcode:"RCK25004", project:"BRT", area:"HC Yard A", leaves:"2026-03-10", loc:"HC Yard A - HC-A04" },
+      { id:"RCK-A05-01", barcode:"RCK25005", project:"CCC", area:"HC Yard A", leaves:"2026-03-05", loc:"HC Yard A - HC-A05" },
+      { id:"RCK-A07-01", barcode:"RCK25006", project:"BEE", area:"HC Yard A", leaves:"2026-03-12", loc:"HC Yard A - HC-A07" },
+      { id:"RCK-A07-02", barcode:"RCK25007", project:"CAB", area:"HC Yard A", leaves:"2026-03-15", loc:"HC Yard A - HC-A07" },
+      { id:"RCK-A08-01", barcode:"RCK25008", project:"ABA", area:"HC Yard A", leaves:"2026-03-18", loc:"HC Yard A - HC-A08" },
+      { id:"RCK-A09-01", barcode:"RCK25009", project:"BEE", area:"HC Yard A", leaves:"2026-03-20", loc:"HC Yard A - HC-A09" },
+      { id:"RCK-A10-01", barcode:"RCK25010", project:"BER", area:"HC Yard A", leaves:"2026-03-22", loc:"HC Yard A - HC-A10" },
+      { id:"RCK-A10-02", barcode:"RCK25011", project:"BRT", area:"HC Yard A", leaves:"2026-03-25", loc:"HC Yard A - HC-A10" },
+      { id:"RCK-A12-01", barcode:"RCK25012", project:"ARG", area:"HC Yard A", leaves:"2026-04-01", loc:"HC Yard A - HC-A12" },
+      { id:"RCK-A22-01", barcode:"RCK25013", project:"CCC", area:"HC Yard A", leaves:"2026-04-05", loc:"HC Yard A - HC-A22" },
+      { id:"RCK-A27-01", barcode:"RCK25014", project:"BER", area:"HC Yard A", leaves:"2026-04-10", loc:"HC Yard A - HC-A27" },
     ],
   };
 
   function getSourceData(){
-    if (mode === "elements") return MOCK_DATA.elements;
-    if (mode === "stacks") return MOCK_DATA.stacks;
-    if (mode === "racks") return MOCK_DATA.racks;
+    if (mode === "elements") return YARD_DATA.elements;
+    if (mode === "stacks") return YARD_DATA.stacks;
+    if (mode === "racks") return YARD_DATA.racks;
     return [];
   }
 
@@ -4310,7 +4314,7 @@
   rebookBtn.addEventListener("click", ()=>{
     if (!selectedElementIds.size) return;
     // Populate rebook selection from all data sources (one entry per unique ID)
-    const allItems = [...MOCK_DATA.elements, ...MOCK_DATA.stacks, ...MOCK_DATA.racks];
+    const allItems = [...YARD_DATA.elements, ...YARD_DATA.stacks, ...YARD_DATA.racks];
     const seen = new Set();
     rb_sel = [];
     allItems.forEach(item => {
@@ -4319,7 +4323,7 @@
         rb_sel.push({ id: item.id, loc: item.loc });
       }
     });
-    // Also include any location-tree selections not in mock data
+    // Also include any location-tree selections not in yard data
     selectedElementIds.forEach(id => {
       if (!seen.has(id)){
         rb_sel.push({ id, loc: "(from location browse)" });
@@ -4347,39 +4351,40 @@
   const lsFoundList = document.getElementById("lsFoundList");
   const lsFoundCount = document.getElementById("lsFoundCount");
 
+  // Loadsheet elements — all BEE project, referencing real YARD_DATA entries
   const lsSampleElements = [
-    { id: "24-10345-001", loc: "Section A - Row 1 - Rack R-A1-01" },
-    { id: "24-10345-002", loc: "Staging - Inbound - Trailer T-IN-01" },
-    { id: "24-10345-003", loc: "Section A - Row 1 - Rack R-A1-02" },
-    { id: "24-10345-004", loc: "Section A - Row 2 - Rack R-A2-01" },
-    { id: "24-10345-005", loc: "Section B - Row 1 - Rack R-B1-01" },
-    { id: "24-10345-006", loc: "Not in yard" },
+    { id: "L-1_2",  loc: "HC Yard A - HC-A04" },
+    { id: "L-10_1", loc: "HC Yard A - HC-A04" },
+    { id: "L-14_1", loc: "HC Yard A - HC-A06" },
+    { id: "L-6_1",  loc: "HC Yard A - HC-A13" },
+    { id: "S-10_1", loc: "HC Yard A - HC-A30" },
+    { id: "SR-3_1", loc: "Not in yard" },
   ];
 
-  // Mock alternatives: identical elements at different locations that can be swapped in
+  // Alternatives: same element IDs at different yard locations (from YARD_DATA)
   const lsAlternatives = {
-    "24-10345-001": [
-      { id: "24-10345-001-B", loc: "Section B - Row 2 - Rack R-B2-01" },
-      { id: "24-10345-001-C", loc: "Section C - Lane 2 (loose)" },
+    "L-1_2": [
+      { id: "L-1_2",  loc: "HC Yard A - HC-A04 (barcode 251320000)" },
     ],
-    "24-10345-002": [
-      { id: "24-10345-002-B", loc: "Section A - Lane 3 - Rack R-A3-01" },
+    "L-10_1": [
+      { id: "L-2_1",  loc: "HC Yard A - HC-A04" },
+      { id: "L-6_2",  loc: "HC Yard A - HC-A03" },
     ],
-    "24-10345-003": [
-      { id: "24-10345-003-B", loc: "Section B - Row 1 - Rack R-B1-02" },
-      { id: "24-10345-003-C", loc: "Staging - Outbound - Trailer T-OUT-01" },
+    "L-14_1": [
+      { id: "L-14_1", loc: "HC Yard A - HC-A03" },
+      { id: "L-14_1", loc: "HC Yard A - HC-A05" },
     ],
-    "24-10345-004": [
-      { id: "24-10345-004-B", loc: "Section C - Row 1 - Rack R-C1-01" },
+    "L-6_1": [
+      { id: "L-6_2",  loc: "HC Yard A - HC-A03" },
     ],
-    "24-10345-005": [
-      { id: "24-10345-005-B", loc: "Section A - Row 2 - Trailer T-A2-01" },
-      { id: "24-10345-005-C", loc: "Staging - Inbound - Trailer T-IN-01" },
+    "S-10_1": [
+      { id: "S-10_1", loc: "HC Yard A - HC-A31" },
+      { id: "S-10_1", loc: "HC Yard A - HC-A27" },
     ],
-    "24-10345-006": [
-      { id: "24-10345-006-A", loc: "Section A - Row 1 - Rack R-A1-01" },
-      { id: "24-10345-006-B", loc: "Section B - Lane 3 - Trailer T-B3-01" },
-      { id: "24-10345-006-C", loc: "Staging - Inbound - Trailer T-IN-01" },
+    "SR-3_1": [
+      { id: "SR-3_1", loc: "HC Yard A - HC-A09" },
+      { id: "SR-3_1", loc: "HC Yard A - HC-A08" },
+      { id: "SR-3_2", loc: "HC Yard A - HC-A07" },
     ],
   };
 
@@ -4518,9 +4523,9 @@
     updateSelectionControls();
   }
 
-  lsSimulateScan.addEventListener("click", ()=>{ lsLoadSample("LS-2026-0301-014"); });
+  lsSimulateScan.addEventListener("click", ()=>{ lsLoadSample("LS-2026-BEE-0042"); });
   lsPasteCode.addEventListener("click", ()=>{
-    const code = prompt("Enter loadsheet code (wireframe):", "LS-2026-000184");
+    const code = prompt("Enter loadsheet code (wireframe):", "LS-2026-BEE-0042");
     if (!code) return;
     lsLoadSample(code.trim());
   });

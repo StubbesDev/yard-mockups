@@ -6,7 +6,10 @@
       "Bash(find /c/src/work/wireframes -type d -not -path ./.git/*)",
       "Bash(wc -l /c/src/work/wireframes/*.html /c/src/work/wireframes/dark/*.html)",
       "mcp__claude_ai_Fireflies__fireflies_search",
-      "mcp__claude_ai_Fireflies__fireflies_get_summary"
+      "mcp__claude_ai_Fireflies__fireflies_get_summary",
+      "Bash(gh api:*)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://stubbesdev.github.io/yard-mockups/light/light-mode-ui-mockups.html\")",
+      "Bash(curl -sL -o /dev/null -w \"%{http_code}\" \"https://stubbesdev.github.io/yard-mockups/light/light-mode-ui-mockups.html\")"
     ]
   }
 }

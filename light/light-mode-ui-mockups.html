@@ -746,6 +746,33 @@
     }
     .locFilterChip:hover{ color:var(--ink); border-color:var(--ink); }
     .locFilterChip.active{ background:var(--accent); border-color:var(--accent); color:#fff; }
+    .locSearchWrap{
+      margin-bottom:8px;
+    }
+    .locSearchInput{
+      width:100%;
+      padding:8px 10px;
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:8px;
+      background:rgba(255,255,255,.05);
+      color:var(--ink);
+      font-size:13px;
+      font-family:var(--sans);
+      outline:none;
+    }
+    .locSearchInput:focus{
+      border-color:var(--accent);
+    }
+    .locSearchInput::placeholder{
+      color:var(--muted);
+      opacity:.7;
+    }
+    .locPathCrumbs{
+      font-size:10px;
+      color:var(--muted);
+      margin-bottom:2px;
+      line-height:1.3;
+    }
 
     /* ===== REBOOK / MOVE FLOW ===== */
     .rb-stepper{
@@ -1039,6 +1066,9 @@
               <div class="locFilterChip" data-type="Trailer">Trailer</div>
               <div class="locFilterChip" data-type="Element">Element</div>
             </div>
+          </div>
+          <div class="locSearchWrap">
+            <input class="locSearchInput" id="locSearchInput" type="text" placeholder="Search locations…" />
           </div>
           <div class="locDrillList" id="locDrillList"></div>
         </div>
@@ -4770,6 +4800,31 @@
   const locFilterBtn = document.getElementById("locFilterBtn");
   const locFilterPanel = document.getElementById("locFilterPanel");
   let loc_typeFilter = "";
+  const locSearchInput = document.getElementById("locSearchInput");
+  let loc_searchText = "";
+
+  locSearchInput.addEventListener("input", () => {
+    loc_searchText = locSearchInput.value.trim().toLowerCase();
+    loc_render();
+  });
+
+  // Recursively collect nodes matching search text, returning {node, path} entries
+  function loc_searchTree(node, query, path){
+    const results = [];
+    if (!node.children) return results;
+    node.children.forEach(child => {
+      const childPath = [...path, child];
+      const nameMatch = child.name.toLowerCase().includes(query);
+      const subMatch = (child.sub || "").toLowerCase().includes(query);
+      const typeMatch = (child.type || "").toLowerCase().includes(query);
+      if (nameMatch || subMatch || typeMatch){
+        results.push({ node: child, path: childPath });
+      }
+      // Always recurse into children to find deeper matches
+      results.push(...loc_searchTree(child, query, childPath));
+    });
+    return results;
+  }
 
   locFilterBtn.addEventListener("click", () => {
     const open = locFilterPanel.classList.toggle("open");
@@ -4830,6 +4885,105 @@
   }
 
   function loc_render(){
+    // --- Search mode: flat filtered list with parent paths ---
+    if (loc_searchText){
+      locBreadcrumb.innerHTML = "<span style='color:var(--muted);'>Search results</span>";
+      locBackBtn.disabled = true;
+      locDrillList.innerHTML = "";
+
+      let matches = loc_searchTree(LOC_TREE, loc_searchText, []);
+      if (loc_typeFilter){
+        matches = matches.filter(m => m.node.type === loc_typeFilter);
+      }
+      // Deduplicate by node reference
+      const seen = new Set();
+      matches = matches.filter(m => {
+        if (seen.has(m.node)) return false;
+        seen.add(m.node);
+        return true;
+      });
+
+      if (!matches.length){
+        locDrillList.innerHTML = `<div class="hint">No locations matching "${escapeHtml(loc_searchText)}".</div>`;
+        return;
+      }
+
+      const selectableTypes = new Set(["Element","Rack","Trailer"]);
+
+      matches.slice(0, 50).forEach(({node, path}) => {
+        const isSelectable = selectableTypes.has(node.type);
+        const isSelected = selectedElementIds.has(node.name);
+        const hasChildren = node.children && node.children.length > 0;
+        const div = document.createElement("div");
+        div.className = "locDrillItem" + (isSelected ? " selected" : "");
+
+        // Build parent breadcrumb (all ancestors except the node itself)
+        const ancestors = path.slice(0, -1);
+        const crumbHtml = ancestors.length
+          ? `<div class="locPathCrumbs">${ancestors.map(a => escapeHtml(a.name)).join(" &rsaquo; ")}</div>`
+          : "";
+
+        div.innerHTML = `
+          <div class="locMeta">
+            ${crumbHtml}
+            <div class="locName">
+              <span>${escapeHtml(node.name)}</span>
+              <span class="locDrillChip">${escapeHtml(node.type || "")}</span>
+            </div>
+            <div class="locSub">${escapeHtml(loc_childSummary(node))}</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;flex:0 0 auto;">
+            ${isSelectable ? '<div class="pill locSelectPill ' + (isSelected ? 'selected' : '') + '" style="cursor:pointer;">' + (isSelected ? 'SELECTED' : 'SELECT') + '</div>' : ''}
+            ${hasChildren ? '<div class="locDrillArrow locDrillBtn" style="cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>' : ''}
+          </div>
+        `;
+
+        const pill = div.querySelector(".locSelectPill");
+        if (pill){
+          pill.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (containerTypes.has(node.type)){
+              toggleContainerSelection(node.name, node);
+            } else {
+              if (selectedElementIds.has(node.name)) selectedElementIds.delete(node.name);
+              else selectedElementIds.add(node.name);
+            }
+            loc_render();
+            updateSelectionControls();
+          });
+        }
+        const drillBtn = div.querySelector(".locDrillBtn");
+        if (drillBtn){
+          drillBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            // Navigate into this node: clear search, set nav stack to this path
+            locSearchInput.value = "";
+            loc_searchText = "";
+            loc_navStack.length = 1;
+            path.forEach(p => loc_navStack.push(p));
+            loc_render();
+          });
+        }
+        div.addEventListener("click", () => {
+          if (hasChildren){
+            locSearchInput.value = "";
+            loc_searchText = "";
+            loc_navStack.length = 1;
+            path.forEach(p => loc_navStack.push(p));
+            loc_render();
+          } else if (isSelectable){
+            if (selectedElementIds.has(node.name)) selectedElementIds.delete(node.name);
+            else selectedElementIds.add(node.name);
+            loc_render();
+            updateSelectionControls();
+          }
+        });
+        locDrillList.appendChild(div);
+      });
+      return;
+    }
+
+    // --- Normal drill-down mode ---
     const current = loc_currentNode();
     const items = loc_typeFilter
       ? current.children.filter(n => n.type === loc_typeFilter)

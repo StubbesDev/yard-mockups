@@ -4885,13 +4885,14 @@
   }
 
   function loc_render(){
-    // --- Search mode: flat filtered list with parent paths ---
+    // --- Search mode: flat filtered list within current path ---
     if (loc_searchText){
-      locBreadcrumb.innerHTML = "<span style='color:var(--muted);'>Search results</span>";
-      locBackBtn.disabled = true;
+      const current = loc_currentNode();
+      loc_renderBreadcrumb();
+      locBackBtn.disabled = loc_navStack.length <= 1;
       locDrillList.innerHTML = "";
 
-      let matches = loc_searchTree(LOC_TREE, loc_searchText, []);
+      let matches = loc_searchTree(current, loc_searchText, []);
       if (loc_typeFilter){
         matches = matches.filter(m => m.node.type === loc_typeFilter);
       }

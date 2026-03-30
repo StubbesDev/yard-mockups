@@ -3986,10 +3986,14 @@
   };
 
   // Assign unique _uid to every item so duplicates with the same id are individually selectable
+  // Default all elements to HC type if not set
   (function(){
     let counter = 0;
     ["elements","stacks","racks"].forEach(key => {
-      YARD_DATA[key].forEach(item => { item._uid = `${key}-${counter++}`; });
+      YARD_DATA[key].forEach(item => {
+        item._uid = `${key}-${counter++}`;
+        if (key === "elements" && !item.elType) item.elType = "HC";
+      });
     });
   })();
 
@@ -4099,11 +4103,12 @@
   }
 
   function updateSelectAllBtn(){
-    if (!currentSearchResults.length){
+    const selectableResults = currentSearchResults.filter(it => it.elType !== "WetCast");
+    if (!selectableResults.length){
       selectAllBtn.style.display = "none";
       return;
     }
-    const allSelected = currentSearchResults.every(it => selectedElementIds.has(it._uid));
+    const allSelected = selectableResults.every(it => selectedElementIds.has(it._uid));
     selectAllBtn.style.display = "";
     selectAllBtn.textContent = allSelected ? "Deselect all" : "Select all";
   }
@@ -4133,20 +4138,27 @@
       const row = document.createElement("div");
       row.className = "rowItem" + (isSelected ? " selected" : "");
       row.setAttribute("data-id", it.id);
+      const isWetCast = it.elType === "WetCast";
       const elementExtra = (mode === "elements" && it.drawingNo)
         ? `<div class="loc" style="margin-top:2px;">${escapeHtml(it.drawingNo)} &bull; ${escapeHtml(it.stack || '—')}</div>`
+        : '';
+      const typeChip = (mode === "elements" && it.elType)
+        ? `<span style="font-size:10px;font-weight:700;padding:1px 5px;border-radius:4px;margin-left:6px;${isWetCast ? 'background:rgba(214,166,58,.18);color:var(--warn);' : 'background:rgba(47,143,87,.12);color:var(--accent);'}">${escapeHtml(it.elType)}</span>`
         : '';
 
       row.innerHTML = `
         <div class="meta">
-          <div class="id"><span class="rowDetailLink" style="cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;">${escapeHtml(it.id)}</span></div>
+          <div class="id"><span class="rowDetailLink" style="cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;">${escapeHtml(it.id)}</span>${typeChip}</div>
           <div class="loc">${escapeHtml(it.loc)}${it.elements != null ? ' &bull; ' + it.elements + '/' + (it.capacity||'?') + ' elements' : ''}</div>
           ${elementExtra}
         </div>
         <div style="display:flex;gap:6px;align-items:center;flex:0 0 auto;">
-          <div class="pill rowSelectPill ${isSelected ? "selected" : ""}" style="cursor:pointer;">
-            ${isSelected ? "SELECTED" : "SELECT"}
-          </div>
+          ${isWetCast
+            ? (isSelected
+              ? '<div class="pill rowSelectPill selected" style="cursor:pointer;">SELECTED</div>'
+              : '<button class="btn secondary rowScanBtn" type="button" style="padding:5px 8px;font-size:11px;">Scan</button>')
+            : '<div class="pill rowSelectPill ' + (isSelected ? 'selected' : '') + '" style="cursor:pointer;">' + (isSelected ? 'SELECTED' : 'SELECT') + '</div>'
+          }
           ${hasChildren ? '<div class="locDrillArrow rowDrillBtn" style="cursor:pointer;transform:rotate(' + (isExpanded ? '90' : '0') + 'deg);transition:transform .15s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>' : ''}
         </div>
       `;
@@ -4157,18 +4169,38 @@
         openDetailModal(it);
       });
 
-      // Select pill
-      row.querySelector(".rowSelectPill").addEventListener("click", (e) => {
-        e.stopPropagation();
-        if (treeNode && containerTypes.has(treeNode.type)){
-          toggleContainerSelection(it._uid, treeNode);
-        } else {
-          if (selectedElementIds.has(it._uid)) selectedElementIds.delete(it._uid);
-          else selectedElementIds.add(it._uid);
-        }
-        renderResults(currentSearchResults);
-        updateSelectionControls();
-      });
+      // WetCast scan button
+      const scanBtn = row.querySelector(".rowScanBtn");
+      if (scanBtn){
+        scanBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const scanned = prompt(`Scan barcode to confirm selection of ${it.id}:`, it.barcode || "");
+          if (scanned && scanned.trim()){
+            selectedElementIds.add(it._uid);
+            renderResults(currentSearchResults);
+            updateSelectionControls();
+          }
+        });
+      }
+
+      // Select pill (HC elements and WetCast deselect)
+      const selectPill = row.querySelector(".rowSelectPill");
+      if (selectPill){
+        selectPill.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (isWetCast){
+            // WetCast: pill only shows when selected, clicking deselects
+            selectedElementIds.delete(it._uid);
+          } else if (treeNode && containerTypes.has(treeNode.type)){
+            toggleContainerSelection(it._uid, treeNode);
+          } else {
+            if (selectedElementIds.has(it._uid)) selectedElementIds.delete(it._uid);
+            else selectedElementIds.add(it._uid);
+          }
+          renderResults(currentSearchResults);
+          updateSelectionControls();
+        });
+      }
 
       // Drill-down chevron
       const drillBtn = row.querySelector(".rowDrillBtn");
@@ -4238,6 +4270,7 @@
     detailTitle.textContent = item.id;
     let html = '';
     if (mode === "elements"){
+      html += detailRow("Type", item.elType);
       html += detailRow("Description", item.desc);
       html += detailRow("Barcode", item.barcode);
       html += detailRow("Drawing No.", item.drawingNo);
@@ -4338,11 +4371,12 @@
   });
 
   selectAllBtn.addEventListener("click", ()=>{
-    const allSelected = currentSearchResults.every(it => selectedElementIds.has(it._uid));
+    const selectableResults = currentSearchResults.filter(it => it.elType !== "WetCast");
+    const allSelected = selectableResults.every(it => selectedElementIds.has(it._uid));
     if (allSelected){
-      currentSearchResults.forEach(it => selectedElementIds.delete(it._uid));
+      selectableResults.forEach(it => selectedElementIds.delete(it._uid));
     } else {
-      currentSearchResults.forEach(it => selectedElementIds.add(it._uid));
+      selectableResults.forEach(it => selectedElementIds.add(it._uid));
     }
     renderResults(currentSearchResults);
     loc_render();
@@ -4861,6 +4895,13 @@
     return results;
   }
 
+  // Check if a node or any descendant matches the given type
+  function loc_hasDescendantOfType(node, type){
+    if (node.type === type) return true;
+    if (!node.children) return false;
+    return node.children.some(c => loc_hasDescendantOfType(c, type));
+  }
+
   locFilterBtn.addEventListener("click", () => {
     const open = locFilterPanel.classList.toggle("open");
     locFilterBtn.classList.toggle("active", open || loc_typeFilter !== "");
@@ -5021,7 +5062,7 @@
     // --- Normal drill-down mode ---
     const current = loc_currentNode();
     const items = loc_typeFilter
-      ? current.children.filter(n => n.type === loc_typeFilter)
+      ? current.children.filter(n => loc_hasDescendantOfType(n, loc_typeFilter))
       : current.children;
 
     loc_renderBreadcrumb();

@@ -908,7 +908,7 @@
           <button class="cogBtn" id="cogBtn" type="button" aria-label="Settings">&#9881;</button>
           <div class="titles">
             <div class="h1" id="headerTitle">Search inventory</div>
-            <div class="headerSub" id="headerSub">Elements, stacks, racks, loadsheets, locations - scan barcodes - filter by project/section</div>
+            <div class="headerSub" id="headerSub">Elements, stacks, racks, locations - scan barcodes - filter by project/section</div>
           </div>
         </div>
         <div class="status" id="statusPill">ONLINE</div>
@@ -922,9 +922,8 @@
         <!-- Tabs -->
         <div class="segTabs" role="tablist" aria-label="Search mode">
           <div class="seg" id="tabElements" role="tab" aria-selected="false">Element</div>
-          <div class="seg" id="tabStacks" role="tab" aria-selected="false">Stack</div>
           <div class="seg" id="tabRacks" role="tab" aria-selected="false">Rack</div>
-          <div class="seg" id="tabLoadSheet" role="tab" aria-selected="false">Loadsheet</div>
+          <div class="seg" id="tabLoadSheet" role="tab" aria-selected="false">Stack/Loadsheet</div>
           <div class="seg active" id="tabLocation" role="tab" aria-selected="true">Location</div>
         </div>
 
@@ -1000,8 +999,8 @@
         <div class="stack" id="loadsheetUI" style="display:none;">
           <article class="card" id="lsScanCard" aria-labelledby="lsScanTitle">
             <div id="lsScanHeader">
-              <div class="fieldLabel" id="lsScanTitle">Multi-Scan (Loadsheet Barcode)</div>
-              <div class="pageSub" style="margin:0 0 8px 0;">Scan a loadsheet barcode to fetch multiple elements; then review + select actions.</div>
+              <div class="fieldLabel" id="lsScanTitle">Stack Scan</div>
+              <div class="pageSub" style="margin:0 0 8px 0;">Scan a stack barcode to find all elements on that stack; then review + select actions.</div>
             </div>
 
             <div class="lsScanArea" id="lsScanArea">
@@ -1018,7 +1017,7 @@
                 <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
                   <div>
                     <div class="lsId" id="lsId">-</div>
-                    <div class="lsMeta" id="lsMeta">No loadsheet scanned</div>
+                    <div class="lsMeta" id="lsMeta">No stack scanned</div>
                   </div>
                   <button id="lsReviewBtn" class="lsActionBtn" type="button" disabled>Review elements</button>
                 </div>
@@ -1035,7 +1034,7 @@
           <article class="card lsReviewCard" id="lsReviewCard">
             <div class="lsReviewTop">
               <div>
-                <div class="inlineActionTitle">Elements referenced by loadsheet</div>
+                <div class="inlineActionTitle">Elements on this stack</div>
                 <div class="n" id="lsFoundCount">0 found</div>
               </div>
             </div>
@@ -1450,7 +1449,7 @@
 
     if (id === "search") {
       headerTitle.textContent = "Search inventory";
-      headerSub.textContent = "Elements, stacks, racks, loadsheets, locations - scan barcodes - filter by project/section";
+      headerSub.textContent = "Elements, stacks, racks, locations - scan barcodes - filter by project/section";
     } else if (id === "moves") {
       rb_updateHeader();
     } else if (id === "settings") {
@@ -1472,7 +1471,6 @@
      SEARCH MODULE
      ============================================================ */
   const tabElements = document.getElementById("tabElements");
-  const tabStacks = document.getElementById("tabStacks");
   const tabRacks = document.getElementById("tabRacks");
   const tabLoadSheet = document.getElementById("tabLoadSheet");
   const tabLocation = document.getElementById("tabLocation");
@@ -1492,7 +1490,7 @@
   const filterBadge = document.getElementById("filterBadge");
   const filterSummary = document.getElementById("filterSummary");
 
-  const allTabs = [tabElements, tabStacks, tabRacks, tabLoadSheet, tabLocation];
+  const allTabs = [tabElements, tabRacks, tabLoadSheet, tabLocation];
   let mode = "location";
   function setMode(m){
     mode = m;
@@ -1503,7 +1501,7 @@
     // Update tab active states
     allTabs.forEach(tab => {
       const tabMode = tab.id.replace("tab","").toLowerCase();
-      const modeMap = { elements:"elements", stacks:"stacks", racks:"racks", loadsheet:"loadsheet", location:"location" };
+      const modeMap = { elements:"elements", racks:"racks", loadsheet:"loadsheet", location:"location" };
       const isActive = modeMap[tabMode] === mode;
       tab.classList.toggle("active", isActive);
       tab.setAttribute("aria-selected", String(isActive));
@@ -1525,12 +1523,10 @@
 
     const labels = {
       elements: "Search by element ID / barcode / description",
-      stacks: "Search by stack number / name",
       racks: "Search by rack ID / barcode",
     };
     const placeholders = {
       elements: "e.g. L-1_1 or ABA",
-      stacks: "e.g. STK-A04-01 or BEE",
       racks: "e.g. RCK-A07-01 or BEE",
     };
     queryLabel.textContent = labels[mode] || labels.elements;
@@ -1546,7 +1542,6 @@
     else renderResults([]);
   }
   tabElements.addEventListener("click", ()=>setMode("elements"));
-  tabStacks.addEventListener("click", ()=>setMode("stacks"));
   tabRacks.addEventListener("click", ()=>setMode("racks"));
   tabLoadSheet.addEventListener("click", ()=>setMode("loadsheet"));
   tabLocation.addEventListener("click", ()=>setMode("location"));
@@ -1578,14 +1573,6 @@
       { value:"desc", label:"Description" },
       { value:"drawingNo", label:"Drawing No." },
       { value:"stack", label:"Stack" },
-    ],
-    stacks: [
-      { value:"id", label:"Stack ID" },
-      { value:"loc", label:"Location" },
-      { value:"project", label:"Project" },
-      { value:"area", label:"Section" },
-      { value:"desc", label:"Description" },
-      { value:"elements", label:"Element count" },
     ],
     racks: [
       { value:"id", label:"Rack ID" },
@@ -3958,7 +3945,7 @@
   ];
 
   /* ---- Derive YARD_DATA from MASTER_DATA ---- */
-  const YARD_DATA = { elements: [], stacks: [], racks: [] };
+  const YARD_DATA = { elements: [], racks: [] };
 
   // Elements: one per MASTER_DATA entry
   MASTER_DATA.forEach((d, i) => {
@@ -3975,33 +3962,6 @@
       elType: d.elType || "HC",
     });
   });
-
-  // Stacks: one per unique section+row, with element counts
-  (function(){
-    const map = new Map();
-    MASTER_DATA.forEach(d => {
-      const key = d.section + "|" + d.row;
-      if (!map.has(key)) map.set(key, { section: d.section, row: d.row, projects: {}, count: 0 });
-      const s = map.get(key);
-      s.count++;
-      s.projects[d.project] = (s.projects[d.project] || 0) + 1;
-    });
-    let idx = 0;
-    map.forEach(v => {
-      const topProject = Object.entries(v.projects).sort((a,b) => b[1] - a[1])[0][0];
-      YARD_DATA.stacks.push({
-        _uid: "stacks-" + idx,
-        id: "STK-" + v.row,
-        barcode: "STK" + String(idx + 1).padStart(5, "0"),
-        desc: "Stack " + v.row,
-        project: topProject,
-        area: v.section,
-        loc: v.section + " - " + v.row,
-        elements: v.count,
-      });
-      idx++;
-    });
-  })();
 
   // Racks: one per unique rack name found in MASTER_DATA
   (function(){
@@ -4028,7 +3988,6 @@
 
   function getSourceData(){
     if (mode === "elements") return YARD_DATA.elements;
-    if (mode === "stacks") return YARD_DATA.stacks;
     if (mode === "racks") return YARD_DATA.racks;
     return [];
   }
@@ -4155,7 +4114,7 @@
       return;
     }
 
-    const isDrillable = (mode === "stacks" || mode === "racks");
+    const isDrillable = (mode === "racks");
     resultsList.innerHTML = "";
 
     items.forEach(it => {
@@ -4307,13 +4266,6 @@
       html += detailRow("Section", item.area);
       html += detailRow("Stack", item.stack);
       html += detailRow("Location", item.loc);
-    } else if (mode === "stacks"){
-      html += detailRow("Description", item.desc);
-      html += detailRow("Barcode", item.barcode);
-      html += detailRow("Project", item.project);
-      html += detailRow("Section", item.area);
-      html += detailRow("Location", item.loc);
-      html += detailRow("Elements", (item.elements != null ? item.elements + ' elements' : '—'));
     } else if (mode === "racks"){
       html += detailRow("Barcode", item.barcode);
       html += detailRow("Project", item.project);
@@ -4337,7 +4289,6 @@
       if (!searchText) return true;
       let haystack;
       if (mode === "elements") haystack = `${item.id} ${item.barcode} ${item.desc} ${item.project} ${item.area} ${item.loc}`.toLowerCase();
-      else if (mode === "stacks") haystack = `${item.id} ${item.barcode} ${item.desc} ${item.project} ${item.area} ${item.loc}`.toLowerCase();
       else haystack = `${item.id} ${item.barcode} ${item.project} ${item.area} ${item.loc} ${item.leaves}`.toLowerCase();
       return haystack.includes(searchText);
     }).slice(0, MAX_RESULTS);
@@ -4346,7 +4297,7 @@
   }
 
   document.getElementById("scanBtn").addEventListener("click", ()=>{
-    const names = { elements:"element", stacks:"stack", racks:"rack", location:"location" };
+    const names = { elements:"element", racks:"rack", location:"location" };
     alert(`Wireframe: open camera scan for ${names[mode] || mode} barcode.`);
   });
 
@@ -4416,7 +4367,7 @@
   rebookBtn.addEventListener("click", ()=>{
     if (!selectedElementIds.size) return;
     // Populate rebook selection from all data sources (one entry per unique ID)
-    const allItems = [...YARD_DATA.elements, ...YARD_DATA.stacks, ...YARD_DATA.racks];
+    const allItems = [...YARD_DATA.elements, ...YARD_DATA.racks];
     const seen = new Set();
     rb_sel = [];
     allItems.forEach(item => {
@@ -4455,42 +4406,22 @@
   const lsFoundList = document.getElementById("lsFoundList");
   const lsFoundCount = document.getElementById("lsFoundCount");
 
-  // Loadsheet elements — all BEE project, referencing real YARD_DATA entries
-  const lsSampleElements = [
-    { id: "L-1_2",  loc: "HC Yard A - HC-A04" },
-    { id: "L-10_1", loc: "HC Yard A - HC-A04" },
-    { id: "L-14_1", loc: "HC Yard A - HC-A06" },
-    { id: "L-6_1",  loc: "HC Yard A - HC-A13" },
-    { id: "S-10_1", loc: "HC Yard A - HC-A30" },
-    { id: "SR-3_1", loc: "Not in yard" },
-  ];
+  // Get base element name (before the underscore, e.g. "L-14" from "L-14_1")
+  function lsBaseId(id){
+    const idx = id.lastIndexOf("_");
+    return idx > 0 ? id.substring(0, idx) : id;
+  }
 
-  // Alternatives: same element IDs at different yard locations (from YARD_DATA)
-  const lsAlternatives = {
-    "L-1_2": [
-      { id: "L-1_2",  loc: "HC Yard A - HC-A04 (barcode 251320000)" },
-    ],
-    "L-10_1": [
-      { id: "L-2_1",  loc: "HC Yard A - HC-A04" },
-      { id: "L-6_2",  loc: "HC Yard A - HC-A03" },
-    ],
-    "L-14_1": [
-      { id: "L-14_1", loc: "HC Yard A - HC-A03" },
-      { id: "L-14_1", loc: "HC Yard A - HC-A05" },
-    ],
-    "L-6_1": [
-      { id: "L-6_2",  loc: "HC Yard A - HC-A03" },
-    ],
-    "S-10_1": [
-      { id: "S-10_1", loc: "HC Yard A - HC-A31" },
-      { id: "S-10_1", loc: "HC Yard A - HC-A27" },
-    ],
-    "SR-3_1": [
-      { id: "SR-3_1", loc: "HC Yard A - HC-A09" },
-      { id: "SR-3_1", loc: "HC Yard A - HC-A08" },
-      { id: "SR-3_2", loc: "HC Yard A - HC-A07" },
-    ],
-  };
+  // Build alternatives for an element: same base ID + same project, excluding itself
+  function lsBuildAlternatives(item){
+    const base = lsBaseId(item.id);
+    return YARD_DATA.elements.filter(el =>
+      lsBaseId(el.id) === base && el.project === item.project && el._uid !== item._uid
+    ).map(el => ({ id: el.id, loc: el.loc, _uid: el._uid }));
+  }
+
+  // lsAlternatives is computed dynamically per stack scan
+  let lsAlternatives = {};
 
   let lsFound = [];
   let lsSelected = new Set();
@@ -4507,13 +4438,13 @@
   }
 
 
-  function lsToggleSelect(id){
-    if (lsSelected.has(id)){
-      lsSelected.delete(id);
-      selectedElementIds.delete(id);
+  function lsToggleSelect(uid){
+    if (lsSelected.has(uid)){
+      lsSelected.delete(uid);
+      selectedElementIds.delete(uid);
     } else {
-      lsSelected.add(id);
-      selectedElementIds.add(id);
+      lsSelected.add(uid);
+      selectedElementIds.add(uid);
     }
     lsRenderFound();
     updateSelectionControls();
@@ -4522,9 +4453,10 @@
   function lsRenderFound(){
     lsFoundList.innerHTML = "";
     lsFound.forEach((item, idx) => {
-      const isOn = lsSelected.has(item.id);
+      const itemKey = item._uid || item.id;
+      const isOn = lsSelected.has(itemKey);
       const notInYard = item.loc === "Not in yard";
-      const isExpanded = lsExpandedId === item.id;
+      const isExpanded = lsExpandedId === itemKey;
       const alts = lsAlternatives[item.origId || item.id] || [];
       const hasAlts = alts.length > 0;
 
@@ -4549,7 +4481,7 @@
       if (altBtn){
         altBtn.addEventListener("click", (e) => {
           e.stopPropagation();
-          lsExpandedId = isExpanded ? null : item.id;
+          lsExpandedId = isExpanded ? null : itemKey;
           lsRenderFound();
         });
       }
@@ -4557,14 +4489,14 @@
       // Row click expands alternatives
       row.addEventListener("click", (e) => {
         if (e.target.closest(".lsSelBtn") || e.target.closest(".lsAltBtn")) return;
-        lsExpandedId = isExpanded ? null : item.id;
+        lsExpandedId = isExpanded ? null : itemKey;
         lsRenderFound();
       });
 
       // Select button
       row.querySelector(".lsSelBtn").addEventListener("click", (e) => {
         e.stopPropagation();
-        lsToggleSelect(item.id);
+        lsToggleSelect(itemKey);
       });
 
       lsFoundList.appendChild(row);
@@ -4576,7 +4508,7 @@
 
         const label = document.createElement("div");
         label.style.cssText = "font-size:11px;color:var(--muted);margin:6px 0 4px 0;";
-        label.textContent = "Identical alternatives — tap to swap";
+        label.textContent = "Same element, different location — tap to swap";
         panel.appendChild(label);
 
         alts.forEach(alt => {
@@ -4594,15 +4526,16 @@
           `;
           altRow.addEventListener("click", () => {
             // Swap: replace the current element with this alternative
-            const wasSelected = lsSelected.has(item.id);
+            const wasSelected = lsSelected.has(itemKey);
             if (wasSelected){
-              lsSelected.delete(item.id);
-              selectedElementIds.delete(item.id);
+              lsSelected.delete(itemKey);
+              selectedElementIds.delete(itemKey);
             }
-            lsFound[idx] = { id: alt.id, loc: alt.loc, origId: item.origId || item.id, swapped: true };
+            const altKey = alt._uid || alt.id;
+            lsFound[idx] = { id: alt.id, loc: alt.loc, _uid: alt._uid, origId: item.origId || item.id, swapped: true };
             if (wasSelected){
-              lsSelected.add(alt.id);
-              selectedElementIds.add(alt.id);
+              lsSelected.add(altKey);
+              selectedElementIds.add(altKey);
             }
             lsExpandedId = null;
             lsRenderFound();
@@ -4616,10 +4549,36 @@
     lsFoundCount.textContent = `${lsFound.length} found`;
   }
 
-  function lsLoadSample(sheetCode){
-    lsId.textContent = sheetCode;
-    lsMetaEl.textContent = `${lsSampleElements.length} elements found - parsed from loadsheet`;
-    lsFound = lsSampleElements.map(el => ({...el}));
+  function lsLoadStack(stackCode){
+    lsId.textContent = stackCode;
+    // Find all elements whose id starts with the stack code (e.g. "L-14" matches "L-14_1", "L-14_2")
+    // Also try exact match on the full element id
+    const matches = YARD_DATA.elements.filter(el => {
+      const base = lsBaseId(el.id);
+      return base === stackCode || el.id === stackCode;
+    });
+
+    if (!matches.length){
+      lsMetaEl.textContent = `No elements found for stack "${stackCode}"`;
+      lsFound = [];
+      lsAlternatives = {};
+      lsSelected = new Set();
+      lsExpandedId = null;
+      lsEnableControls(false);
+      lsRenderFound();
+      updateSelectionControls();
+      return;
+    }
+
+    // Deduplicate by _uid, build found list and alternatives
+    lsFound = matches.map(el => ({ id: el.id, loc: el.loc, _uid: el._uid }));
+    lsAlternatives = {};
+    matches.forEach(el => {
+      const alts = lsBuildAlternatives(el);
+      if (alts.length) lsAlternatives[el.id] = alts;
+    });
+
+    lsMetaEl.textContent = `${lsFound.length} elements found on stack ${stackCode}`;
     lsSelected = new Set();
     lsExpandedId = null;
     lsEnableControls(true);
@@ -4627,11 +4586,15 @@
     updateSelectionControls();
   }
 
-  lsSimulateScan.addEventListener("click", ()=>{ lsLoadSample("LS-2026-BEE-0042"); });
+  lsSimulateScan.addEventListener("click", ()=>{
+    // Pick a real base ID from the data as a demo
+    const sampleBase = lsBaseId(YARD_DATA.elements[3]?.id || "L-1");
+    lsLoadStack(sampleBase);
+  });
   lsPasteCode.addEventListener("click", ()=>{
-    const code = prompt("Enter loadsheet code (wireframe):", "LS-2026-BEE-0042");
+    const code = prompt("Enter stack number (e.g. L-14, SR-3, S-10):", "L-14");
     if (!code) return;
-    lsLoadSample(code.trim());
+    lsLoadStack(code.trim());
   });
 
   lsReviewBtn.addEventListener("click", ()=>{

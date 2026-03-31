@@ -921,15 +921,15 @@
 
         <!-- Tabs -->
         <div class="segTabs" role="tablist" aria-label="Search mode">
-          <div class="seg active" id="tabElements" role="tab" aria-selected="true">Element</div>
+          <div class="seg" id="tabElements" role="tab" aria-selected="false">Element</div>
           <div class="seg" id="tabStacks" role="tab" aria-selected="false">Stack</div>
           <div class="seg" id="tabRacks" role="tab" aria-selected="false">Rack</div>
           <div class="seg" id="tabLoadSheet" role="tab" aria-selected="false">Loadsheet</div>
-          <div class="seg" id="tabLocation" role="tab" aria-selected="false">Location</div>
+          <div class="seg active" id="tabLocation" role="tab" aria-selected="true">Location</div>
         </div>
 
 
-        <div class="stack" id="searchClassicUI">
+        <div class="stack" id="searchClassicUI" style="display:none;">
           <div class="card">
             <div class="filterDock">
               <button class="btn secondary filterToggle" id="toggleFiltersBtn" type="button" aria-label="Open filters">
@@ -1045,14 +1045,14 @@
         </div>
 
         <!-- Location drill-down (shown when Location tab active) -->
-        <div class="stack" id="locationUI" style="display:none;">
+        <div class="stack" id="locationUI">
           <div class="locDrillBar">
             <button class="locFilterBtn" id="locFilterBtn" type="button" aria-label="Filter locations" title="Filter">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
               <span class="locFilterDot"></span>
             </button>
             <button class="btn secondary" id="locBackBtn" type="button">Back</button>
-            <div class="locBreadcrumb" id="locBreadcrumb">Area</div>
+            <div class="locBreadcrumb" id="locBreadcrumb">Sections</div>
           </div>
           <div class="locFilterPanel" id="locFilterPanel">
             <div class="locFilterLabel">Show type</div>
@@ -1060,7 +1060,6 @@
               <div class="locFilterChip active" data-type="">All</div>
               <div class="locFilterChip" data-type="Section">Section</div>
               <div class="locFilterChip" data-type="Row">Row</div>
-              <div class="locFilterChip" data-type="Lane">Lane</div>
               <div class="locFilterChip" data-type="Rack">Rack</div>
               <div class="locFilterChip" data-type="Stack">Stack</div>
               <div class="locFilterChip" data-type="Trailer">Trailer</div>
@@ -1107,11 +1106,6 @@
               <div class="input"><input id="lmNameInput" placeholder="" /></div>
             </div>
 
-            <!-- Capacity (rack/trailer only) -->
-            <div id="lmFieldCapacity" style="margin-bottom:10px;">
-              <div class="fieldLabel">Capacity</div>
-              <div class="input" style="max-width:120px;"><input id="lmCapacity" type="number" min="0" placeholder="capacity" /></div>
-            </div>
           </div>
 
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
@@ -1499,7 +1493,7 @@
   const filterSummary = document.getElementById("filterSummary");
 
   const allTabs = [tabElements, tabStacks, tabRacks, tabLoadSheet, tabLocation];
-  let mode = "elements";
+  let mode = "location";
   function setMode(m){
     mode = m;
     expandedIds.clear();
@@ -4004,7 +3998,6 @@
         area: v.section,
         loc: v.section + " - " + v.row,
         elements: v.count,
-        capacity: Math.ceil(v.count * 1.25),
       });
       idx++;
     });
@@ -4185,7 +4178,7 @@
       row.innerHTML = `
         <div class="meta">
           <div class="id"><span class="rowDetailLink" style="cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;">${escapeHtml(it.id)}</span>${typeChip}</div>
-          <div class="loc">${escapeHtml(it.loc)}${it.elements != null ? ' &bull; ' + it.elements + '/' + (it.capacity||'?') + ' elements' : ''}</div>
+          <div class="loc">${escapeHtml(it.loc)}${it.elements != null ? ' &bull; ' + it.elements + ' elements' : ''}</div>
           ${elementExtra}
         </div>
         <div style="display:flex;gap:6px;align-items:center;flex:0 0 auto;">
@@ -4320,7 +4313,7 @@
       html += detailRow("Project", item.project);
       html += detailRow("Section", item.area);
       html += detailRow("Location", item.loc);
-      html += detailRow("Elements", (item.elements != null ? item.elements + ' / ' + (item.capacity||'?') + ' capacity' : '—'));
+      html += detailRow("Elements", (item.elements != null ? item.elements + ' elements' : '—'));
     } else if (mode === "racks"){
       html += detailRow("Barcode", item.barcode);
       html += detailRow("Project", item.project);
@@ -5012,6 +5005,9 @@
     }
   });
 
+  // Render location tree on initial load
+  loc_render();
+
   /* ============================================================
      REBOOK / MOVE MODULE (rb_ prefix)
      ============================================================ */
@@ -5186,7 +5182,7 @@
       const secNode = (LOC_TREE.children || []).find(c => c.name === rbDestSection.value);
       const rlNode = secNode && (secNode.children || []).find(c => c.name === rbDestRowLane.value);
       const slotNode = rlNode && (rlNode.children || []).find(c => c.name === slot);
-      const sub = slotNode && slotNode.sub ? slotNode.sub : "No capacity info";
+      const sub = slotNode && slotNode.sub ? slotNode.sub : "";
       rbDestDetails.textContent = `${slot} — ${sub}`;
     }
   }
@@ -5267,181 +5263,181 @@
      ============================================================ */
   const lm_initialLocations = [
     // BA YARD
-    { id:"ba-yard||", type:"section", name:"BA YARD", section:"BA YARD", rowLane:"", container:"", rowLaneType:"", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"ba-yard|row-1|", type:"row", name:"Row 1", section:"BA YARD", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"ba-yard|row-1|rack-ba-r1-01", type:"rack", name:"Rack BA-R1-01", section:"BA YARD", rowLane:"Row 1", container:"Rack BA-R1-01", rowLaneType:"Row", containerType:"Rack", capacity:14, occupied:9, active:true },
-    { id:"ba-yard|row-1|rack-ba-r1-02", type:"rack", name:"Rack BA-R1-02", section:"BA YARD", rowLane:"Row 1", container:"Rack BA-R1-02", rowLaneType:"Row", containerType:"Rack", capacity:14, occupied:6, active:true },
-    { id:"ba-yard|row-2|", type:"row", name:"Row 2", section:"BA YARD", rowLane:"Row 2", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"ba-yard|row-2|rack-ba-r2-01", type:"rack", name:"Rack BA-R2-01", section:"BA YARD", rowLane:"Row 2", container:"Rack BA-R2-01", rowLaneType:"Row", containerType:"Rack", capacity:14, occupied:11, active:true },
+    { id:"ba-yard||", type:"section", name:"BA YARD", section:"BA YARD", rowLane:"", container:"", rowLaneType:"", containerType:"", active:true },
+    { id:"ba-yard|row-1|", type:"row", name:"Row 1", section:"BA YARD", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", active:true },
+    { id:"ba-yard|row-1|rack-ba-r1-01", type:"rack", name:"Rack BA-R1-01", section:"BA YARD", rowLane:"Row 1", container:"Rack BA-R1-01", rowLaneType:"Row", containerType:"Rack", active:true },
+    { id:"ba-yard|row-1|rack-ba-r1-02", type:"rack", name:"Rack BA-R1-02", section:"BA YARD", rowLane:"Row 1", container:"Rack BA-R1-02", rowLaneType:"Row", containerType:"Rack", active:true },
+    { id:"ba-yard|row-2|", type:"row", name:"Row 2", section:"BA YARD", rowLane:"Row 2", container:"", rowLaneType:"Row", containerType:"", active:true },
+    { id:"ba-yard|row-2|rack-ba-r2-01", type:"rack", name:"Rack BA-R2-01", section:"BA YARD", rowLane:"Row 2", container:"Rack BA-R2-01", rowLaneType:"Row", containerType:"Rack", active:true },
 
     // CENTRALIA
-    { id:"centralia||", type:"section", name:"CENTRALIA", section:"CENTRALIA", rowLane:"", container:"", rowLaneType:"", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"centralia|row-1|", type:"row", name:"Row 1", section:"CENTRALIA", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"centralia|row-1|rack-cn-r1-01", type:"rack", name:"Rack CN-R1-01", section:"CENTRALIA", rowLane:"Row 1", container:"Rack CN-R1-01", rowLaneType:"Row", containerType:"Rack", capacity:16, occupied:12, active:true },
-    { id:"centralia|row-2|", type:"row", name:"Row 2", section:"CENTRALIA", rowLane:"Row 2", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"centralia|row-2|rack-cn-r2-01", type:"rack", name:"Rack CN-R2-01", section:"CENTRALIA", rowLane:"Row 2", container:"Rack CN-R2-01", rowLaneType:"Row", containerType:"Rack", capacity:16, occupied:8, active:true },
+    { id:"centralia||", type:"section", name:"CENTRALIA", section:"CENTRALIA", rowLane:"", container:"", rowLaneType:"", containerType:"", active:true },
+    { id:"centralia|row-1|", type:"row", name:"Row 1", section:"CENTRALIA", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", active:true },
+    { id:"centralia|row-1|rack-cn-r1-01", type:"rack", name:"Rack CN-R1-01", section:"CENTRALIA", rowLane:"Row 1", container:"Rack CN-R1-01", rowLaneType:"Row", containerType:"Rack", active:true },
+    { id:"centralia|row-2|", type:"row", name:"Row 2", section:"CENTRALIA", rowLane:"Row 2", container:"", rowLaneType:"Row", containerType:"", active:true },
+    { id:"centralia|row-2|rack-cn-r2-01", type:"rack", name:"Rack CN-R2-01", section:"CENTRALIA", rowLane:"Row 2", container:"Rack CN-R2-01", rowLaneType:"Row", containerType:"Rack", active:true },
 
     // Centralia (separate from CENTRALIA)
-    { id:"centralia-lc||", type:"section", name:"Centralia", section:"Centralia", rowLane:"", container:"", rowLaneType:"", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"centralia-lc|lane-1|", type:"lane", name:"Lane 1", section:"Centralia", rowLane:"Lane 1", container:"", rowLaneType:"Lane", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"centralia-lc|lane-1|trailer-cl-l1-01", type:"trailer", name:"Trailer CL-L1-01", section:"Centralia", rowLane:"Lane 1", container:"Trailer CL-L1-01", rowLaneType:"Lane", containerType:"Trailer", capacity:10, occupied:7, active:true },
+    { id:"centralia-lc||", type:"section", name:"Centralia", section:"Centralia", rowLane:"", container:"", rowLaneType:"", containerType:"", active:true },
+    { id:"centralia-lc|lane-1|", type:"lane", name:"Lane 1", section:"Centralia", rowLane:"Lane 1", container:"", rowLaneType:"Lane", containerType:"", active:true },
+    { id:"centralia-lc|lane-1|trailer-cl-l1-01", type:"trailer", name:"Trailer CL-L1-01", section:"Centralia", rowLane:"Lane 1", container:"Trailer CL-L1-01", rowLaneType:"Lane", containerType:"Trailer", active:true },
 
     // EDS CONCRETE
-    { id:"eds-concrete||", type:"section", name:"EDS CONCRETE", section:"EDS CONCRETE", rowLane:"", container:"", rowLaneType:"", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"eds-concrete|row-1|", type:"row", name:"Row 1", section:"EDS CONCRETE", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"eds-concrete|row-1|rack-eds-r1-01", type:"rack", name:"Rack EDS-R1-01", section:"EDS CONCRETE", rowLane:"Row 1", container:"Rack EDS-R1-01", rowLaneType:"Row", containerType:"Rack", capacity:20, occupied:15, active:true },
-    { id:"eds-concrete|row-1|rack-eds-r1-02", type:"rack", name:"Rack EDS-R1-02", section:"EDS CONCRETE", rowLane:"Row 1", container:"Rack EDS-R1-02", rowLaneType:"Row", containerType:"Rack", capacity:20, occupied:18, active:true },
-    { id:"eds-concrete|row-2|", type:"row", name:"Row 2", section:"EDS CONCRETE", rowLane:"Row 2", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"eds-concrete|row-2|rack-eds-r2-01", type:"rack", name:"Rack EDS-R2-01", section:"EDS CONCRETE", rowLane:"Row 2", container:"Rack EDS-R2-01", rowLaneType:"Row", containerType:"Rack", capacity:20, occupied:4, active:true },
+    { id:"eds-concrete||", type:"section", name:"EDS CONCRETE", section:"EDS CONCRETE", rowLane:"", container:"", rowLaneType:"", containerType:"", active:true },
+    { id:"eds-concrete|row-1|", type:"row", name:"Row 1", section:"EDS CONCRETE", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", active:true },
+    { id:"eds-concrete|row-1|rack-eds-r1-01", type:"rack", name:"Rack EDS-R1-01", section:"EDS CONCRETE", rowLane:"Row 1", container:"Rack EDS-R1-01", rowLaneType:"Row", containerType:"Rack", active:true },
+    { id:"eds-concrete|row-1|rack-eds-r1-02", type:"rack", name:"Rack EDS-R1-02", section:"EDS CONCRETE", rowLane:"Row 1", container:"Rack EDS-R1-02", rowLaneType:"Row", containerType:"Rack", active:true },
+    { id:"eds-concrete|row-2|", type:"row", name:"Row 2", section:"EDS CONCRETE", rowLane:"Row 2", container:"", rowLaneType:"Row", containerType:"", active:true },
+    { id:"eds-concrete|row-2|rack-eds-r2-01", type:"rack", name:"Rack EDS-R2-01", section:"EDS CONCRETE", rowLane:"Row 2", container:"Rack EDS-R2-01", rowLaneType:"Row", containerType:"Rack", active:true },
 
     // GC YARD
-    { id:"gc-yard||", type:"section", name:"GC YARD", section:"GC YARD", rowLane:"", container:"", rowLaneType:"", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"gc-yard|row-1|", type:"row", name:"Row 1", section:"GC YARD", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"gc-yard|row-1|rack-gc-r1-01", type:"rack", name:"Rack GC-R1-01", section:"GC YARD", rowLane:"Row 1", container:"Rack GC-R1-01", rowLaneType:"Row", containerType:"Rack", capacity:12, occupied:10, active:true },
-    { id:"gc-yard|row-2|", type:"row", name:"Row 2", section:"GC YARD", rowLane:"Row 2", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"gc-yard|row-2|rack-gc-r2-01", type:"rack", name:"Rack GC-R2-01", section:"GC YARD", rowLane:"Row 2", container:"Rack GC-R2-01", rowLaneType:"Row", containerType:"Rack", capacity:12, occupied:3, active:true },
+    { id:"gc-yard||", type:"section", name:"GC YARD", section:"GC YARD", rowLane:"", container:"", rowLaneType:"", containerType:"", active:true },
+    { id:"gc-yard|row-1|", type:"row", name:"Row 1", section:"GC YARD", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", active:true },
+    { id:"gc-yard|row-1|rack-gc-r1-01", type:"rack", name:"Rack GC-R1-01", section:"GC YARD", rowLane:"Row 1", container:"Rack GC-R1-01", rowLaneType:"Row", containerType:"Rack", active:true },
+    { id:"gc-yard|row-2|", type:"row", name:"Row 2", section:"GC YARD", rowLane:"Row 2", container:"", rowLaneType:"Row", containerType:"", active:true },
+    { id:"gc-yard|row-2|rack-gc-r2-01", type:"rack", name:"Rack GC-R2-01", section:"GC YARD", rowLane:"Row 2", container:"Rack GC-R2-01", rowLaneType:"Row", containerType:"Rack", active:true },
 
     // HC Overflow
-    { id:"hc-overflow||", type:"section", name:"HC Overflow", section:"HC Overflow", rowLane:"", container:"", rowLaneType:"", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"hc-overflow|lane-1|", type:"lane", name:"Lane 1", section:"HC Overflow", rowLane:"Lane 1", container:"", rowLaneType:"Lane", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"hc-overflow|lane-1|trailer-hco-l1-01", type:"trailer", name:"Trailer HCO-L1-01", section:"HC Overflow", rowLane:"Lane 1", container:"Trailer HCO-L1-01", rowLaneType:"Lane", containerType:"Trailer", capacity:12, occupied:12, active:true },
-    { id:"hc-overflow|lane-2|", type:"lane", name:"Lane 2", section:"HC Overflow", rowLane:"Lane 2", container:"", rowLaneType:"Lane", containerType:"", capacity:null, occupied:0, active:true },
+    { id:"hc-overflow||", type:"section", name:"HC Overflow", section:"HC Overflow", rowLane:"", container:"", rowLaneType:"", containerType:"", active:true },
+    { id:"hc-overflow|lane-1|", type:"lane", name:"Lane 1", section:"HC Overflow", rowLane:"Lane 1", container:"", rowLaneType:"Lane", containerType:"", active:true },
+    { id:"hc-overflow|lane-1|trailer-hco-l1-01", type:"trailer", name:"Trailer HCO-L1-01", section:"HC Overflow", rowLane:"Lane 1", container:"Trailer HCO-L1-01", rowLaneType:"Lane", containerType:"Trailer", active:true },
+    { id:"hc-overflow|lane-2|", type:"lane", name:"Lane 2", section:"HC Overflow", rowLane:"Lane 2", container:"", rowLaneType:"Lane", containerType:"", active:true },
 
     // HC Yard A
-    { id:"hc-yard-a||", type:"section", name:"HC Yard A", section:"HC Yard A", rowLane:"", container:"", rowLaneType:"", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"hc-yard-a|row-1|", type:"row", name:"Row 1", section:"HC Yard A", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"hc-yard-a|row-1|rack-hca-r1-01", type:"rack", name:"Rack HCA-R1-01", section:"HC Yard A", rowLane:"Row 1", container:"Rack HCA-R1-01", rowLaneType:"Row", containerType:"Rack", capacity:18, occupied:14, active:true },
-    { id:"hc-yard-a|row-1|rack-hca-r1-02", type:"rack", name:"Rack HCA-R1-02", section:"HC Yard A", rowLane:"Row 1", container:"Rack HCA-R1-02", rowLaneType:"Row", containerType:"Rack", capacity:18, occupied:16, active:true },
-    { id:"hc-yard-a|row-2|", type:"row", name:"Row 2", section:"HC Yard A", rowLane:"Row 2", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"hc-yard-a|row-2|rack-hca-r2-01", type:"rack", name:"Rack HCA-R2-01", section:"HC Yard A", rowLane:"Row 2", container:"Rack HCA-R2-01", rowLaneType:"Row", containerType:"Rack", capacity:18, occupied:7, active:true },
+    { id:"hc-yard-a||", type:"section", name:"HC Yard A", section:"HC Yard A", rowLane:"", container:"", rowLaneType:"", containerType:"", active:true },
+    { id:"hc-yard-a|row-1|", type:"row", name:"Row 1", section:"HC Yard A", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", active:true },
+    { id:"hc-yard-a|row-1|rack-hca-r1-01", type:"rack", name:"Rack HCA-R1-01", section:"HC Yard A", rowLane:"Row 1", container:"Rack HCA-R1-01", rowLaneType:"Row", containerType:"Rack", active:true },
+    { id:"hc-yard-a|row-1|rack-hca-r1-02", type:"rack", name:"Rack HCA-R1-02", section:"HC Yard A", rowLane:"Row 1", container:"Rack HCA-R1-02", rowLaneType:"Row", containerType:"Rack", active:true },
+    { id:"hc-yard-a|row-2|", type:"row", name:"Row 2", section:"HC Yard A", rowLane:"Row 2", container:"", rowLaneType:"Row", containerType:"", active:true },
+    { id:"hc-yard-a|row-2|rack-hca-r2-01", type:"rack", name:"Rack HCA-R2-01", section:"HC Yard A", rowLane:"Row 2", container:"Rack HCA-R2-01", rowLaneType:"Row", containerType:"Rack", active:true },
 
     // HC Yard B
-    { id:"hc-yard-b||", type:"section", name:"HC Yard B", section:"HC Yard B", rowLane:"", container:"", rowLaneType:"", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"hc-yard-b|row-1|", type:"row", name:"Row 1", section:"HC Yard B", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"hc-yard-b|row-1|rack-hcb-r1-01", type:"rack", name:"Rack HCB-R1-01", section:"HC Yard B", rowLane:"Row 1", container:"Rack HCB-R1-01", rowLaneType:"Row", containerType:"Rack", capacity:16, occupied:11, active:true },
-    { id:"hc-yard-b|row-2|", type:"row", name:"Row 2", section:"HC Yard B", rowLane:"Row 2", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"hc-yard-b|row-2|rack-hcb-r2-01", type:"rack", name:"Rack HCB-R2-01", section:"HC Yard B", rowLane:"Row 2", container:"Rack HCB-R2-01", rowLaneType:"Row", containerType:"Rack", capacity:16, occupied:9, active:true },
+    { id:"hc-yard-b||", type:"section", name:"HC Yard B", section:"HC Yard B", rowLane:"", container:"", rowLaneType:"", containerType:"", active:true },
+    { id:"hc-yard-b|row-1|", type:"row", name:"Row 1", section:"HC Yard B", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", active:true },
+    { id:"hc-yard-b|row-1|rack-hcb-r1-01", type:"rack", name:"Rack HCB-R1-01", section:"HC Yard B", rowLane:"Row 1", container:"Rack HCB-R1-01", rowLaneType:"Row", containerType:"Rack", active:true },
+    { id:"hc-yard-b|row-2|", type:"row", name:"Row 2", section:"HC Yard B", rowLane:"Row 2", container:"", rowLaneType:"Row", containerType:"", active:true },
+    { id:"hc-yard-b|row-2|rack-hcb-r2-01", type:"rack", name:"Rack HCB-R2-01", section:"HC Yard B", rowLane:"Row 2", container:"Rack HCB-R2-01", rowLaneType:"Row", containerType:"Rack", active:true },
 
     // HC Yard C
-    { id:"hc-yard-c||", type:"section", name:"HC Yard C", section:"HC Yard C", rowLane:"", container:"", rowLaneType:"", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"hc-yard-c|row-1|", type:"row", name:"Row 1", section:"HC Yard C", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"hc-yard-c|row-1|rack-hcc-r1-01", type:"rack", name:"Rack HCC-R1-01", section:"HC Yard C", rowLane:"Row 1", container:"Rack HCC-R1-01", rowLaneType:"Row", containerType:"Rack", capacity:14, occupied:14, active:true },
-    { id:"hc-yard-c|row-2|", type:"row", name:"Row 2", section:"HC Yard C", rowLane:"Row 2", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"hc-yard-c|row-2|rack-hcc-r2-01", type:"rack", name:"Rack HCC-R2-01", section:"HC Yard C", rowLane:"Row 2", container:"Rack HCC-R2-01", rowLaneType:"Row", containerType:"Rack", capacity:14, occupied:5, active:true },
+    { id:"hc-yard-c||", type:"section", name:"HC Yard C", section:"HC Yard C", rowLane:"", container:"", rowLaneType:"", containerType:"", active:true },
+    { id:"hc-yard-c|row-1|", type:"row", name:"Row 1", section:"HC Yard C", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", active:true },
+    { id:"hc-yard-c|row-1|rack-hcc-r1-01", type:"rack", name:"Rack HCC-R1-01", section:"HC Yard C", rowLane:"Row 1", container:"Rack HCC-R1-01", rowLaneType:"Row", containerType:"Rack", active:true },
+    { id:"hc-yard-c|row-2|", type:"row", name:"Row 2", section:"HC Yard C", rowLane:"Row 2", container:"", rowLaneType:"Row", containerType:"", active:true },
+    { id:"hc-yard-c|row-2|rack-hcc-r2-01", type:"rack", name:"Rack HCC-R2-01", section:"HC Yard C", rowLane:"Row 2", container:"Rack HCC-R2-01", rowLaneType:"Row", containerType:"Rack", active:true },
 
     // HC YARD D
-    { id:"hc-yard-d||", type:"section", name:"HC YARD D", section:"HC YARD D", rowLane:"", container:"", rowLaneType:"", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"hc-yard-d|row-1|", type:"row", name:"Row 1", section:"HC YARD D", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"hc-yard-d|row-1|rack-hcd-r1-01", type:"rack", name:"Rack HCD-R1-01", section:"HC YARD D", rowLane:"Row 1", container:"Rack HCD-R1-01", rowLaneType:"Row", containerType:"Rack", capacity:16, occupied:2, active:true },
+    { id:"hc-yard-d||", type:"section", name:"HC YARD D", section:"HC YARD D", rowLane:"", container:"", rowLaneType:"", containerType:"", active:true },
+    { id:"hc-yard-d|row-1|", type:"row", name:"Row 1", section:"HC YARD D", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", active:true },
+    { id:"hc-yard-d|row-1|rack-hcd-r1-01", type:"rack", name:"Rack HCD-R1-01", section:"HC YARD D", rowLane:"Row 1", container:"Rack HCD-R1-01", rowLaneType:"Row", containerType:"Rack", active:true },
 
     // Lanes
-    { id:"lanes||", type:"section", name:"Lanes", section:"Lanes", rowLane:"", container:"", rowLaneType:"", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"lanes|lane-1|", type:"lane", name:"Lane 1", section:"Lanes", rowLane:"Lane 1", container:"", rowLaneType:"Lane", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"lanes|lane-2|", type:"lane", name:"Lane 2", section:"Lanes", rowLane:"Lane 2", container:"", rowLaneType:"Lane", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"lanes|lane-3|", type:"lane", name:"Lane 3", section:"Lanes", rowLane:"Lane 3", container:"", rowLaneType:"Lane", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"lanes|lane-4|", type:"lane", name:"Lane 4", section:"Lanes", rowLane:"Lane 4", container:"", rowLaneType:"Lane", containerType:"", capacity:null, occupied:0, active:true },
+    { id:"lanes||", type:"section", name:"Lanes", section:"Lanes", rowLane:"", container:"", rowLaneType:"", containerType:"", active:true },
+    { id:"lanes|lane-1|", type:"lane", name:"Lane 1", section:"Lanes", rowLane:"Lane 1", container:"", rowLaneType:"Lane", containerType:"", active:true },
+    { id:"lanes|lane-2|", type:"lane", name:"Lane 2", section:"Lanes", rowLane:"Lane 2", container:"", rowLaneType:"Lane", containerType:"", active:true },
+    { id:"lanes|lane-3|", type:"lane", name:"Lane 3", section:"Lanes", rowLane:"Lane 3", container:"", rowLaneType:"Lane", containerType:"", active:true },
+    { id:"lanes|lane-4|", type:"lane", name:"Lane 4", section:"Lanes", rowLane:"Lane 4", container:"", rowLaneType:"Lane", containerType:"", active:true },
 
     // Loaded/DEL
-    { id:"loaded-del||", type:"section", name:"Loaded/DEL", section:"Loaded/DEL", rowLane:"", container:"", rowLaneType:"", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"loaded-del|lane-1|", type:"lane", name:"Lane 1", section:"Loaded/DEL", rowLane:"Lane 1", container:"", rowLaneType:"Lane", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"loaded-del|lane-1|trailer-ld-l1-01", type:"trailer", name:"Trailer LD-L1-01", section:"Loaded/DEL", rowLane:"Lane 1", container:"Trailer LD-L1-01", rowLaneType:"Lane", containerType:"Trailer", capacity:14, occupied:14, active:true },
-    { id:"loaded-del|lane-1|trailer-ld-l1-02", type:"trailer", name:"Trailer LD-L1-02", section:"Loaded/DEL", rowLane:"Lane 1", container:"Trailer LD-L1-02", rowLaneType:"Lane", containerType:"Trailer", capacity:14, occupied:10, active:true },
-    { id:"loaded-del|lane-2|", type:"lane", name:"Lane 2", section:"Loaded/DEL", rowLane:"Lane 2", container:"", rowLaneType:"Lane", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"loaded-del|lane-2|trailer-ld-l2-01", type:"trailer", name:"Trailer LD-L2-01", section:"Loaded/DEL", rowLane:"Lane 2", container:"Trailer LD-L2-01", rowLaneType:"Lane", containerType:"Trailer", capacity:14, occupied:8, active:true },
+    { id:"loaded-del||", type:"section", name:"Loaded/DEL", section:"Loaded/DEL", rowLane:"", container:"", rowLaneType:"", containerType:"", active:true },
+    { id:"loaded-del|lane-1|", type:"lane", name:"Lane 1", section:"Loaded/DEL", rowLane:"Lane 1", container:"", rowLaneType:"Lane", containerType:"", active:true },
+    { id:"loaded-del|lane-1|trailer-ld-l1-01", type:"trailer", name:"Trailer LD-L1-01", section:"Loaded/DEL", rowLane:"Lane 1", container:"Trailer LD-L1-01", rowLaneType:"Lane", containerType:"Trailer", active:true },
+    { id:"loaded-del|lane-1|trailer-ld-l1-02", type:"trailer", name:"Trailer LD-L1-02", section:"Loaded/DEL", rowLane:"Lane 1", container:"Trailer LD-L1-02", rowLaneType:"Lane", containerType:"Trailer", active:true },
+    { id:"loaded-del|lane-2|", type:"lane", name:"Lane 2", section:"Loaded/DEL", rowLane:"Lane 2", container:"", rowLaneType:"Lane", containerType:"", active:true },
+    { id:"loaded-del|lane-2|trailer-ld-l2-01", type:"trailer", name:"Trailer LD-L2-01", section:"Loaded/DEL", rowLane:"Lane 2", container:"Trailer LD-L2-01", rowLaneType:"Lane", containerType:"Trailer", active:true },
 
     // Needs checking
-    { id:"needs-checking||", type:"section", name:"Needs checking", section:"Needs checking", rowLane:"", container:"", rowLaneType:"", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"needs-checking|row-1|", type:"row", name:"Row 1", section:"Needs checking", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
+    { id:"needs-checking||", type:"section", name:"Needs checking", section:"Needs checking", rowLane:"", container:"", rowLaneType:"", containerType:"", active:true },
+    { id:"needs-checking|row-1|", type:"row", name:"Row 1", section:"Needs checking", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", active:true },
 
     // OH A CRANE
-    { id:"oh-a-crane||", type:"section", name:"OH A CRANE", section:"OH A CRANE", rowLane:"", container:"", rowLaneType:"", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"oh-a-crane|row-1|", type:"row", name:"Row 1", section:"OH A CRANE", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"oh-a-crane|row-1|rack-oha-r1-01", type:"rack", name:"Rack OHA-R1-01", section:"OH A CRANE", rowLane:"Row 1", container:"Rack OHA-R1-01", rowLaneType:"Row", containerType:"Rack", capacity:24, occupied:19, active:true },
-    { id:"oh-a-crane|row-2|", type:"row", name:"Row 2", section:"OH A CRANE", rowLane:"Row 2", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"oh-a-crane|row-2|rack-oha-r2-01", type:"rack", name:"Rack OHA-R2-01", section:"OH A CRANE", rowLane:"Row 2", container:"Rack OHA-R2-01", rowLaneType:"Row", containerType:"Rack", capacity:24, occupied:22, active:true },
+    { id:"oh-a-crane||", type:"section", name:"OH A CRANE", section:"OH A CRANE", rowLane:"", container:"", rowLaneType:"", containerType:"", active:true },
+    { id:"oh-a-crane|row-1|", type:"row", name:"Row 1", section:"OH A CRANE", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", active:true },
+    { id:"oh-a-crane|row-1|rack-oha-r1-01", type:"rack", name:"Rack OHA-R1-01", section:"OH A CRANE", rowLane:"Row 1", container:"Rack OHA-R1-01", rowLaneType:"Row", containerType:"Rack", active:true },
+    { id:"oh-a-crane|row-2|", type:"row", name:"Row 2", section:"OH A CRANE", rowLane:"Row 2", container:"", rowLaneType:"Row", containerType:"", active:true },
+    { id:"oh-a-crane|row-2|rack-oha-r2-01", type:"rack", name:"Rack OHA-R2-01", section:"OH A CRANE", rowLane:"Row 2", container:"Rack OHA-R2-01", rowLaneType:"Row", containerType:"Rack", active:true },
 
     // OH B CRANE
-    { id:"oh-b-crane||", type:"section", name:"OH B CRANE", section:"OH B CRANE", rowLane:"", container:"", rowLaneType:"", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"oh-b-crane|row-1|", type:"row", name:"Row 1", section:"OH B CRANE", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"oh-b-crane|row-1|rack-ohb-r1-01", type:"rack", name:"Rack OHB-R1-01", section:"OH B CRANE", rowLane:"Row 1", container:"Rack OHB-R1-01", rowLaneType:"Row", containerType:"Rack", capacity:24, occupied:17, active:true },
-    { id:"oh-b-crane|row-2|", type:"row", name:"Row 2", section:"OH B CRANE", rowLane:"Row 2", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"oh-b-crane|row-2|rack-ohb-r2-01", type:"rack", name:"Rack OHB-R2-01", section:"OH B CRANE", rowLane:"Row 2", container:"Rack OHB-R2-01", rowLaneType:"Row", containerType:"Rack", capacity:24, occupied:13, active:true },
+    { id:"oh-b-crane||", type:"section", name:"OH B CRANE", section:"OH B CRANE", rowLane:"", container:"", rowLaneType:"", containerType:"", active:true },
+    { id:"oh-b-crane|row-1|", type:"row", name:"Row 1", section:"OH B CRANE", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", active:true },
+    { id:"oh-b-crane|row-1|rack-ohb-r1-01", type:"rack", name:"Rack OHB-R1-01", section:"OH B CRANE", rowLane:"Row 1", container:"Rack OHB-R1-01", rowLaneType:"Row", containerType:"Rack", active:true },
+    { id:"oh-b-crane|row-2|", type:"row", name:"Row 2", section:"OH B CRANE", rowLane:"Row 2", container:"", rowLaneType:"Row", containerType:"", active:true },
+    { id:"oh-b-crane|row-2|rack-ohb-r2-01", type:"rack", name:"Rack OHB-R2-01", section:"OH B CRANE", rowLane:"Row 2", container:"Rack OHB-R2-01", rowLaneType:"Row", containerType:"Rack", active:true },
 
     // PLT 2 Trailers
-    { id:"plt-2-trailers||", type:"section", name:"PLT 2 Trailers", section:"PLT 2 Trailers", rowLane:"", container:"", rowLaneType:"", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"plt-2-trailers|lane-1|", type:"lane", name:"Lane 1", section:"PLT 2 Trailers", rowLane:"Lane 1", container:"", rowLaneType:"Lane", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"plt-2-trailers|lane-1|trailer-plt2-l1-01", type:"trailer", name:"Trailer PLT2-L1-01", section:"PLT 2 Trailers", rowLane:"Lane 1", container:"Trailer PLT2-L1-01", rowLaneType:"Lane", containerType:"Trailer", capacity:10, occupied:6, active:true },
-    { id:"plt-2-trailers|lane-1|trailer-plt2-l1-02", type:"trailer", name:"Trailer PLT2-L1-02", section:"PLT 2 Trailers", rowLane:"Lane 1", container:"Trailer PLT2-L1-02", rowLaneType:"Lane", containerType:"Trailer", capacity:10, occupied:10, active:true },
-    { id:"plt-2-trailers|lane-2|", type:"lane", name:"Lane 2", section:"PLT 2 Trailers", rowLane:"Lane 2", container:"", rowLaneType:"Lane", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"plt-2-trailers|lane-2|trailer-plt2-l2-01", type:"trailer", name:"Trailer PLT2-L2-01", section:"PLT 2 Trailers", rowLane:"Lane 2", container:"Trailer PLT2-L2-01", rowLaneType:"Lane", containerType:"Trailer", capacity:10, occupied:3, active:true },
+    { id:"plt-2-trailers||", type:"section", name:"PLT 2 Trailers", section:"PLT 2 Trailers", rowLane:"", container:"", rowLaneType:"", containerType:"", active:true },
+    { id:"plt-2-trailers|lane-1|", type:"lane", name:"Lane 1", section:"PLT 2 Trailers", rowLane:"Lane 1", container:"", rowLaneType:"Lane", containerType:"", active:true },
+    { id:"plt-2-trailers|lane-1|trailer-plt2-l1-01", type:"trailer", name:"Trailer PLT2-L1-01", section:"PLT 2 Trailers", rowLane:"Lane 1", container:"Trailer PLT2-L1-01", rowLaneType:"Lane", containerType:"Trailer", active:true },
+    { id:"plt-2-trailers|lane-1|trailer-plt2-l1-02", type:"trailer", name:"Trailer PLT2-L1-02", section:"PLT 2 Trailers", rowLane:"Lane 1", container:"Trailer PLT2-L1-02", rowLaneType:"Lane", containerType:"Trailer", active:true },
+    { id:"plt-2-trailers|lane-2|", type:"lane", name:"Lane 2", section:"PLT 2 Trailers", rowLane:"Lane 2", container:"", rowLaneType:"Lane", containerType:"", active:true },
+    { id:"plt-2-trailers|lane-2|trailer-plt2-l2-01", type:"trailer", name:"Trailer PLT2-L2-01", section:"PLT 2 Trailers", rowLane:"Lane 2", container:"Trailer PLT2-L2-01", rowLaneType:"Lane", containerType:"Trailer", active:true },
 
     // QC Repair
-    { id:"qc-repair||", type:"section", name:"QC Repair", section:"QC Repair", rowLane:"", container:"", rowLaneType:"", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"qc-repair|row-1|", type:"row", name:"Row 1", section:"QC Repair", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"qc-repair|row-1|rack-qc-r1-01", type:"rack", name:"Rack QC-R1-01", section:"QC Repair", rowLane:"Row 1", container:"Rack QC-R1-01", rowLaneType:"Row", containerType:"Rack", capacity:8, occupied:5, active:true },
+    { id:"qc-repair||", type:"section", name:"QC Repair", section:"QC Repair", rowLane:"", container:"", rowLaneType:"", containerType:"", active:true },
+    { id:"qc-repair|row-1|", type:"row", name:"Row 1", section:"QC Repair", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", active:true },
+    { id:"qc-repair|row-1|rack-qc-r1-01", type:"rack", name:"Rack QC-R1-01", section:"QC Repair", rowLane:"Row 1", container:"Rack QC-R1-01", rowLaneType:"Row", containerType:"Rack", active:true },
 
     // Rack #s
-    { id:"rack-nums||", type:"section", name:"Rack #s", section:"Rack #s", rowLane:"", container:"", rowLaneType:"", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"rack-nums|row-1|", type:"row", name:"Row 1", section:"Rack #s", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"rack-nums|row-1|rack-rn-r1-01", type:"rack", name:"Rack RN-R1-01", section:"Rack #s", rowLane:"Row 1", container:"Rack RN-R1-01", rowLaneType:"Row", containerType:"Rack", capacity:20, occupied:13, active:true },
-    { id:"rack-nums|row-1|rack-rn-r1-02", type:"rack", name:"Rack RN-R1-02", section:"Rack #s", rowLane:"Row 1", container:"Rack RN-R1-02", rowLaneType:"Row", containerType:"Rack", capacity:20, occupied:17, active:true },
-    { id:"rack-nums|row-2|", type:"row", name:"Row 2", section:"Rack #s", rowLane:"Row 2", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"rack-nums|row-2|rack-rn-r2-01", type:"rack", name:"Rack RN-R2-01", section:"Rack #s", rowLane:"Row 2", container:"Rack RN-R2-01", rowLaneType:"Row", containerType:"Rack", capacity:20, occupied:8, active:true },
+    { id:"rack-nums||", type:"section", name:"Rack #s", section:"Rack #s", rowLane:"", container:"", rowLaneType:"", containerType:"", active:true },
+    { id:"rack-nums|row-1|", type:"row", name:"Row 1", section:"Rack #s", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", active:true },
+    { id:"rack-nums|row-1|rack-rn-r1-01", type:"rack", name:"Rack RN-R1-01", section:"Rack #s", rowLane:"Row 1", container:"Rack RN-R1-01", rowLaneType:"Row", containerType:"Rack", active:true },
+    { id:"rack-nums|row-1|rack-rn-r1-02", type:"rack", name:"Rack RN-R1-02", section:"Rack #s", rowLane:"Row 1", container:"Rack RN-R1-02", rowLaneType:"Row", containerType:"Rack", active:true },
+    { id:"rack-nums|row-2|", type:"row", name:"Row 2", section:"Rack #s", rowLane:"Row 2", container:"", rowLaneType:"Row", containerType:"", active:true },
+    { id:"rack-nums|row-2|rack-rn-r2-01", type:"rack", name:"Rack RN-R2-01", section:"Rack #s", rowLane:"Row 2", container:"Rack RN-R2-01", rowLaneType:"Row", containerType:"Rack", active:true },
 
     // Scrap#
-    { id:"scrap||", type:"section", name:"Scrap#", section:"Scrap#", rowLane:"", container:"", rowLaneType:"", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"scrap|row-1|", type:"row", name:"Row 1", section:"Scrap#", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"scrap|row-1|rack-sc-r1-01", type:"rack", name:"Rack SC-R1-01", section:"Scrap#", rowLane:"Row 1", container:"Rack SC-R1-01", rowLaneType:"Row", containerType:"Rack", capacity:10, occupied:10, active:true },
+    { id:"scrap||", type:"section", name:"Scrap#", section:"Scrap#", rowLane:"", container:"", rowLaneType:"", containerType:"", active:true },
+    { id:"scrap|row-1|", type:"row", name:"Row 1", section:"Scrap#", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", active:true },
+    { id:"scrap|row-1|rack-sc-r1-01", type:"rack", name:"Rack SC-R1-01", section:"Scrap#", rowLane:"Row 1", container:"Rack SC-R1-01", rowLaneType:"Row", containerType:"Rack", active:true },
 
     // Stock
-    { id:"stock||", type:"section", name:"Stock", section:"Stock", rowLane:"", container:"", rowLaneType:"", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"stock|row-1|", type:"row", name:"Row 1", section:"Stock", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"stock|row-1|rack-st-r1-01", type:"rack", name:"Rack ST-R1-01", section:"Stock", rowLane:"Row 1", container:"Rack ST-R1-01", rowLaneType:"Row", containerType:"Rack", capacity:30, occupied:22, active:true },
-    { id:"stock|row-1|rack-st-r1-02", type:"rack", name:"Rack ST-R1-02", section:"Stock", rowLane:"Row 1", container:"Rack ST-R1-02", rowLaneType:"Row", containerType:"Rack", capacity:30, occupied:28, active:true },
-    { id:"stock|row-2|", type:"row", name:"Row 2", section:"Stock", rowLane:"Row 2", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"stock|row-2|rack-st-r2-01", type:"rack", name:"Rack ST-R2-01", section:"Stock", rowLane:"Row 2", container:"Rack ST-R2-01", rowLaneType:"Row", containerType:"Rack", capacity:30, occupied:15, active:true },
+    { id:"stock||", type:"section", name:"Stock", section:"Stock", rowLane:"", container:"", rowLaneType:"", containerType:"", active:true },
+    { id:"stock|row-1|", type:"row", name:"Row 1", section:"Stock", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", active:true },
+    { id:"stock|row-1|rack-st-r1-01", type:"rack", name:"Rack ST-R1-01", section:"Stock", rowLane:"Row 1", container:"Rack ST-R1-01", rowLaneType:"Row", containerType:"Rack", active:true },
+    { id:"stock|row-1|rack-st-r1-02", type:"rack", name:"Rack ST-R1-02", section:"Stock", rowLane:"Row 1", container:"Rack ST-R1-02", rowLaneType:"Row", containerType:"Rack", active:true },
+    { id:"stock|row-2|", type:"row", name:"Row 2", section:"Stock", rowLane:"Row 2", container:"", rowLaneType:"Row", containerType:"", active:true },
+    { id:"stock|row-2|rack-st-r2-01", type:"rack", name:"Rack ST-R2-01", section:"Stock", rowLane:"Row 2", container:"Rack ST-R2-01", rowLaneType:"Row", containerType:"Rack", active:true },
 
     // Trailers
-    { id:"trailers||", type:"section", name:"Trailers", section:"Trailers", rowLane:"", container:"", rowLaneType:"", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"trailers|lane-1|", type:"lane", name:"Lane 1", section:"Trailers", rowLane:"Lane 1", container:"", rowLaneType:"Lane", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"trailers|lane-1|trailer-tr-l1-01", type:"trailer", name:"Trailer TR-L1-01", section:"Trailers", rowLane:"Lane 1", container:"Trailer TR-L1-01", rowLaneType:"Lane", containerType:"Trailer", capacity:12, occupied:9, active:true },
-    { id:"trailers|lane-1|trailer-tr-l1-02", type:"trailer", name:"Trailer TR-L1-02", section:"Trailers", rowLane:"Lane 1", container:"Trailer TR-L1-02", rowLaneType:"Lane", containerType:"Trailer", capacity:12, occupied:4, active:true },
-    { id:"trailers|lane-2|", type:"lane", name:"Lane 2", section:"Trailers", rowLane:"Lane 2", container:"", rowLaneType:"Lane", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"trailers|lane-2|trailer-tr-l2-01", type:"trailer", name:"Trailer TR-L2-01", section:"Trailers", rowLane:"Lane 2", container:"Trailer TR-L2-01", rowLaneType:"Lane", containerType:"Trailer", capacity:12, occupied:12, active:true },
+    { id:"trailers||", type:"section", name:"Trailers", section:"Trailers", rowLane:"", container:"", rowLaneType:"", containerType:"", active:true },
+    { id:"trailers|lane-1|", type:"lane", name:"Lane 1", section:"Trailers", rowLane:"Lane 1", container:"", rowLaneType:"Lane", containerType:"", active:true },
+    { id:"trailers|lane-1|trailer-tr-l1-01", type:"trailer", name:"Trailer TR-L1-01", section:"Trailers", rowLane:"Lane 1", container:"Trailer TR-L1-01", rowLaneType:"Lane", containerType:"Trailer", active:true },
+    { id:"trailers|lane-1|trailer-tr-l1-02", type:"trailer", name:"Trailer TR-L1-02", section:"Trailers", rowLane:"Lane 1", container:"Trailer TR-L1-02", rowLaneType:"Lane", containerType:"Trailer", active:true },
+    { id:"trailers|lane-2|", type:"lane", name:"Lane 2", section:"Trailers", rowLane:"Lane 2", container:"", rowLaneType:"Lane", containerType:"", active:true },
+    { id:"trailers|lane-2|trailer-tr-l2-01", type:"trailer", name:"Trailer TR-L2-01", section:"Trailers", rowLane:"Lane 2", container:"Trailer TR-L2-01", rowLaneType:"Lane", containerType:"Trailer", active:true },
 
     // WC PLT 3
-    { id:"wc-plt-3||", type:"section", name:"WC PLT 3", section:"WC PLT 3", rowLane:"", container:"", rowLaneType:"", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"wc-plt-3|row-1|", type:"row", name:"Row 1", section:"WC PLT 3", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"wc-plt-3|row-1|rack-wcp-r1-01", type:"rack", name:"Rack WCP-R1-01", section:"WC PLT 3", rowLane:"Row 1", container:"Rack WCP-R1-01", rowLaneType:"Row", containerType:"Rack", capacity:16, occupied:11, active:true },
-    { id:"wc-plt-3|row-2|", type:"row", name:"Row 2", section:"WC PLT 3", rowLane:"Row 2", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"wc-plt-3|row-2|rack-wcp-r2-01", type:"rack", name:"Rack WCP-R2-01", section:"WC PLT 3", rowLane:"Row 2", container:"Rack WCP-R2-01", rowLaneType:"Row", containerType:"Rack", capacity:16, occupied:6, active:true },
+    { id:"wc-plt-3||", type:"section", name:"WC PLT 3", section:"WC PLT 3", rowLane:"", container:"", rowLaneType:"", containerType:"", active:true },
+    { id:"wc-plt-3|row-1|", type:"row", name:"Row 1", section:"WC PLT 3", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", active:true },
+    { id:"wc-plt-3|row-1|rack-wcp-r1-01", type:"rack", name:"Rack WCP-R1-01", section:"WC PLT 3", rowLane:"Row 1", container:"Rack WCP-R1-01", rowLaneType:"Row", containerType:"Rack", active:true },
+    { id:"wc-plt-3|row-2|", type:"row", name:"Row 2", section:"WC PLT 3", rowLane:"Row 2", container:"", rowLaneType:"Row", containerType:"", active:true },
+    { id:"wc-plt-3|row-2|rack-wcp-r2-01", type:"rack", name:"Rack WCP-R2-01", section:"WC PLT 3", rowLane:"Row 2", container:"Rack WCP-R2-01", rowLaneType:"Row", containerType:"Rack", active:true },
 
     // WC Yard A
-    { id:"wc-yard-a||", type:"section", name:"WC Yard A", section:"WC Yard A", rowLane:"", container:"", rowLaneType:"", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"wc-yard-a|row-1|", type:"row", name:"Row 1", section:"WC Yard A", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"wc-yard-a|row-1|rack-wca-r1-01", type:"rack", name:"Rack WCA-R1-01", section:"WC Yard A", rowLane:"Row 1", container:"Rack WCA-R1-01", rowLaneType:"Row", containerType:"Rack", capacity:18, occupied:15, active:true },
-    { id:"wc-yard-a|row-1|rack-wca-r1-02", type:"rack", name:"Rack WCA-R1-02", section:"WC Yard A", rowLane:"Row 1", container:"Rack WCA-R1-02", rowLaneType:"Row", containerType:"Rack", capacity:18, occupied:12, active:true },
-    { id:"wc-yard-a|row-2|", type:"row", name:"Row 2", section:"WC Yard A", rowLane:"Row 2", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"wc-yard-a|row-2|rack-wca-r2-01", type:"rack", name:"Rack WCA-R2-01", section:"WC Yard A", rowLane:"Row 2", container:"Rack WCA-R2-01", rowLaneType:"Row", containerType:"Rack", capacity:18, occupied:9, active:true },
+    { id:"wc-yard-a||", type:"section", name:"WC Yard A", section:"WC Yard A", rowLane:"", container:"", rowLaneType:"", containerType:"", active:true },
+    { id:"wc-yard-a|row-1|", type:"row", name:"Row 1", section:"WC Yard A", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", active:true },
+    { id:"wc-yard-a|row-1|rack-wca-r1-01", type:"rack", name:"Rack WCA-R1-01", section:"WC Yard A", rowLane:"Row 1", container:"Rack WCA-R1-01", rowLaneType:"Row", containerType:"Rack", active:true },
+    { id:"wc-yard-a|row-1|rack-wca-r1-02", type:"rack", name:"Rack WCA-R1-02", section:"WC Yard A", rowLane:"Row 1", container:"Rack WCA-R1-02", rowLaneType:"Row", containerType:"Rack", active:true },
+    { id:"wc-yard-a|row-2|", type:"row", name:"Row 2", section:"WC Yard A", rowLane:"Row 2", container:"", rowLaneType:"Row", containerType:"", active:true },
+    { id:"wc-yard-a|row-2|rack-wca-r2-01", type:"rack", name:"Rack WCA-R2-01", section:"WC Yard A", rowLane:"Row 2", container:"Rack WCA-R2-01", rowLaneType:"Row", containerType:"Rack", active:true },
 
     // WC Yard B
-    { id:"wc-yard-b||", type:"section", name:"WC Yard B", section:"WC Yard B", rowLane:"", container:"", rowLaneType:"", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"wc-yard-b|row-1|", type:"row", name:"Row 1", section:"WC Yard B", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"wc-yard-b|row-1|rack-wcb-r1-01", type:"rack", name:"Rack WCB-R1-01", section:"WC Yard B", rowLane:"Row 1", container:"Rack WCB-R1-01", rowLaneType:"Row", containerType:"Rack", capacity:16, occupied:14, active:true },
-    { id:"wc-yard-b|row-2|", type:"row", name:"Row 2", section:"WC Yard B", rowLane:"Row 2", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"wc-yard-b|row-2|rack-wcb-r2-01", type:"rack", name:"Rack WCB-R2-01", section:"WC Yard B", rowLane:"Row 2", container:"Rack WCB-R2-01", rowLaneType:"Row", containerType:"Rack", capacity:16, occupied:7, active:true },
+    { id:"wc-yard-b||", type:"section", name:"WC Yard B", section:"WC Yard B", rowLane:"", container:"", rowLaneType:"", containerType:"", active:true },
+    { id:"wc-yard-b|row-1|", type:"row", name:"Row 1", section:"WC Yard B", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", active:true },
+    { id:"wc-yard-b|row-1|rack-wcb-r1-01", type:"rack", name:"Rack WCB-R1-01", section:"WC Yard B", rowLane:"Row 1", container:"Rack WCB-R1-01", rowLaneType:"Row", containerType:"Rack", active:true },
+    { id:"wc-yard-b|row-2|", type:"row", name:"Row 2", section:"WC Yard B", rowLane:"Row 2", container:"", rowLaneType:"Row", containerType:"", active:true },
+    { id:"wc-yard-b|row-2|rack-wcb-r2-01", type:"rack", name:"Rack WCB-R2-01", section:"WC Yard B", rowLane:"Row 2", container:"Rack WCB-R2-01", rowLaneType:"Row", containerType:"Rack", active:true },
 
     // WC YARD C
-    { id:"wc-yard-c||", type:"section", name:"WC YARD C", section:"WC YARD C", rowLane:"", container:"", rowLaneType:"", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"wc-yard-c|row-1|", type:"row", name:"Row 1", section:"WC YARD C", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"wc-yard-c|row-1|rack-wcc-r1-01", type:"rack", name:"Rack WCC-R1-01", section:"WC YARD C", rowLane:"Row 1", container:"Rack WCC-R1-01", rowLaneType:"Row", containerType:"Rack", capacity:14, occupied:10, active:true },
+    { id:"wc-yard-c||", type:"section", name:"WC YARD C", section:"WC YARD C", rowLane:"", container:"", rowLaneType:"", containerType:"", active:true },
+    { id:"wc-yard-c|row-1|", type:"row", name:"Row 1", section:"WC YARD C", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", active:true },
+    { id:"wc-yard-c|row-1|rack-wcc-r1-01", type:"rack", name:"Rack WCC-R1-01", section:"WC YARD C", rowLane:"Row 1", container:"Rack WCC-R1-01", rowLaneType:"Row", containerType:"Rack", active:true },
 
     // WC YARD D
-    { id:"wc-yard-d||", type:"section", name:"WC YARD D", section:"WC YARD D", rowLane:"", container:"", rowLaneType:"", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"wc-yard-d|row-1|", type:"row", name:"Row 1", section:"WC YARD D", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"wc-yard-d|row-1|rack-wcd-r1-01", type:"rack", name:"Rack WCD-R1-01", section:"WC YARD D", rowLane:"Row 1", container:"Rack WCD-R1-01", rowLaneType:"Row", containerType:"Rack", capacity:14, occupied:3, active:true },
-    { id:"wc-yard-d|row-2|", type:"row", name:"Row 2", section:"WC YARD D", rowLane:"Row 2", container:"", rowLaneType:"Row", containerType:"", capacity:null, occupied:0, active:true },
-    { id:"wc-yard-d|row-2|rack-wcd-r2-01", type:"rack", name:"Rack WCD-R2-01", section:"WC YARD D", rowLane:"Row 2", container:"Rack WCD-R2-01", rowLaneType:"Row", containerType:"Rack", capacity:14, occupied:8, active:true },
+    { id:"wc-yard-d||", type:"section", name:"WC YARD D", section:"WC YARD D", rowLane:"", container:"", rowLaneType:"", containerType:"", active:true },
+    { id:"wc-yard-d|row-1|", type:"row", name:"Row 1", section:"WC YARD D", rowLane:"Row 1", container:"", rowLaneType:"Row", containerType:"", active:true },
+    { id:"wc-yard-d|row-1|rack-wcd-r1-01", type:"rack", name:"Rack WCD-R1-01", section:"WC YARD D", rowLane:"Row 1", container:"Rack WCD-R1-01", rowLaneType:"Row", containerType:"Rack", active:true },
+    { id:"wc-yard-d|row-2|", type:"row", name:"Row 2", section:"WC YARD D", rowLane:"Row 2", container:"", rowLaneType:"Row", containerType:"", active:true },
+    { id:"wc-yard-d|row-2|rack-wcd-r2-01", type:"rack", name:"Rack WCD-R2-01", section:"WC YARD D", rowLane:"Row 2", container:"Rack WCD-R2-01", rowLaneType:"Row", containerType:"Rack", active:true },
   ];
 
   let lm_locations = structuredClone(lm_initialLocations);
@@ -5453,14 +5449,12 @@
   const lmRowLaneInput = document.getElementById("lmRowLaneInput");
   const lmNameInput = document.getElementById("lmNameInput");
   const lmNameLabel = document.getElementById("lmNameLabel");
-  const lmCapacity = document.getElementById("lmCapacity");
   const lmCreateBtn = document.getElementById("lmCreateBtn");
   const lmResetCreate = document.getElementById("lmResetCreate");
   const lmTypeTabs = document.getElementById("lmTypeTabs");
   const lmFieldSection = document.getElementById("lmFieldSection");
   const lmFieldRowLane = document.getElementById("lmFieldRowLane");
   const lmFieldName = document.getElementById("lmFieldName");
-  const lmFieldCapacity = document.getElementById("lmFieldCapacity");
 
   let lm_activeType = "section";
 
@@ -5468,8 +5462,8 @@
     section:  { fields:["name"], label:"Section name", placeholder:"e.g. Section A, Staging" },
     row:      { fields:["section","name"], label:"Row name", placeholder:"e.g. Row 1, Row 2" },
     lane:     { fields:["section","name"], label:"Lane name", placeholder:"e.g. Lane 3, Inbound" },
-    rack:     { fields:["section","rowlane","name","capacity"], label:"Rack name", placeholder:"e.g. Rack R-A1-01" },
-    trailer:  { fields:["section","rowlane","name","capacity"], label:"Trailer name", placeholder:"e.g. Trailer T-IN-01" },
+    rack:     { fields:["section","rowlane","name"], label:"Rack name", placeholder:"e.g. Rack R-A1-01" },
+    trailer:  { fields:["section","rowlane","name"], label:"Trailer name", placeholder:"e.g. Trailer T-IN-01" },
   };
 
   function lm_populateDropdowns(selectedSection){
@@ -5496,7 +5490,6 @@
     lmFieldSection.style.display  = cfg.fields.includes("section")  ? "" : "none";
     lmFieldRowLane.style.display  = cfg.fields.includes("rowlane")  ? "" : "none";
     lmFieldName.style.display     = cfg.fields.includes("name")     ? "" : "none";
-    lmFieldCapacity.style.display = cfg.fields.includes("capacity") ? "" : "none";
     lmNameLabel.textContent = cfg.label;
     lmNameInput.placeholder = cfg.placeholder;
     lm_populateDropdowns();
@@ -5577,7 +5570,7 @@
             <span style="font-weight:800;font-size:13px;">${escapeHtml(displayName)}</span>
             <span style="font-family:var(--mono);font-size:11px;padding:3px 6px;border-radius:999px;border:1px solid ${loc.active ? 'rgba(47,143,87,.6)' : 'rgba(214,166,58,.7)'};background:${loc.active ? 'rgba(47,143,87,.08)' : 'rgba(214,166,58,.06)'};color:${loc.active ? 'var(--ink)' : 'var(--muted)'}">${loc.active ? 'active' : 'inactive'}</span>
           </div>
-          <div style="font-size:11px;color:var(--muted);margin-top:3px;">${breadcrumb.length ? breadcrumb.map(escapeHtml).join(' › ') : ''}${loc.capacity ? (breadcrumb.length ? ' &bull; ' : '') + (loc.occupied||0) + '/' + loc.capacity + ' occupied' : ''}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:3px;">${breadcrumb.length ? breadcrumb.map(escapeHtml).join(' › ') : ''}</div>
         </div>
         <div style="display:flex;gap:6px;flex-shrink:0;">
           <button class="btn secondary lmEditBtn" data-id="${loc.id}" style="padding:6px 8px;font-size:11px;">Edit</button>
@@ -5609,7 +5602,6 @@
       lm_populateDropdowns(loc.section);
       lmRowLaneInput.value = loc.rowLane || loc.name || "";
       lmNameInput.value = loc.name || loc.container || "";
-      lmCapacity.value = loc.capacity || "";
     }
     lmCreateBtn.dataset.editId = id;
     lmCreateBtn.textContent = "Save changes";
@@ -5621,7 +5613,6 @@
     lmSectionInput.value = "";
     lmRowLaneInput.value = "";
     lmNameInput.value = "";
-    lmCapacity.value = "";
     lm_setType("section");
     lmCreateBtn.textContent = "Create";
     delete lmCreateBtn.dataset.editId;
@@ -5635,8 +5626,6 @@
     const rowLaneType = (type === "row") ? "Row" : (type === "lane") ? "Lane" : "";
     const container = (type === "rack" || type === "trailer") ? name : "";
     const containerType = (type === "rack") ? "Rack" : (type === "trailer") ? "Trailer" : "";
-    const capacity = lmCapacity.value ? Number(lmCapacity.value) : null;
-
     if (!name) return alert("Please enter a name.");
     if (type !== "section" && !section) return alert("Please select a parent section.");
     if ((type === "rack" || type === "trailer") && !rowLane) return alert("Please select a parent row/lane.");
@@ -5647,13 +5636,13 @@
     if (editId){
       const idx = lm_locations.findIndex(l=>l.id===editId);
       if (idx >= 0){
-        lm_locations[idx] = { id, type, section, rowLane, rowLaneType, container, containerType, capacity, name, occupied: lm_locations[idx].occupied||0, active: lm_locations[idx].active };
+        lm_locations[idx] = { id, type, section, rowLane, rowLaneType, container, containerType, name, active: lm_locations[idx].active };
       } else {
-        lm_locations.push({ id, type, section, rowLane, rowLaneType, container, containerType, capacity, name, occupied:0, active:true });
+        lm_locations.push({ id, type, section, rowLane, rowLaneType, container, containerType, name, active:true });
       }
     } else {
       if (lm_locations.some(l=>l.id===id)) return alert("Location already exists.");
-      lm_locations.push({ id, type, section, rowLane, rowLaneType, container, containerType, capacity, name, occupied:0, active:true });
+      lm_locations.push({ id, type, section, rowLane, rowLaneType, container, containerType, name, active:true });
     }
     lm_clearForm();
     lm_renderList();
@@ -5691,7 +5680,7 @@
   });
 
   document.getElementById("lmExport").addEventListener("click", ()=>{
-    const csv = lm_locations.map(l=>[l.type,l.name,l.section,l.rowLane,l.capacity||"",l.active?"active":"inactive"].join(",")).join("\n");
+    const csv = lm_locations.map(l=>[l.type,l.name,l.section,l.rowLane,l.active?"active":"inactive"].join(",")).join("\n");
     navigator.clipboard?.writeText(csv).then(()=>alert("Locations copied as CSV")).catch(()=>alert("CSV:\n\n"+csv));
   });
 

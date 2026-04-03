@@ -3221,7 +3221,7 @@
       return;
     }
 
-    // Deduplicate by _uid, build found list and alternatives
+    // Build found list and alternatives
     lsFound = matches.map(el => ({ id: el.id, loc: el.loc, _uid: el._uid, elType: el.elType, barcode: el.barcode }));
     lsAlternatives = {};
     matches.forEach(el => {
@@ -3238,12 +3238,10 @@
   }
 
   lsSimulateScan.addEventListener("click", ()=>{
-    // Pick a real base ID from the data as a demo
-    const sampleBase = lsBaseId(YARD_DATA.elements[3]?.id || "L-1");
-    lsLoadStack(sampleBase);
+    lsLoadStack("10-23");
   });
   lsPasteCode.addEventListener("click", ()=>{
-    const code = prompt("Enter stack number (e.g. L-14, SR-3, S-10):", "L-14");
+    const code = prompt("Enter stack number (e.g. 10-23, 8-132, 10-179):", "10-23");
     if (!code) return;
     lsLoadStack(code.trim());
   });

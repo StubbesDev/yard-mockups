@@ -2749,7 +2749,7 @@
       row.innerHTML = `
         <div class="meta">
           <div class="id"><span class="rowDetailLink" style="cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;">${escapeHtml(it.id)}</span>${typeChip}</div>
-          <div class="loc">${escapeHtml(it.loc)}${it.elements != null ? ' &bull; ' + it.elements + ' elements' : ''}</div>
+          <div class="loc">${escapeHtml(it.project ? it.project + ' &bull; ' : '')}${escapeHtml(it.loc)}${it.elements != null ? ' &bull; ' + it.elements + ' elements' : ''}</div>
           ${elementExtra}
         </div>
         <div style="display:flex;gap:6px;align-items:center;flex:0 0 auto;">

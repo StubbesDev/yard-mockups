@@ -26,9 +26,9 @@
       font-family:var(--sans);
     }
 
-    /* Phone-friendly app frame */
+    /* App frame — full width, all breakpoints */
     .app{
-      max-width: 520px;
+      width: 100%;
       margin: 0 auto;
       min-height: 100dvh;
       display:flex;
@@ -897,6 +897,153 @@
       font-size:12px;
       word-break:break-all;
     }
+    /* ============================================================
+       TABLET (768px+)
+       ============================================================ */
+    @media (min-width: 768px){
+      main{
+        padding: 12px;
+      }
+      header{
+        border-radius: 0 0 12px 12px;
+      }
+      .topbar{
+        padding: 14px 16px 10px 16px;
+      }
+      .h1{ font-size: 18px; }
+      .segTabs{
+        gap: 6px;
+        margin-top: 6px;
+        margin-bottom: 6px;
+      }
+      .seg{
+        padding: 8px 10px;
+        font-size: 13px;
+        border-radius: 10px;
+      }
+      .card{
+        padding: 12px;
+      }
+      .rowItem{
+        padding: 10px;
+      }
+      .locDrillItem{
+        padding: 10px;
+      }
+      .locSearchInput{
+        padding: 10px 12px;
+        font-size: 14px;
+      }
+      .btn{
+        padding: 8px 12px;
+        font-size: 13px;
+      }
+      .goBtn{
+        padding: 8px 14px;
+        font-size: 13px;
+      }
+      .input input, .input select, .nativeSelect{
+        font-size: 14px;
+      }
+      .pageTitle{ font-size: 16px; }
+      .pageSub{ font-size: 12px; }
+      .hint{ font-size: 12px; }
+      .detailSheet{ padding: 16px; }
+    }
+
+    /* ============================================================
+       DESKTOP (1024px+)
+       ============================================================ */
+    @media (min-width: 1024px){
+      main{
+        padding: 16px 20px;
+      }
+      .topbar{
+        padding: 16px 20px 12px 20px;
+      }
+      .h1{ font-size: 20px; }
+      .headerSub{ font-size: 12px; }
+      .segTabs{
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+      .seg{
+        padding: 10px 14px;
+        font-size: 14px;
+      }
+      .card{
+        padding: 14px;
+        border-radius: 12px;
+      }
+      .rowItem{
+        padding: 12px;
+        border-radius: 12px;
+      }
+      .locDrillItem{
+        padding: 12px;
+        border-radius: 12px;
+      }
+      .locSearchInput{
+        padding: 12px 14px;
+        font-size: 15px;
+        border-radius: 10px;
+      }
+      .locDrillBar{
+        margin-bottom: 12px;
+      }
+      .locBreadcrumb{
+        font-size: 14px;
+      }
+      .locDrillItem .locName{
+        font-size: 14px;
+      }
+      .locDrillItem .locSub{
+        font-size: 12px;
+      }
+      .locPathCrumbs{
+        font-size: 11px;
+      }
+      .btn{
+        padding: 10px 16px;
+        font-size: 14px;
+        border-radius: 10px;
+      }
+      .goBtn{
+        padding: 10px 18px;
+        font-size: 14px;
+      }
+      .pill{
+        font-size: 11px;
+        padding: 4px 10px;
+      }
+      .input input, .input select, .nativeSelect{
+        font-size: 15px;
+        padding: 10px 12px;
+      }
+      .pageTitle{ font-size: 18px; }
+      .pageSub{ font-size: 13px; }
+      .hint{ font-size: 13px; padding: 8px 12px; }
+      .resultsBar{
+        font-size: 13px;
+      }
+      .detailSheet{
+        padding: 20px;
+        border-radius: 14px 14px 0 0;
+      }
+      .detailSheet .detailTitle{ font-size: 18px; }
+      .lsRow{
+        padding: 10px;
+      }
+      .lsRowId{ font-size: 14px; }
+      .lsRowSub{ font-size: 12px; }
+      .footerBar{
+        padding: 10px 20px;
+      }
+    }
+
+    /* ============================================================
+       WIDE DESKTOP (1280px+) — constrain max width, center
+       ============================================================ */
   </style>
 </head>
 
@@ -922,7 +1069,7 @@
         <!-- Tabs -->
         <div class="segTabs" role="tablist" aria-label="Search mode">
           <div class="seg" id="tabElements" role="tab" aria-selected="false">Element</div>
-          <div class="seg" id="tabRacks" role="tab" aria-selected="false">Rack</div>
+          <div class="seg" id="tabRacks" role="tab" aria-selected="false">Rack/Trailer</div>
           <div class="seg" id="tabLoadSheet" role="tab" aria-selected="false">Stack/Loadsheet</div>
           <div class="seg active" id="tabLocation" role="tab" aria-selected="true">Location</div>
         </div>
@@ -2580,7 +2727,8 @@
     const map = new Map();
     MASTER_DATA.forEach(d => {
       if (!d.rack) return;
-      if (!map.has(d.rack)) map.set(d.rack, { rack: d.rack, section: d.section, row: d.row, project: d.project });
+      if (!map.has(d.rack)) map.set(d.rack, { rack: d.rack, section: d.section, row: d.row, project: d.project, count: 0 });
+      map.get(d.rack).count++;
     });
     let idx = 0;
     map.forEach(v => {
@@ -2592,11 +2740,19 @@
         area: v.section,
         loc: v.section + " - " + v.row,
         leaves: "",
+        elements: v.count,
       });
       idx++;
     });
   })();
 
+  // Map rack/trailer ID → list of elements on it (for expand in rack search)
+  const rackElementsMap = new Map();
+  MASTER_DATA.forEach(d => {
+    if (!d.rack) return;
+    if (!rackElementsMap.has(d.rack)) rackElementsMap.set(d.rack, []);
+    rackElementsMap.get(d.rack).push({ element: d.element, project: d.project, product: d.product, section: d.section, row: d.row, elType: d.elType || "HC" });
+  });
 
   function getSourceData(){
     if (mode === "elements") return YARD_DATA.elements;
@@ -2731,8 +2887,8 @@
 
     items.forEach(it => {
       const isSelected = selectedElementIds.has(it._uid);
-      const treeNode = isDrillable ? loc_findNode(LOC_TREE, it.id) : null;
-      const hasChildren = treeNode && treeNode.children && treeNode.children.length > 0;
+      const rackElements = isDrillable ? (rackElementsMap.get(it.id) || []) : [];
+      const hasChildren = isDrillable ? rackElements.length > 0 : false;
       const isExpanded = expandedIds.has(it._uid);
 
       const row = document.createElement("div");
@@ -2749,7 +2905,7 @@
       row.innerHTML = `
         <div class="meta">
           <div class="id"><span class="rowDetailLink" style="cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;">${escapeHtml(it.id)}</span>${typeChip}</div>
-          <div class="loc">${escapeHtml(it.project ? it.project + ' &bull; ' : '')}${escapeHtml(it.loc)}${it.elements != null ? ' &bull; ' + it.elements + ' elements' : ''}</div>
+          <div class="loc">${it.project ? escapeHtml(it.project) + ' &bull; ' : ''}${escapeHtml(it.loc)}${it.elements != null ? ' &bull; ' + it.elements + ' elements' : ''}</div>
           ${elementExtra}
         </div>
         <div style="display:flex;gap:6px;align-items:center;flex:0 0 auto;">
@@ -2791,8 +2947,16 @@
           if (isWetCast){
             // WetCast: pill only shows when selected, clicking deselects
             selectedElementIds.delete(it._uid);
-          } else if (treeNode && containerTypes.has(treeNode.type)){
-            toggleContainerSelection(it._uid, treeNode);
+          } else if (isDrillable && hasChildren){
+            // Toggle rack + all its child elements
+            const selecting = !selectedElementIds.has(it._uid);
+            if (selecting) selectedElementIds.add(it._uid);
+            else selectedElementIds.delete(it._uid);
+            rackElements.forEach((_, ci) => {
+              const childKey = it._uid + "/el-" + ci;
+              if (selecting) selectedElementIds.add(childKey);
+              else selectedElementIds.delete(childKey);
+            });
           } else {
             if (selectedElementIds.has(it._uid)) selectedElementIds.delete(it._uid);
             else selectedElementIds.add(it._uid);
@@ -2815,20 +2979,24 @@
 
       resultsList.appendChild(row);
 
-      // Render expanded children
+      // Render expanded children (elements on this rack/trailer)
       if (hasChildren && isExpanded){
         const childContainer = document.createElement("div");
         childContainer.style.cssText = "margin:0 0 4px 16px;";
-        treeNode.children.forEach(child => {
-          const childKey = child.uid || child.name;
+        rackElements.forEach((child, ci) => {
+          const childKey = it._uid + "/el-" + ci;
           const childSelected = selectedElementIds.has(childKey);
+          const isChildWetCast = child.elType === "WetCast";
           const childRow = document.createElement("div");
           childRow.className = "rowItem" + (childSelected ? " selected" : "");
           childRow.style.cssText = "margin-top:4px;";
+          const childTypeChip = child.elType
+            ? `<span style="font-size:10px;font-weight:700;padding:1px 5px;border-radius:4px;margin-left:6px;${isChildWetCast ? 'background:rgba(214,166,58,.18);color:var(--warn);' : 'background:rgba(47,143,87,.12);color:var(--accent);'}">${escapeHtml(child.elType)}</span>`
+            : '';
           childRow.innerHTML = `
             <div class="meta">
-              <div class="id">${escapeHtml(child.name)}</div>
-              <div class="loc">${escapeHtml(child.sub || child.type || "")}</div>
+              <div class="id">${escapeHtml(child.element)}${childTypeChip}</div>
+              <div class="loc">${escapeHtml(child.project)}${child.product ? ' &bull; ' + escapeHtml(child.product) : ''} &bull; ${escapeHtml(child.section)} - ${escapeHtml(child.row)}</div>
             </div>
             <div class="pill ${childSelected ? "selected" : ""}" style="flex:0 0 auto;cursor:pointer;">
               ${childSelected ? "SELECTED" : "SELECT"}
@@ -3029,7 +3197,7 @@
     const base = lsBaseId(item.id);
     return YARD_DATA.elements.filter(el =>
       lsBaseId(el.id) === base && el.project === item.project && el._uid !== item._uid
-    ).map(el => ({ id: el.id, loc: el.loc, _uid: el._uid, elType: el.elType, barcode: el.barcode }));
+    ).map(el => ({ id: el.id, loc: el.loc, _uid: el._uid, elType: el.elType, barcode: el.barcode, project: el.project }));
   }
 
   // lsAlternatives is computed dynamically per stack scan
@@ -3092,7 +3260,7 @@
       row.innerHTML = `
         <div style="min-width:0;flex:1;">
           <div class="lsRowId">${escapeHtml(item.id)}${typeChip}</div>
-          <div class="lsRowSub" style="${notInYard ? 'color:var(--bad);font-style:italic;' : ''}">${escapeHtml(item.loc)}</div>
+          <div class="lsRowSub" style="${notInYard ? 'color:var(--bad);font-style:italic;' : ''}">${item.project ? escapeHtml(item.project) + ' &bull; ' : ''}${escapeHtml(item.loc)}</div>
           ${item.swapped ? '<div style="font-size:10px;color:var(--accent);margin-top:2px;">swapped from ' + escapeHtml(item.origId) + '</div>' : ''}
         </div>
         <div style="display:flex;gap:6px;align-items:center;flex:0 0 auto;">
@@ -3169,7 +3337,7 @@
           altRow.innerHTML = `
             <div style="min-width:0;">
               <div class="lsRowId">${escapeHtml(alt.id)}</div>
-              <div class="lsRowSub">${escapeHtml(alt.loc)}</div>
+              <div class="lsRowSub">${alt.project ? escapeHtml(alt.project) + ' &bull; ' : ''}${escapeHtml(alt.loc)}</div>
             </div>
             <div style="flex:0 0 auto;">
               <button class="btn secondary" type="button" style="padding:6px 10px;font-size:11px;">Use this</button>
@@ -3183,7 +3351,7 @@
               selectedElementIds.delete(itemKey);
             }
             const altKey = alt._uid || alt.id;
-            lsFound[idx] = { id: alt.id, loc: alt.loc, _uid: alt._uid, elType: alt.elType, barcode: alt.barcode, origId: item.origId || item.id, swapped: true };
+            lsFound[idx] = { id: alt.id, loc: alt.loc, _uid: alt._uid, elType: alt.elType, barcode: alt.barcode, project: alt.project, origId: item.origId || item.id, swapped: true };
             if (wasSelected){
               lsSelected.add(altKey);
               selectedElementIds.add(altKey);
@@ -3222,7 +3390,7 @@
     }
 
     // Build found list and alternatives
-    lsFound = matches.map(el => ({ id: el.id, loc: el.loc, _uid: el._uid, elType: el.elType, barcode: el.barcode }));
+    lsFound = matches.map(el => ({ id: el.id, loc: el.loc, _uid: el._uid, elType: el.elType, barcode: el.barcode, project: el.project }));
     lsAlternatives = {};
     matches.forEach(el => {
       const alts = lsBuildAlternatives(el);

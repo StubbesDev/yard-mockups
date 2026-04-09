@@ -3433,6 +3433,10 @@
   const LOC_TREE = { name: "Yard", children: [] };
   (function(){
     const sectionMap = new Map();
+    // Track racks and trailers globally for the top-level section
+    const rackMap = new Map();    // rackName -> { node, projects: Set }
+    const trailerMap = new Map(); // trailerName -> { node, projects: Set }
+
     MASTER_DATA.forEach(d => {
       // Section
       if (!sectionMap.has(d.section)){
@@ -3445,33 +3449,82 @@
       // Row
       if (!sec.rows.has(d.row)){
         const rowNode = { name: d.row, type: "Row", sub: "", children: [] };
-        sec.rows.set(d.row, { node: rowNode, racks: new Set(), trailers: new Set() });
+        sec.rows.set(d.row, { node: rowNode });
         sec.node.children.push(rowNode);
       }
       const rowEntry = sec.rows.get(d.row);
 
-      // Rack (as child of row, added once)
-      if (d.rack && !rowEntry.racks.has(d.rack)){
-        rowEntry.racks.add(d.rack);
-        rowEntry.node.children.push({ name: d.rack, type: "Rack", sub: d.project, children: [] });
-      }
-
-      // Trailer (as child of row, added once)
-      if (d.trailer && !rowEntry.trailers.has(d.trailer)){
-        rowEntry.trailers.add(d.trailer);
-        rowEntry.node.children.push({ name: d.trailer, type: "Trailer", sub: d.project, children: [] });
-      }
-
-      // Element
-      rowEntry.node.children.push({
+      // Element as child of row (location tree)
+      const elNode = {
         name: d.element,
         type: "Element",
         elType: d.elType || "HC",
         barcode: d.barcode || "",
         sub: d.project + (d.product ? " - " + d.product : ""),
         children: [],
-      });
+      };
+      rowEntry.node.children.push(elNode);
+
+      // Build rack grouping
+      if (d.rack){
+        if (!rackMap.has(d.rack)){
+          rackMap.set(d.rack, { node: { name: d.rack, type: "Rack", sub: "", children: [] }, projects: new Set() });
+        }
+        const entry = rackMap.get(d.rack);
+        entry.projects.add(d.project);
+        entry.node.children.push({
+          name: d.element,
+          type: "Element",
+          elType: d.elType || "HC",
+          barcode: d.barcode || "",
+          sub: d.project + (d.product ? " - " + d.product : ""),
+          children: [],
+        });
+      }
+
+      // Build trailer grouping
+      if (d.trailer){
+        if (!trailerMap.has(d.trailer)){
+          trailerMap.set(d.trailer, { node: { name: d.trailer, type: "Trailer", sub: "", children: [] }, projects: new Set() });
+        }
+        const entry = trailerMap.get(d.trailer);
+        entry.projects.add(d.project);
+        entry.node.children.push({
+          name: d.element,
+          type: "Element",
+          elType: d.elType || "HC",
+          barcode: d.barcode || "",
+          sub: d.project + (d.product ? " - " + d.product : ""),
+          children: [],
+        });
+      }
     });
+
+    // Build top-level "Racks / Trailers" section
+    const rtSection = { name: "Racks / Trailers", type: "Section", children: [] };
+
+    // Collect unique containers (rack and trailer may share the same name)
+    const addedContainers = new Set();
+    rackMap.forEach((entry, name) => {
+      entry.node.sub = entry.node.children.length + " elements — " + [...entry.projects].join(", ");
+      rtSection.children.push(entry.node);
+      addedContainers.add(name);
+    });
+    trailerMap.forEach((entry, name) => {
+      // If rack and trailer share same name, merge elements into existing rack node
+      if (addedContainers.has(name)){
+        const rackNode = rackMap.get(name).node;
+        // Already has the same elements (rack/trailer share data), skip duplicates
+      } else {
+        entry.node.sub = entry.node.children.length + " elements — " + [...entry.projects].join(", ");
+        rtSection.children.push(entry.node);
+      }
+    });
+
+    rtSection.children.sort((a, b) => a.name.localeCompare(b.name));
+    if (rtSection.children.length){
+      LOC_TREE.children.push(rtSection);
+    }
 
     // Sort sections, set row sub-text with element counts
     LOC_TREE.children.sort((a, b) => a.name.localeCompare(b.name));
@@ -3983,17 +4036,18 @@
 
   function rb_populateSlots(){
     rbDestSlot.innerHTML = '<option value="">Rack / Trailer / Loose…</option>';
-    const secNode = (LOC_TREE.children || []).find(c => c.name === rbDestSection.value);
-    const rlNode = secNode && (secNode.children || []).find(c => c.name === rbDestRowLane.value);
-    if (rlNode){
-      (rlNode.children || []).forEach(slot => {
-        if (slot.type === "Rack" || slot.type === "Trailer"){
-          const cap = slot.sub || "";
-          rbDestSlot.innerHTML += `<option value="${escapeHtml(slot.name)}">${escapeHtml(slot.name)}${cap ? ' ('+escapeHtml(cap)+')' : ''}</option>`;
+    const sec = rbDestSection.value;
+    const rl = rbDestRowLane.value;
+    if (sec && rl){
+      // Derive racks/trailers at this section+row from MASTER_DATA
+      const seen = new Set();
+      MASTER_DATA.forEach(d => {
+        if (d.section === sec && d.row === rl){
+          if (d.rack && !seen.has("R:" + d.rack)){ seen.add("R:" + d.rack); rbDestSlot.innerHTML += `<option value="${escapeHtml(d.rack)}">${escapeHtml(d.rack)} (Rack)</option>`; }
+          if (d.trailer && d.trailer !== d.rack && !seen.has("T:" + d.trailer)){ seen.add("T:" + d.trailer); rbDestSlot.innerHTML += `<option value="${escapeHtml(d.trailer)}">${escapeHtml(d.trailer)} (Trailer)</option>`; }
         }
       });
-      // Also offer placing loose in the row/lane directly
-      rbDestSlot.innerHTML += `<option value="__loose__">Place loose in ${escapeHtml(rbDestRowLane.value)}</option>`;
+      rbDestSlot.innerHTML += `<option value="__loose__">Place loose in ${escapeHtml(rl)}</option>`;
     }
     rb_updateDestDetails();
   }
@@ -4019,11 +4073,9 @@
     if (slot === "__loose__"){
       rbDestDetails.textContent = `Items will be placed loose in ${rbDestRowLane.value}.`;
     } else {
-      const secNode = (LOC_TREE.children || []).find(c => c.name === rbDestSection.value);
-      const rlNode = secNode && (secNode.children || []).find(c => c.name === rbDestRowLane.value);
-      const slotNode = rlNode && (rlNode.children || []).find(c => c.name === slot);
-      const sub = slotNode && slotNode.sub ? slotNode.sub : "";
-      rbDestDetails.textContent = `${slot} — ${sub}`;
+      // Find element count for this rack/trailer from MASTER_DATA
+      const elCount = MASTER_DATA.filter(d => (d.rack === slot || d.trailer === slot)).length;
+      rbDestDetails.textContent = `${slot} — ${elCount} elements`;
     }
   }
 

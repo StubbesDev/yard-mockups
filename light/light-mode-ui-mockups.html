@@ -1376,16 +1376,8 @@
             <div class="notice ok">
               <b>Success</b><br/>
               <span id="rbSuccessMsg">0 items moved</span>
-              <div class="row" style="margin-top:10px;">
-                <button class="btn secondary" id="rbViewItems" type="button">View updated items</button>
-                <button class="btn" id="rbNewMove" type="button">New move</button>
-              </div>
             </div>
-
-            <div class="notice">
-              <b>Note</b><br/>
-              In the real app, only one of these result cards would show based on connectivity + API response.
-            </div>
+            <button class="btn" id="rbDoneBtn" type="button" style="width:100%;text-align:center;margin-top:8px;">Done</button>
           </div>
         </div>
       </section>
@@ -1618,7 +1610,75 @@
      
     //  const MASTER_DATA = [];
      const MASTER_DATA = [
-      {"section": "HC Yard B", "row": "HC-B03", "element": "10-1335_1", "barcode": "20307L02: 29", "project": "RTS", "product": "10-1335_1", "rack":"1074", "trailer": "1074", "elType": "HC"},
+{"section": "NULL", "row": "", "element": "SW17-13_1", "barcode": "24420W02: 3", "project": "IND", "product": "SW17-13_1", "rack":"RACK-331 R7", "trailer": "RACK-331 R7", "elType": "Wetcast"},
+{"section": "GC-B02", "row": "", "element": "SW17-14_1", "barcode": "24420W02: 3", "project": "IND", "product": "SW17-14_1", "rack":"RACK-331 R7", "trailer": "RACK-331 R7", "elType": "Wetcast"},
+{"section": "GC-B02", "row": "", "element": "W10-11_1", "barcode": "24420W02: 4", "project": "IND", "product": "W10-11_1", "rack":"RACK-331 R7", "trailer": "RACK-331 R7", "elType": "Wetcast"},
+{"section": "NULL", "row": "", "element": "SW17-15_1", "barcode": "24420W02: 4", "project": "IND", "product": "SW17-15_1", "rack":"RACK-147 R7", "trailer": "RACK-147 R7", "elType": "Wetcast"},
+{"section": "GC-B02", "row": "", "element": "SW17-16_1", "barcode": "24420W02: 4", "project": "IND", "product": "SW17-16_1", "rack":"RACK-147 R7", "trailer": "RACK-147 R7", "elType": "Wetcast"},
+{"section": "GC-B02", "row": "", "element": "SW17-30_1", "barcode": "24420W02: 5", "project": "IND", "product": "SW17-30_1", "rack":"RACK-147 R7", "trailer": "RACK-147 R7", "elType": "Wetcast"},
+{"section": "GC-B02", "row": "", "element": "SW17-17_1", "barcode": "24420W02: 5", "project": "IND", "product": "SW17-17_1", "rack":"RACK-033 R7", "trailer": "RACK-033 R7", "elType": "Wetcast"},
+{"section": "NULL", "row": "", "element": "SW17-18_1", "barcode": "24420W02: 5", "project": "IND", "product": "SW17-18_1", "rack":"RACK-033 R7", "trailer": "RACK-033 R7", "elType": "Wetcast"},
+{"section": "GC-B02", "row": "", "element": "SW17-32_1", "barcode": "24420W02: 6", "project": "IND", "product": "SW17-32_1", "rack":"RACK-033 R7", "trailer": "RACK-033 R7", "elType": "Wetcast"},
+{"section": "GC-B02", "row": "", "element": "SW17-28_1", "barcode": "24420W02: 6", "project": "IND", "product": "SW17-28_1", "rack":"NULL", "trailer": "NULL", "elType": "Wetcast"},
+{"section": "NULL", "row": "", "element": "SW17-7_1", "barcode": "24420W02: 6", "project": "IND", "product": "SW17-7_1", "rack":"NULL", "trailer": "NULL", "elType": "Wetcast"},
+{"section": "NULL", "row": "", "element": "SW17-8_1", "barcode": "24420W02: 7", "project": "IND", "product": "SW17-8_1", "rack":"NULL", "trailer": "NULL", "elType": "Wetcast"},
+{"section": "GC-B02", "row": "", "element": "SW17-31_1", "barcode": "24420W02: 7", "project": "IND", "product": "SW17-31_1", "rack":"NULL", "trailer": "NULL", "elType": "Wetcast"},
+{"section": "GC-B02", "row": "", "element": "SW17-9_1", "barcode": "24420L03: 1", "project": "IND", "product": "SW17-9_1", "rack":"NULL", "trailer": "NULL", "elType": "Wetcast"},
+{"section": "HC Yard C", "row": "HC-C24", "element": "8-100_1", "barcode": "24420L03: 1", "project": "IND", "product": "8-100_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C24", "element": "8-100_2", "barcode": "24420L03: 1", "project": "IND", "product": "8-100_2", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C24", "element": "8-100_3", "barcode": "24420L03: 1", "project": "IND", "product": "8-100_3", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "QC Repair", "row": "QC Repair", "element": "8-112_1", "barcode": "24420L03: 1", "project": "IND", "product": "8-112_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C24", "element": "8-113_1", "barcode": "24420L03: 1", "project": "IND", "product": "8-113_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C24", "element": "8-114_2", "barcode": "24420L03: 1", "project": "IND", "product": "8-114_2", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C26", "element": "8-115_1", "barcode": "24420L03: 1", "project": "IND", "product": "8-115_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C24", "element": "8-120_3", "barcode": "24420L03: 1", "project": "IND", "product": "8-120_3", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C26", "element": "8-121_4", "barcode": "24420L03: 1", "project": "IND", "product": "8-121_4", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C27", "element": "8-157_1", "barcode": "24420L03: 1", "project": "IND", "product": "8-157_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C27", "element": "8-158_1", "barcode": "24420L03: 1", "project": "IND", "product": "8-158_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "NULL", "row": "", "element": "8-159_1", "barcode": "24420L03: 1", "project": "IND", "product": "8-159_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "NULL", "row": "", "element": "8-159_2", "barcode": "24420L03: 1", "project": "IND", "product": "8-159_2", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "NULL", "row": "", "element": "8-159_3", "barcode": "24420L03: 1", "project": "IND", "product": "8-159_3", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "NULL", "row": "", "element": "8-159_4", "barcode": "24420L03: 1", "project": "IND", "product": "8-159_4", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "NULL", "row": "", "element": "8-159_5", "barcode": "24420L03: 1", "project": "IND", "product": "8-159_5", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "NULL", "row": "", "element": "8-159_6", "barcode": "24420L03: 1", "project": "IND", "product": "8-159_6", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C24", "element": "8-66_1", "barcode": "24420L03: 1", "project": "IND", "product": "8-66_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C27", "element": "8-67_1", "barcode": "24420L03: 1", "project": "IND", "product": "8-67_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C26", "element": "8-68_1", "barcode": "24420L03: 2", "project": "IND", "product": "8-68_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C26", "element": "8-116_1", "barcode": "24420L03: 2", "project": "IND", "product": "8-116_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C26", "element": "8-117_1", "barcode": "24420L03: 2", "project": "IND", "product": "8-117_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C26", "element": "8-118_1", "barcode": "24420L03: 2", "project": "IND", "product": "8-118_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "NULL", "row": "", "element": "8-119_1", "barcode": "24420L03: 2", "project": "IND", "product": "8-119_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C24", "element": "8-120_2", "barcode": "24420L03: 2", "project": "IND", "product": "8-120_2", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C24", "element": "8-120_4", "barcode": "24420L03: 2", "project": "IND", "product": "8-120_4", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C24", "element": "8-120_5", "barcode": "24420L03: 2", "project": "IND", "product": "8-120_5", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C26", "element": "8-120_6", "barcode": "24420L03: 2", "project": "IND", "product": "8-120_6", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C26", "element": "8-120_7", "barcode": "24420L03: 2", "project": "IND", "product": "8-120_7", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C26", "element": "8-120_8", "barcode": "24420L03: 2", "project": "IND", "product": "8-120_8", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C26", "element": "8-121_5", "barcode": "24420L03: 2", "project": "IND", "product": "8-121_5", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C26", "element": "8-121_6", "barcode": "24420L03: 2", "project": "IND", "product": "8-121_6", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C24", "element": "8-21_1", "barcode": "24420L03: 2", "project": "IND", "product": "8-21_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "QC Repair", "row": "QC Repair", "element": "8-5_1", "barcode": "24420L03: 2", "project": "IND", "product": "8-5_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C26", "element": "8-69_1", "barcode": "24420L03: 2", "project": "IND", "product": "8-69_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "Lanes", "row": "Long-2N", "element": "8-70_1", "barcode": "24420L03: 2", "project": "IND", "product": "8-70_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C24", "element": "8-86_1", "barcode": "24420L03: 2", "project": "IND", "product": "8-86_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard A", "row": "HC-A27", "element": "S-1_1", "barcode": "24420L03: 3", "project": "IND", "product": "S-1_1", "rack":"NULL", "trailer": "NULL", "elType": "Wetcast"},
+{"section": "HC Yard C", "row": "HC-C24", "element": "8-101_1", "barcode": "24420L03: 3", "project": "IND", "product": "8-101_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C24", "element": "8-101_2", "barcode": "24420L03: 3", "project": "IND", "product": "8-101_2", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C26", "element": "8-101_3", "barcode": "24420L03: 3", "project": "IND", "product": "8-101_3", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C26", "element": "8-101_4", "barcode": "24420L03: 3", "project": "IND", "product": "8-101_4", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C26", "element": "8-102_1", "barcode": "24420L03: 3", "project": "IND", "product": "8-102_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C24", "element": "8-103_1", "barcode": "24420L03: 3", "project": "IND", "product": "8-103_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C24", "element": "8-103_2", "barcode": "24420L03: 3", "project": "IND", "product": "8-103_2", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C24", "element": "8-103_3", "barcode": "24420L03: 3", "project": "IND", "product": "8-103_3", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C24", "element": "8-104_1", "barcode": "24420L03: 3", "project": "IND", "product": "8-104_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C24", "element": "8-114_1", "barcode": "24420L03: 3", "project": "IND", "product": "8-114_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C24", "element": "8-120_1", "barcode": "24420L03: 3", "project": "IND", "product": "8-120_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C26", "element": "8-121_1", "barcode": "24420L03: 3", "project": "IND", "product": "8-121_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C26", "element": "8-121_2", "barcode": "24420L03: 3", "project": "IND", "product": "8-121_2", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C26", "element": "8-121_3", "barcode": "24420L03: 3", "project": "IND", "product": "8-121_3", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C24", "element": "8-122_1", "barcode": "24420L03: 3", "project": "IND", "product": "8-122_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard C", "row": "HC-C24", "element": "8-60_1", "barcode": "20307L02: 29", "project": "IND", "product": "8-60_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "HC Yard B", "row": "HC-B03", "element": "10-1335_1", "barcode": "20307L02: 29", "project": "RTS", "product": "10-1335_1", "rack":"1074", "trailer": "1074", "elType": "HC"},
 {"section": "HC Yard B", "row": "HC-B10", "element": "10-781_1", "barcode": "20307L02: 29", "project": "RTS", "product": "10-781_1", "rack":"1074", "trailer": "1074", "elType": "HC"},
 {"section": "HC Yard B", "row": "HC-B10", "element": "10-781_10", "barcode": "20307L02: 29", "project": "RTS", "product": "10-781_10", "rack":"1074", "trailer": "1074", "elType": "HC"},
 {"section": "HC Yard B", "row": "HC-B04", "element": "10-781_11", "barcode": "20307L02: 29", "project": "RTS", "product": "10-781_11", "rack":"1074", "trailer": "1074", "elType": "HC"},
@@ -2023,16 +2083,7 @@
 {"section": "HC Yard B", "row": "HC-B35", "element": "10-44_1", "barcode": "24349L02: 9", "project": "KCB", "product": "10-44_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
 {"section": "HC Yard B", "row": "HC-B35", "element": "10-50_3", "barcode": "24349L02: 9", "project": "KCB", "product": "10-50_3", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
 {"section": "HC Yard B", "row": "HC-B35", "element": "10-51_2", "barcode": "24349L02: 9", "project": "KCB", "product": "10-51_2", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard B", "row": "HC-B35", "element": "10-52_1", "barcode": "24420W02: 3", "project": "KCB", "product": "10-52_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "GC-B02", "row": "", "element": "SW17-14_1", "barcode": "24420W02: 3", "project": "IND", "product": "SW17-14_1", "rack":"RACK-331 R7", "trailer": "RACK-331 R7", "elType": "Wetcast"},
-{"section": "GC-B02", "row": "", "element": "W10-11_1", "barcode": "24420W02: 4", "project": "IND", "product": "W10-11_1", "rack":"RACK-331 R7", "trailer": "RACK-331 R7", "elType": "Wetcast"},
-{"section": "GC-B02", "row": "", "element": "SW17-16_1", "barcode": "24420W02: 4", "project": "IND", "product": "SW17-16_1", "rack":"RACK-147 R7", "trailer": "RACK-147 R7", "elType": "Wetcast"},
-{"section": "GC-B02", "row": "", "element": "SW17-30_1", "barcode": "24420W02: 5", "project": "IND", "product": "SW17-30_1", "rack":"RACK-147 R7", "trailer": "RACK-147 R7", "elType": "Wetcast"},
-{"section": "GC-B02", "row": "", "element": "SW17-17_1", "barcode": "24420W02: 5", "project": "IND", "product": "SW17-17_1", "rack":"RACK-033 R7", "trailer": "RACK-033 R7", "elType": "Wetcast"},
-{"section": "GC-B02", "row": "", "element": "SW17-32_1", "barcode": "24420W02: 6", "project": "IND", "product": "SW17-32_1", "rack":"RACK-033 R7", "trailer": "RACK-033 R7", "elType": "Wetcast"},
-{"section": "GC-B02", "row": "", "element": "SW17-28_1", "barcode": "24420W02: 7", "project": "IND", "product": "SW17-28_1", "rack":"NULL", "trailer": "NULL", "elType": "Wetcast"},
-{"section": "GC-B02", "row": "", "element": "SW17-31_1", "barcode": "24420W02: 7", "project": "IND", "product": "SW17-31_1", "rack":"NULL", "trailer": "NULL", "elType": "Wetcast"},
-{"section": "GC-B02", "row": "", "element": "SW17-9_1", "barcode": "25031E06: 26", "project": "IND", "product": "SW17-9_1", "rack":"NULL", "trailer": "NULL", "elType": "Wetcast"},
+{"section": "HC Yard B", "row": "HC-B35", "element": "10-52_1", "barcode": "25031E06: 26", "project": "KCB", "product": "10-52_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
 {"section": "HC Yard B", "row": "HC-B01", "element": "L-6_1", "barcode": "25031E06: 26", "project": "LOG", "product": "L-6_1", "rack":"1085", "trailer": "1085", "elType": "Wetcast"},
 {"section": "PLT 2 Trailers", "row": "WP-17", "element": "SR-1_1", "barcode": "25031E06: 26", "project": "LOG", "product": "SR-1_1", "rack":"1085", "trailer": "1085", "elType": "Wetcast"},
 {"section": "HC Yard A", "row": "HC-A12", "element": "SR-3_2", "barcode": "25031L06: 22", "project": "LOG", "product": "SR-3_2", "rack":"1085", "trailer": "1085", "elType": "Wetcast"},
@@ -2584,54 +2635,7 @@
 {"section": "BA-B04", "row": "", "element": "S-5_1", "barcode": "25406L01: 2", "project": "BST", "product": "S-5_1", "rack":"1049", "trailer": "1049", "elType": "Wetcast"},
 {"section": "PLT 2 Trailers", "row": "WP-23", "element": "S-1_1", "barcode": "25406L01: 2", "project": "BST", "product": "S-1_1", "rack":"1069", "trailer": "1069", "elType": "Wetcast"},
 {"section": "PLT 2 Trailers", "row": "WP-23", "element": "S-2_1", "barcode": "25406L01: 2", "project": "BST", "product": "S-2_1", "rack":"1069", "trailer": "1069", "elType": "Wetcast"},
-{"section": "PLT 2 Trailers", "row": "WP-23", "element": "S-3_1", "barcode": "24420L03: 1", "project": "BST", "product": "S-3_1", "rack":"1069", "trailer": "1069", "elType": "Wetcast"},
-{"section": "HC Yard C", "row": "HC-C24", "element": "8-100_1", "barcode": "24420L03: 1", "project": "IND", "product": "8-100_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C24", "element": "8-100_2", "barcode": "24420L03: 1", "project": "IND", "product": "8-100_2", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C24", "element": "8-100_3", "barcode": "24420L03: 1", "project": "IND", "product": "8-100_3", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "QC Repair", "row": "QC Repair", "element": "8-112_1", "barcode": "24420L03: 1", "project": "IND", "product": "8-112_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C24", "element": "8-113_1", "barcode": "24420L03: 1", "project": "IND", "product": "8-113_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C24", "element": "8-114_2", "barcode": "24420L03: 1", "project": "IND", "product": "8-114_2", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C26", "element": "8-115_1", "barcode": "24420L03: 1", "project": "IND", "product": "8-115_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C24", "element": "8-120_3", "barcode": "24420L03: 1", "project": "IND", "product": "8-120_3", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C26", "element": "8-121_4", "barcode": "24420L03: 1", "project": "IND", "product": "8-121_4", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C27", "element": "8-157_1", "barcode": "24420L03: 1", "project": "IND", "product": "8-157_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C27", "element": "8-158_1", "barcode": "24420L03: 1", "project": "IND", "product": "8-158_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C24", "element": "8-66_1", "barcode": "24420L03: 1", "project": "IND", "product": "8-66_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C27", "element": "8-67_1", "barcode": "24420L03: 1", "project": "IND", "product": "8-67_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C26", "element": "8-68_1", "barcode": "24420L03: 2", "project": "IND", "product": "8-68_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C26", "element": "8-116_1", "barcode": "24420L03: 2", "project": "IND", "product": "8-116_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C26", "element": "8-117_1", "barcode": "24420L03: 2", "project": "IND", "product": "8-117_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C26", "element": "8-118_1", "barcode": "24420L03: 2", "project": "IND", "product": "8-118_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C24", "element": "8-120_2", "barcode": "24420L03: 2", "project": "IND", "product": "8-120_2", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C24", "element": "8-120_4", "barcode": "24420L03: 2", "project": "IND", "product": "8-120_4", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C24", "element": "8-120_5", "barcode": "24420L03: 2", "project": "IND", "product": "8-120_5", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C26", "element": "8-120_6", "barcode": "24420L03: 2", "project": "IND", "product": "8-120_6", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C26", "element": "8-120_7", "barcode": "24420L03: 2", "project": "IND", "product": "8-120_7", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C26", "element": "8-120_8", "barcode": "24420L03: 2", "project": "IND", "product": "8-120_8", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C26", "element": "8-121_5", "barcode": "24420L03: 2", "project": "IND", "product": "8-121_5", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C26", "element": "8-121_6", "barcode": "24420L03: 2", "project": "IND", "product": "8-121_6", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C24", "element": "8-21_1", "barcode": "24420L03: 2", "project": "IND", "product": "8-21_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "QC Repair", "row": "QC Repair", "element": "8-5_1", "barcode": "24420L03: 2", "project": "IND", "product": "8-5_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C26", "element": "8-69_1", "barcode": "24420L03: 2", "project": "IND", "product": "8-69_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "Lanes", "row": "Long-2N", "element": "8-70_1", "barcode": "24420L03: 2", "project": "IND", "product": "8-70_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C24", "element": "8-86_1", "barcode": "24420L03: 2", "project": "IND", "product": "8-86_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard A", "row": "HC-A27", "element": "S-1_1", "barcode": "24420L03: 3", "project": "IND", "product": "S-1_1", "rack":"NULL", "trailer": "NULL", "elType": "Wetcast"},
-{"section": "HC Yard C", "row": "HC-C24", "element": "8-101_1", "barcode": "24420L03: 3", "project": "IND", "product": "8-101_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C24", "element": "8-101_2", "barcode": "24420L03: 3", "project": "IND", "product": "8-101_2", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C26", "element": "8-101_3", "barcode": "24420L03: 3", "project": "IND", "product": "8-101_3", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C26", "element": "8-101_4", "barcode": "24420L03: 3", "project": "IND", "product": "8-101_4", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C26", "element": "8-102_1", "barcode": "24420L03: 3", "project": "IND", "product": "8-102_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C24", "element": "8-103_1", "barcode": "24420L03: 3", "project": "IND", "product": "8-103_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C24", "element": "8-103_2", "barcode": "24420L03: 3", "project": "IND", "product": "8-103_2", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C24", "element": "8-103_3", "barcode": "24420L03: 3", "project": "IND", "product": "8-103_3", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C24", "element": "8-104_1", "barcode": "24420L03: 3", "project": "IND", "product": "8-104_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C24", "element": "8-114_1", "barcode": "24420L03: 3", "project": "IND", "product": "8-114_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C24", "element": "8-120_1", "barcode": "24420L03: 3", "project": "IND", "product": "8-120_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C26", "element": "8-121_1", "barcode": "24420L03: 3", "project": "IND", "product": "8-121_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C26", "element": "8-121_2", "barcode": "24420L03: 3", "project": "IND", "product": "8-121_2", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C26", "element": "8-121_3", "barcode": "24420L03: 3", "project": "IND", "product": "8-121_3", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C24", "element": "8-122_1", "barcode": "24420L03: 3", "project": "IND", "product": "8-122_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard C", "row": "HC-C24", "element": "8-60_1", "barcode": "25031W06: 1", "project": "IND", "product": "8-60_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+{"section": "PLT 2 Trailers", "row": "WP-23", "element": "S-3_1", "barcode": "25031W06: 1", "project": "BST", "product": "S-3_1", "rack":"1069", "trailer": "1069", "elType": "Wetcast"},
 {"section": "WC PLT 3 ", "row": "HF 10", "element": "W10-142_1", "barcode": "25031W06: 1", "project": "LOG", "product": "W10-142_1", "rack":"NULL", "trailer": "NULL", "elType": "Wetcast"},
 {"section": "WC PLT 3 ", "row": "HF 08", "element": "W10-146_1", "barcode": "25031W06: 2", "project": "LOG", "product": "W10-146_1", "rack":"NULL", "trailer": "NULL", "elType": "Wetcast"},
 {"section": "WC PLT 3 ", "row": "HF 10", "element": "W10-145_1", "barcode": "25031W06: 2", "project": "LOG", "product": "W10-145_1", "rack":"NULL", "trailer": "NULL", "elType": "Wetcast"},
@@ -4630,22 +4634,10 @@
 {"section": "HC Yard A", "row": "HC-A24", "element": "8-119_1", "barcode": "25504L09: 9", "project": "ABA", "product": "8-119_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
 {"section": "HC Yard A", "row": "HC-A40", "element": "8-121_1", "barcode": "25504L09: 9", "project": "ABA", "product": "8-121_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
 {"section": "HC Yard A", "row": "HC-A40", "element": "8-122_1", "barcode": "25504L09: 9", "project": "ABA", "product": "8-122_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard A", "row": "HC-A40", "element": "8-123_1", "barcode": "25504L09: 9", "project": "ABA", "product": "8-123_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard A", "row": "HC-A22", "element": "8-146_1", "barcode": "25504L09: 9", "project": "ABA", "product": "8-146_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard A", "row": "HC-A22", "element": "8-156_1", "barcode": "25504L09: 9", "project": "ABA", "product": "8-156_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard A", "row": "HC-A22", "element": "8-168_1", "barcode": "25504L09: 9", "project": "ABA", "product": "8-168_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard A", "row": "HC-A40", "element": "8-238_1", "barcode": "25504L09: 9", "project": "ABA", "product": "8-238_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "Trailers", "row": "", "element": "8-241_1", "barcode": "25504L09: 9", "project": "ABA", "product": "8-241_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard A", "row": "HC-A22", "element": "8-301_1", "barcode": "25504L09: 9", "project": "ABA", "product": "8-301_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard A", "row": "HC-A22", "element": "8-31_4", "barcode": "25504L09: 9", "project": "ABA", "product": "8-31_4", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard A", "row": "HC-A40", "element": "8-31_5", "barcode": "25504L09: 9", "project": "ABA", "product": "8-31_5", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard A", "row": "HC-A40", "element": "8-31_6", "barcode": "25504L09: 9", "project": "ABA", "product": "8-31_6", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard A", "row": "HC-A22", "element": "8-477_1", "barcode": "25504L09: 9", "project": "ABA", "product": "8-477_1", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
-{"section": "HC Yard A", "row": "HC-A22", "element": "8-480_2", "barcode": "0", "project": "ABA", "product": "8-480_2", "rack":"NULL", "trailer": "NULL", "elType": "HC"},
+
 
      ];
-     
-     
+   
 
 
     /* ---- Derive YARD_DATA from MASTER_DATA ---- */
@@ -5110,8 +5102,7 @@
       }
     });
     rb_selected = new Set(rb_sel.map(s => s.id));
-    rb_renderSelection();
-    rb_showStep("rbStep1");
+    rb_showForm();
     showScreen("moves");
   });
 
@@ -5333,9 +5324,14 @@
       if (projectFilter && el.project !== projectFilter) return false;
       if (!stackCode) return !!projectFilter;
       const base = lsBaseId(el.id).toLowerCase();
-      const id = el.id.toLowerCase();
+      // Exact match on base ID (stack number), or exact match on full element ID
+      if (base === q || el.id.toLowerCase() === q) return true;
+      // Match barcode exactly, or match the sheet number after ": "
       const bc = (el.barcode || "").toLowerCase();
-      return base === q || base.startsWith(q) || id.startsWith(q) || bc.includes(q);
+      if (bc === q) return true;
+      const sheetIdx = bc.indexOf(": ");
+      if (sheetIdx >= 0 && bc.substring(sheetIdx + 2).trim() === q) return true;
+      return false;
     });
 
     if (!matches.length){
@@ -5871,108 +5867,12 @@
   /* ============================================================
      REBOOK / MOVE MODULE (rb_ prefix)
      ============================================================ */
-  const rbSteps = ["rbStep1","rbStep2","rbStep3","rbStep4","rbResult"];
+  let rb_sel = [];
+  let rb_selected = new Set();
 
-  let rb_sel = [
-    { id:"24-10345-001", loc:"Section A - Row 1 - Rack R-A1-01" },
-    { id:"24-10345-002", loc:"Staging - Inbound - Trailer T-IN-01" },
-    { id:"24-10345-003", loc:"Section B - Row 2 - Rack R-B2-01" },
-  ];
-  let rb_selected = new Set(rb_sel.map(s => s.id));
-
-  function rb_showStep(id){
-    rbSteps.forEach(s => {
-      document.getElementById(s).style.display = (s === id) ? "block" : "none";
-    });
-    rb_updateHeader();
-    if (id === "rbStep3" && typeof rb_populateSections === "function") rb_populateSections();
-  }
-
-  function rb_updateHeader(){
-    const steps = [
-      { id:"rbStep1", title:"Select items to move", sub:"Scan or type IDs. Batch supported (multi-element)." },
-      { id:"rbStep2", title:"Verify initial location", sub:"Prevents conflicts if items were moved by someone else." },
-      { id:"rbStep3", title:"Choose new location", sub:"Scan destination tag or pick hierarchy (Section -> Row/Lane -> Rack/Trailer)." },
-      { id:"rbStep4", title:"Review changes", sub:"Confirm before submitting. Offline-safe queues operations." },
-      { id:"rbResult", title:"Result", sub:"Success + offline queued + conflict patterns." },
-    ];
-    for (const s of steps) {
-      if (document.getElementById(s.id).style.display !== "none") {
-        headerTitle.textContent = s.title;
-        headerSub.textContent = s.sub;
-        return;
-      }
-    }
-    headerTitle.textContent = "Rebook";
-    headerSub.textContent = "";
-  }
-
-  function rb_renderSelection(){
-    const ids = Array.from(rb_selected);
-    document.getElementById("rbSelCount").textContent = String(ids.length);
-    document.getElementById("rbSelMeta").textContent = `${ids.length} items`;
-
-    const selList = document.getElementById("rbSelList");
-    selList.innerHTML = "";
-    rb_sel.forEach(item=>{
-      const on = rb_selected.has(item.id);
-      const row = document.createElement("div");
-      row.className = "rowItem";
-      row.style.cursor = "pointer";
-      row.innerHTML = `
-        <div class="meta" style="display:flex;align-items:center;gap:8px;">
-          <span class="checkbox" style="background:${on ? "rgba(47,143,87,.22)" : "rgba(0,0,0,.14)"}; border-color:${on ? "rgba(47,143,87,.75)" : "rgba(255,255,255,.18)"};"></span>
-          <div>
-            <div class="id">${escapeHtml(item.id)}</div>
-            <div class="loc">${escapeHtml(item.loc)}</div>
-          </div>
-        </div>
-      `;
-      row.addEventListener("click", ()=>{
-        if (rb_selected.has(item.id)) rb_selected.delete(item.id);
-        else rb_selected.add(item.id);
-        rb_renderSelection();
-      });
-      selList.appendChild(row);
-    });
-  }
-  rb_renderSelection();
-
-  document.getElementById("rbScanElement").addEventListener("click", ()=>alert("Wireframe: scan element barcode to add to selection."));
-  document.getElementById("rbClearAll").addEventListener("click", ()=>{
-    rb_selected.clear();
-    rb_renderSelection();
-  });
-
-  // Step navigation
-  document.getElementById("rbToStep2").addEventListener("click", ()=>{
-    // Build expected location from selected items' current locations
-    const selItems = rb_sel.filter(s => rb_selected.has(s.id));
-    const uniqueLocs = [...new Set(selItems.map(s => s.loc))];
-    const locLabel = uniqueLocs.length === 1 ? uniqueLocs[0] : uniqueLocs.length + " locations";
-    document.getElementById("rbExpectedLoc").innerHTML = uniqueLocs.length <= 3
-      ? uniqueLocs.map(l => `<b>${escapeHtml(l)}</b>`).join("<br/>")
-      : `<b>${uniqueLocs.length} different locations</b>`;
-    document.getElementById("rbExpectedCount").textContent = `${rb_selected.size} items selected`;
-    rb_showStep("rbStep2");
-  });
-
-  document.getElementById("rbBackTo1").addEventListener("click", ()=>rb_showStep("rbStep1"));
-
-  const rbMismatchBox = document.getElementById("rbMismatchBox");
-  document.getElementById("rbScanLoc").addEventListener("click", ()=>{
-    rbMismatchBox.style.display = "block";
-    alert("Wireframe: scanned location tag. Showing mismatch example.");
-  });
-  document.getElementById("rbSplitBtn").addEventListener("click", ()=>alert("Wireframe: split selection into matching vs non-matching groups."));
-  document.getElementById("rbRefreshBtn").addEventListener("click", ()=>alert("Wireframe: refresh latest locations from server."));
-
-  document.getElementById("rbToStep3").addEventListener("click", ()=>rb_showStep("rbStep3"));
-  document.getElementById("rbBackTo2").addEventListener("click", ()=>rb_showStep("rbStep2"));
-
-  document.getElementById("rbScanDest").addEventListener("click", ()=>alert("Wireframe: scan destination location tag (auto-fill hierarchy)."));
-
-  // --- Step 3 cascading destination dropdowns ---
+  const rbForm = document.getElementById("rbForm");
+  const rbResult = document.getElementById("rbResult");
+  const rbSubmitWrap = document.getElementById("rbSubmitWrap");
   const rbDestSection = document.getElementById("rbDestSection");
   const rbDestRowLane = document.getElementById("rbDestRowLane");
   const rbDestSlot = document.getElementById("rbDestSlot");
@@ -5980,6 +5880,59 @@
   const rbDestNotice = document.getElementById("rbDestNotice");
   const rbDestDetails = document.getElementById("rbDestDetails");
 
+  function rb_showForm(){
+    rbForm.style.display = "block";
+    rbResult.style.display = "none";
+    headerTitle.textContent = "Move / Rebook";
+    headerSub.textContent = "Select items, choose destination, submit.";
+    rb_populateSections();
+    rb_renderSelection();
+  }
+
+  function rb_renderSelection(){
+    document.getElementById("rbSelCount").textContent = String(rb_selected.size);
+    const selList = document.getElementById("rbSelList");
+    selList.innerHTML = "";
+    rb_sel.forEach(item => {
+      const on = rb_selected.has(item.id);
+      const row = document.createElement("div");
+      row.className = "rowItem";
+      row.style.cursor = "pointer";
+      row.innerHTML = `
+        <div class="meta" style="display:flex;align-items:center;gap:8px;">
+          <span class="checkbox" style="background:${on ? "rgba(47,143,87,.22)" : "rgba(0,0,0,.06)"}; border-color:${on ? "rgba(47,143,87,.75)" : "rgba(0,0,0,.2)"};"></span>
+          <div>
+            <div class="id">${escapeHtml(item.id)}</div>
+            <div class="loc">${escapeHtml(item.loc)}</div>
+          </div>
+        </div>
+      `;
+      row.addEventListener("click", () => {
+        if (rb_selected.has(item.id)) rb_selected.delete(item.id);
+        else rb_selected.add(item.id);
+        rb_renderSelection();
+        rb_updateSummary();
+      });
+      selList.appendChild(row);
+    });
+    // Update current location display
+    const selItems = rb_sel.filter(s => rb_selected.has(s.id));
+    const uniqueLocs = [...new Set(selItems.map(s => s.loc))];
+    document.getElementById("rbExpectedLoc").innerHTML = uniqueLocs.length
+      ? (uniqueLocs.length <= 3
+        ? uniqueLocs.map(l => `<b>${escapeHtml(l)}</b>`).join("<br/>")
+        : `<b>${uniqueLocs.length} different locations</b>`)
+      : "—";
+    document.getElementById("rbExpectedCount").textContent = `${rb_selected.size} items selected`;
+  }
+
+  document.getElementById("rbClearAll").addEventListener("click", () => {
+    rb_selected.clear();
+    rb_renderSelection();
+    rb_updateSummary();
+  });
+
+  // --- Cascading destination dropdowns ---
   function rb_populateSections(){
     rbDestSection.innerHTML = '<option value="">Section…</option>';
     (LOC_TREE.children || []).forEach(sec => {
@@ -5989,7 +5942,7 @@
   }
 
   function rb_populateRowLanes(){
-    rbDestRowLane.innerHTML = '<option value="">Row / Lane…</option>';
+    rbDestRowLane.innerHTML = '<option value="">Row…</option>';
     const secNode = (LOC_TREE.children || []).find(c => c.name === rbDestSection.value);
     if (secNode){
       (secNode.children || []).forEach(rl => {
@@ -6006,7 +5959,6 @@
     const sec = rbDestSection.value;
     const rl = rbDestRowLane.value;
     if (sec && rl){
-      // Derive racks/trailers at this section+row from MASTER_DATA
       const seen = new Set();
       MASTER_DATA.forEach(d => {
         if (d.section === sec && d.row === rl){
@@ -6016,7 +5968,7 @@
       });
       rbDestSlot.innerHTML += `<option value="__loose__">Place loose in ${escapeHtml(rl)}</option>`;
     }
-    rb_updateDestDetails();
+    rb_updateSummary();
   }
 
   function rb_getDestLabel(){
@@ -6028,84 +5980,54 @@
     return parts.join(" › ");
   }
 
-  function rb_updateDestDetails(){
+  function rb_updateSummary(){
     const slot = rbDestSlot.value;
-    rbDestSlotWrap.style.borderColor = slot ? "rgba(47,143,87,.55)" : "";
-    rbDestSlotWrap.style.background = slot ? "rgba(47,143,87,.08)" : "";
+    // Destination details
     if (!slot){
       rbDestNotice.style.display = "none";
-      return;
-    }
-    rbDestNotice.style.display = "";
-    if (slot === "__loose__"){
-      rbDestDetails.textContent = `Items will be placed loose in ${rbDestRowLane.value}.`;
     } else {
-      // Find element count for this rack/trailer from MASTER_DATA
-      const elCount = MASTER_DATA.filter(d => (d.rack === slot || d.trailer === slot)).length;
-      rbDestDetails.textContent = `${slot} — ${elCount} elements`;
+      rbDestNotice.style.display = "";
+      if (slot === "__loose__"){
+        rbDestDetails.textContent = `Items will be placed loose in ${rbDestRowLane.value}.`;
+      } else {
+        const elCount = MASTER_DATA.filter(d => (d.rack === slot || d.trailer === slot)).length;
+        rbDestDetails.textContent = `${slot} — ${elCount} elements currently`;
+      }
+    }
+    // Show/hide submit
+    if (slot && rb_selected.size){
+      const selItems = rb_sel.filter(s => rb_selected.has(s.id));
+      const uniqueFromLocs = [...new Set(selItems.map(s => s.loc))];
+      document.getElementById("rbFromSummary").textContent = uniqueFromLocs.length === 1 ? uniqueFromLocs[0] : uniqueFromLocs.join(" | ");
+      document.getElementById("rbToSummary").textContent = rb_getDestLabel();
+      document.getElementById("rbItemsSummary").textContent = String(rb_selected.size);
+      rbSubmitWrap.style.display = "block";
+    } else {
+      rbSubmitWrap.style.display = "none";
     }
   }
 
   rbDestSection.addEventListener("change", rb_populateRowLanes);
   rbDestRowLane.addEventListener("change", rb_populateSlots);
-  rbDestSlot.addEventListener("change", rb_updateDestDetails);
+  rbDestSlot.addEventListener("change", rb_updateSummary);
 
-  document.getElementById("rbToStep4").addEventListener("click", ()=>{
-    if (!rbDestSlot.value){
-      alert("Please select a destination.");
-      return;
-    }
-    const selItems = rb_sel.filter(s => rb_selected.has(s.id));
-    const destLabel = rb_getDestLabel();
-
-    // Populate From summary from selected items' current locations
-    const uniqueFromLocs = [...new Set(selItems.map(s => s.loc))];
-    document.getElementById("rbFromSummary").textContent = uniqueFromLocs.length === 1
-      ? uniqueFromLocs[0]
-      : uniqueFromLocs.join(" | ");
-    document.getElementById("rbToSummary").textContent = destLabel;
-    document.getElementById("rbTypeSummary").textContent = "Rebook";
-    document.getElementById("rbItemsSummary").textContent = String(rb_selected.size);
-
-    const reviewList = document.getElementById("rbReviewList");
-    reviewList.innerHTML = "";
-    selItems.forEach(s=>{
-      const row = document.createElement("div");
-      row.className = "rowItem";
-      row.innerHTML = `
-        <div class="meta">
-          <div class="id">${escapeHtml(s.id)}</div>
-          <div class="loc">${escapeHtml(s.loc)} → ${escapeHtml(destLabel)}</div>
-        </div>
-      `;
-      reviewList.appendChild(row);
-    });
-
-    rb_showStep("rbStep4");
-  });
-  document.getElementById("rbBackTo3").addEventListener("click", ()=>rb_showStep("rbStep3"));
-
-  document.getElementById("rbSubmitBtn").addEventListener("click", ()=>{
+  document.getElementById("rbSubmitBtn").addEventListener("click", () => {
     document.getElementById("rbSuccessMsg").textContent =
       `${rb_selected.size} items moved to ${rb_getDestLabel()}`;
-    rb_showStep("rbResult");
+    rbForm.style.display = "none";
+    rbResult.style.display = "block";
+    headerTitle.textContent = "Move complete";
+    headerSub.textContent = "";
   });
 
-  // Result buttons
-  document.getElementById("rbViewItems").addEventListener("click", ()=>alert("Wireframe: open updated items list."));
-  document.getElementById("rbNewMove").addEventListener("click", ()=>rb_showStep("rbStep1"));
-  document.getElementById("rbSeeQueue").addEventListener("click", ()=>alert("Wireframe: open queued operations page."));
-  document.getElementById("rbDoneBtn").addEventListener("click", ()=>{
+  document.getElementById("rbDoneBtn").addEventListener("click", () => {
     selectedElementIds.clear();
-    rb_showStep("rbStep1");
+    updateSelectionControls();
     showScreen("search");
   });
-
-  document.getElementById("rbBackToSearch").addEventListener("click", ()=>{
+  document.getElementById("rbBackToSearch").addEventListener("click", () => {
     showScreen("search");
   });
-  document.getElementById("rbRefreshAfter").addEventListener("click", ()=>alert("Wireframe: refresh + re-verify initial locations."));
-  document.getElementById("rbRetryAfter").addEventListener("click", ()=>alert("Wireframe: retry submit."));
 
   /* ============================================================
      INIT
@@ -6115,7 +6037,7 @@
   lsEnableControls(false);
   lsSetCollapsed(false);
   updateSelectionControls();
-  rb_showStep("rbStep1");
+  rb_showForm();
 
   /* ============================================================
      LOCATION MANAGEMENT MODULE (lm_ prefix)

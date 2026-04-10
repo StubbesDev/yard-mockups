@@ -1319,239 +1319,66 @@
       <!-- ===================== MOVES / REBOOK ===================== -->
       <section class="screen" id="moves">
 
-        <!-- Step 1: Select items -->
-        <div id="rbStep1">
-
+        <div id="rbForm">
           <button class="btn secondary" id="rbBackToSearch" type="button" style="margin-bottom:8px;">&larr; Back to search</button>
 
-          <div class="rb-stepper">
-            <div class="rb-dot on"></div><div class="rb-dot"></div><div class="rb-dot"></div><div class="rb-dot"></div>
-            <div class="rb-stepLabel">MOVE - STEP 1/4</div>
-          </div>
-
           <div class="stack">
+            <!-- Selected items -->
             <div class="card">
-              <div class="fieldLabel">Add element</div>
-              <div class="inputRow">
-                <div class="input">
-                  <span style="opacity:.8;font-family:var(--mono);font-size:12px;">&#x2315;</span>
-                  <input id="rbAddInput" type="text" placeholder="e.g. 24-10345-001" />
-                </div>
-                <button class="btn" id="rbScanElement" type="button">SCAN</button>
-              </div>
-
-              <div style="height:10px"></div>
-
-              <div class="inlineActionCard primary">
-                <div class="inlineActionText">
-                  <p class="inlineActionTitle">Selected: <span id="rbSelCount">0</span></p>
-                  <div class="inlineActionSub">Tap items below to toggle selection (wireframe).</div>
-                </div>
-                <button class="btn secondary" id="rbClearAll" type="button">Clear</button>
-              </div>
-            </div>
-
-            <div class="results">
-              <div class="resultsTop">
-                <div class="t">Selected items</div>
-                <div class="n" id="rbSelMeta">0 items</div>
-              </div>
+              <div class="fieldLabel" style="font-size:14px;font-weight:900;">Selected items</div>
+              <div class="pageSub" style="margin:0 0 6px 0;">Tap items to toggle. <span id="rbSelCount" style="font-weight:800;">0</span> selected.</div>
               <div id="rbSelList"></div>
-            </div>
-
-            <div class="inlineActionCard primary">
-              <div class="inlineActionText">
-                <p class="inlineActionTitle">Next</p>
-                <div class="inlineActionSub">Verify initial location before updating.</div>
+              <div style="margin-top:6px;">
+                <button class="btn secondary" id="rbClearAll" type="button" style="font-size:11px;">Clear all</button>
               </div>
-              <button class="btn" id="rbToStep2" type="button">GO</button>
             </div>
-          </div>
-        </div>
 
-        <!-- Step 2: Verify initial -->
-        <div id="rbStep2" style="display:none;">
-
-          <div class="rb-stepper">
-            <div class="rb-dot on"></div><div class="rb-dot on"></div><div class="rb-dot"></div><div class="rb-dot"></div>
-            <div class="rb-stepLabel">MOVE - STEP 2/4</div>
-          </div>
-
-          <div class="stack">
+            <!-- Current location -->
             <div class="card">
-              <div class="fieldLabel">Expected location</div>
-              <div class="notice">
-                <b id="rbExpectedLoc">Row B -> Lane 3 -> Rack R-12</b><br/>
-                <span id="rbExpectedCount">0 items selected</span>
+              <div class="fieldLabel" style="font-size:14px;font-weight:900;">Current location</div>
+              <div class="notice" style="margin-top:4px;">
+                <span id="rbExpectedLoc">—</span><br/>
+                <span id="rbExpectedCount" style="color:var(--muted);font-size:11px;">0 items selected</span>
               </div>
+            </div>
 
-              <div style="height:10px"></div>
+            <!-- Destination -->
+            <div class="card">
+              <div class="fieldLabel" style="font-size:14px;font-weight:900;">Destination</div>
+              <div class="stack" style="gap:8px;margin-top:4px;">
+                <div class="input"><select id="rbDestSection"><option value="">Section…</option></select></div>
+                <div class="input"><select id="rbDestRowLane"><option value="">Row…</option></select></div>
+                <div class="input" id="rbDestSlotWrap"><select id="rbDestSlot"><option value="">Rack / Trailer / Loose…</option></select></div>
+              </div>
+              <div class="notice" id="rbDestNotice" style="display:none;margin-top:8px;">
+                <span id="rbDestDetails"></span>
+              </div>
+            </div>
 
-              <div class="fieldLabel">Scan current location tag (optional)</div>
-              <div class="inputRow">
-                <div class="input">
-                  <span style="opacity:.8;font-family:var(--mono);font-size:12px;">&#x2315;</span>
-                  <input id="rbScanLocInput" type="text" placeholder="location code (from scan)" />
+            <!-- Submit (hidden until destination selected) -->
+            <div id="rbSubmitWrap" style="display:none;">
+              <div class="card" style="border-color:rgba(47,143,87,.4);background:rgba(47,143,87,.04);">
+                <div class="fieldLabel" style="font-size:14px;font-weight:900;">Summary</div>
+                <div class="notice" style="margin-top:4px;">
+                  <b>From:</b> <span id="rbFromSummary">—</span><br/>
+                  <b>To:</b> <span id="rbToSummary">—</span><br/>
+                  <b>Items:</b> <span id="rbItemsSummary">0</span>
                 </div>
-                <button class="btn" id="rbScanLoc" type="button">SCAN</button>
+                <button class="btn" id="rbSubmitBtn" type="button" style="margin-top:10px;width:100%;text-align:center;">SUBMIT MOVE</button>
               </div>
-            </div>
-
-            <div class="notice bad" id="rbMismatchBox" style="display:none;">
-              <b>Mismatch detected</b><br/>
-              1 item is at a different location (wireframe).<br/>
-              Action: split move or refresh.
-              <div class="row" style="margin-top:10px;">
-                <button class="btn secondary" id="rbSplitBtn" type="button">Split</button>
-                <button class="btn" id="rbRefreshBtn" type="button">Refresh</button>
-              </div>
-            </div>
-
-            <div class="inlineActionCard primary">
-              <div class="inlineActionText">
-                <p class="inlineActionTitle">Next</p>
-                <div class="inlineActionSub">Choose the new destination.</div>
-              </div>
-              <button class="btn" id="rbToStep3" type="button">GO</button>
-            </div>
-
-            <div class="inlineActionCard">
-              <div class="inlineActionText">
-                <p class="inlineActionTitle">Back</p>
-                <div class="inlineActionSub">Return to selected items.</div>
-              </div>
-              <button class="btn secondary" id="rbBackTo1" type="button">Back</button>
             </div>
           </div>
         </div>
 
-        <!-- Step 3: New location -->
-        <div id="rbStep3" style="display:none;">
-
-          <div class="rb-stepper">
-            <div class="rb-dot on"></div><div class="rb-dot on"></div><div class="rb-dot on"></div><div class="rb-dot"></div>
-            <div class="rb-stepLabel">MOVE - STEP 3/4</div>
-          </div>
-
-          <div class="stack">
-            <div class="card">
-              <div class="fieldLabel">Scan destination tag (optional)</div>
-              <div class="inputRow">
-                <div class="input">
-                  <span style="opacity:.8;font-family:var(--mono);font-size:12px;">&#x2315;</span>
-                  <input id="rbDestScanInput" type="text" placeholder="destination code (from scan)" />
-                </div>
-                <button class="btn" id="rbScanDest" type="button">SCAN</button>
-              </div>
-
-              <div style="height:10px"></div>
-
-              <div class="fieldLabel">Or select manually</div>
-              <div class="stack" style="gap:8px;">
-                <div class="input" style="background:#fff;border-color:rgba(0,0,0,.15);"><select id="rbDestSection" style="color:#1a1a2e;"><option value="">Section…</option></select></div>
-                <div class="input" style="background:#fff;border-color:rgba(0,0,0,.15);"><select id="rbDestRowLane" style="color:#1a1a2e;"><option value="">Row / Lane…</option></select></div>
-                <div class="input" style="background:#fff;border-color:rgba(0,0,0,.15);" id="rbDestSlotWrap"><select id="rbDestSlot" style="color:#1a1a2e;"><option value="">Rack / Trailer / Loose…</option></select></div>
-              </div>
-            </div>
-
-            <div class="notice" id="rbDestNotice" style="display:none;">
-              <b>Destination details</b><br/>
-              <span id="rbDestDetails"></span>
-            </div>
-
-            <div class="inlineActionCard primary">
-              <div class="inlineActionText">
-                <p class="inlineActionTitle">Next</p>
-                <div class="inlineActionSub">Review before submitting.</div>
-              </div>
-              <button class="btn" id="rbToStep4" type="button">GO</button>
-            </div>
-
-            <div class="inlineActionCard">
-              <div class="inlineActionText">
-                <p class="inlineActionTitle">Back</p>
-                <div class="inlineActionSub">Return to initial verification.</div>
-              </div>
-              <button class="btn secondary" id="rbBackTo2" type="button">Back</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Step 4: Review -->
-        <div id="rbStep4" style="display:none;">
-
-          <div class="rb-stepper">
-            <div class="rb-dot on"></div><div class="rb-dot on"></div><div class="rb-dot on"></div><div class="rb-dot on"></div>
-            <div class="rb-stepLabel">MOVE - STEP 4/4</div>
-          </div>
-
-          <div class="stack">
-            <div class="card">
-              <div class="fieldLabel">Summary</div>
-              <div class="notice">
-                <b>From:</b> <span id="rbFromSummary">Row B -> Lane 3 -> Rack R-12</span><br/>
-                <b>To:</b> <span id="rbToSummary">Section A -> Row 1 -> Rack R-A1-02</span><br/>
-                <b>Type:</b> <span id="rbTypeSummary">Rebook</span><br/>
-                <b>Items:</b> <span id="rbItemsSummary">0</span>
-              </div>
-            </div>
-
-            <div class="card">
-              <div class="fieldLabel">Items</div>
-              <div class="results" id="rbReviewList"></div>
-            </div>
-
-            <div class="notice warn">
-              <b>Offline-safe</b><br/>
-              If there is no connection, this change will be queued and synced later.
-            </div>
-
-            <div class="inlineActionCard primary">
-              <div class="inlineActionText">
-                <p class="inlineActionTitle">Submit move</p>
-                <div class="inlineActionSub">Shows success message (or queued/offline state).</div>
-              </div>
-              <button class="btn" id="rbSubmitBtn" type="button">SUBMIT</button>
-            </div>
-
-            <div class="inlineActionCard">
-              <div class="inlineActionText">
-                <p class="inlineActionTitle">Back</p>
-                <div class="inlineActionSub">Adjust destination or selection.</div>
-              </div>
-              <button class="btn secondary" id="rbBackTo3" type="button">Back</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Result states -->
+        <!-- Result -->
         <div id="rbResult" style="display:none;">
-
           <div class="stack">
             <div class="notice ok">
               <b>Success</b><br/>
-              <span id="rbSuccessMsg">3 items moved to Section A / Row 1 / Rack R-A1-02</span>
+              <span id="rbSuccessMsg">0 items moved</span>
               <div class="row" style="margin-top:10px;">
                 <button class="btn secondary" id="rbViewItems" type="button">View updated items</button>
                 <button class="btn" id="rbNewMove" type="button">New move</button>
-              </div>
-            </div>
-
-            <div class="notice warn">
-              <b>Queued (offline)</b><br/>
-              No connection. Move saved and will sync automatically.
-              <div class="row" style="margin-top:10px;">
-                <button class="btn secondary" id="rbSeeQueue" type="button">See queue</button>
-                <button class="btn" id="rbDoneBtn" type="button">Done</button>
-              </div>
-            </div>
-
-            <div class="notice bad">
-              <b>Couldn't submit</b><br/>
-              Conflict: 1 item moved by someone else.
-              <div class="row" style="margin-top:10px;">
-                <button class="btn secondary" id="rbRefreshAfter" type="button">Refresh</button>
-                <button class="btn danger" id="rbRetryAfter" type="button">Retry</button>
               </div>
             </div>
 

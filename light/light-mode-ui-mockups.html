@@ -384,8 +384,8 @@
       align-items:center;
       padding: 6px 8px;
       border-radius: 8px;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.14);
+      border:1px solid rgba(0,0,0,.15);
+      background: #fff;
       min-width: 0;
     }
     .input input, .input select{
@@ -397,7 +397,7 @@
       font-size:13px;
     }
     .input select option{
-      background:#1a1a2e;
+      background:#fff;
       color:var(--ink);
     }
     #rbDestSection option, #rbDestRowLane option, #rbDestSlot option{
@@ -462,7 +462,7 @@
       padding: 6px 8px;
       border-radius: 8px;
       border:1px solid rgba(0,0,0,.15);
-      background: rgba(255,255,255,.85);
+      background: #fff;
       color: var(--ink);
       font-size:13px;
       outline:none;
@@ -752,9 +752,9 @@
     .locSearchInput{
       width:100%;
       padding:8px 10px;
-      border:1px solid rgba(255,255,255,.14);
+      border:1px solid rgba(0,0,0,.15);
       border-radius:8px;
-      background:rgba(255,255,255,.05);
+      background:#fff;
       color:var(--ink);
       font-size:13px;
       font-family:var(--sans);
@@ -1146,25 +1146,32 @@
         <div class="stack" id="loadsheetUI" style="display:none;">
           <article class="card" id="lsScanCard" aria-labelledby="lsScanTitle">
             <div id="lsScanHeader">
-              <div class="fieldLabel" id="lsScanTitle">Stack Scan</div>
-              <div class="pageSub" style="margin:0 0 8px 0;">Scan a stack barcode to find all elements on that stack; then review + select actions.</div>
+              <div class="fieldLabel" id="lsScanTitle">Stack / Loadsheet Search</div>
+              <div class="pageSub" style="margin:0 0 8px 0;">Search by project code (TLC) and stack number, or scan a stack barcode.</div>
             </div>
 
             <div class="lsScanArea" id="lsScanArea">
-              <div class="lsCameraFrame">
-                <div class="lsCameraInner">Camera view (placeholder)</div>
+              <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
+                <div style="flex:1;min-width:100px;">
+                  <div class="fieldLabel">Project (TLC)</div>
+                  <div class="input"><select class="nativeSelect" id="lsProjectSelect"><option value="">All projects</option></select></div>
+                </div>
+                <div style="flex:2;min-width:140px;">
+                  <div class="fieldLabel">Stack / barcode number</div>
+                  <div class="input"><input id="lsStackInput" type="text" placeholder="e.g. 10-23 or 24420L03" /></div>
+                </div>
+                <button id="lsSearchBtn" class="btn" type="button" style="flex:0 0 auto;">Search</button>
               </div>
 
-              <div class="lsBtnRow">
-                <button id="lsSimulateScan" class="btn" type="button">Scan barcode</button>
-                <button id="lsPasteCode" class="btn secondary" type="button">Enter code</button>
+              <div class="lsBtnRow" style="margin-top:8px;">
+                <button id="lsSimulateScan" class="btn secondary" type="button">Scan barcode</button>
               </div>
 
               <div class="lsCard">
                 <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
                   <div>
                     <div class="lsId" id="lsId">-</div>
-                    <div class="lsMeta" id="lsMeta">No stack scanned</div>
+                    <div class="lsMeta" id="lsMeta">No stack searched</div>
                   </div>
                   <button id="lsReviewBtn" class="lsActionBtn" type="button" disabled>Review elements</button>
                 </div>
@@ -5285,7 +5292,9 @@
      LOADSHEET TAB
      ============================================================ */
   const lsSimulateScan = document.getElementById("lsSimulateScan");
-  const lsPasteCode = document.getElementById("lsPasteCode");
+  const lsProjectSelect = document.getElementById("lsProjectSelect");
+  const lsStackInput = document.getElementById("lsStackInput");
+  const lsSearchBtn = document.getElementById("lsSearchBtn");
   const lsScanHeader = document.getElementById("lsScanHeader");
   const lsScanAreaEl = document.getElementById("lsScanArea");
   const lsCollapsed = document.getElementById("lsCollapsed");
@@ -5479,17 +5488,31 @@
     lsFoundCount.textContent = `${lsFound.length} found`;
   }
 
-  function lsLoadStack(stackCode){
-    lsId.textContent = stackCode;
-    // Find all elements whose id starts with the stack code (e.g. "L-14" matches "L-14_1", "L-14_2")
-    // Also try exact match on the full element id
+  // Populate project dropdown from YARD_DATA
+  (function(){
+    const projects = [...new Set(YARD_DATA.elements.map(el => el.project))].sort();
+    lsProjectSelect.innerHTML = '<option value="">All projects</option>' +
+      projects.map(p => `<option value="${escapeHtml(p)}">${escapeHtml(p)}</option>`).join("");
+  })();
+
+  function lsLoadStack(stackCode, projectFilter){
+    const label = projectFilter
+      ? (stackCode ? `${projectFilter} / ${stackCode}` : projectFilter)
+      : stackCode;
+    lsId.textContent = label;
+
+    const q = stackCode.toLowerCase();
     const matches = YARD_DATA.elements.filter(el => {
-      const base = lsBaseId(el.id);
-      return base === stackCode || el.id === stackCode;
+      if (projectFilter && el.project !== projectFilter) return false;
+      if (!stackCode) return !!projectFilter;
+      const base = lsBaseId(el.id).toLowerCase();
+      const id = el.id.toLowerCase();
+      const bc = (el.barcode || "").toLowerCase();
+      return base === q || base.startsWith(q) || id.startsWith(q) || bc.includes(q);
     });
 
     if (!matches.length){
-      lsMetaEl.textContent = `No elements found for stack "${stackCode}"`;
+      lsMetaEl.textContent = `No elements found for "${label}"`;
       lsFound = [];
       lsAlternatives = {};
       lsSelected = new Set();
@@ -5500,7 +5523,6 @@
       return;
     }
 
-    // Build found list and alternatives
     lsFound = matches.map(el => ({ id: el.id, loc: el.loc, _uid: el._uid, elType: el.elType, barcode: el.barcode, project: el.project }));
     lsAlternatives = {};
     matches.forEach(el => {
@@ -5508,7 +5530,7 @@
       if (alts.length) lsAlternatives[el.id] = alts;
     });
 
-    lsMetaEl.textContent = `${lsFound.length} elements found on stack ${stackCode}`;
+    lsMetaEl.textContent = `${lsFound.length} elements found — ${label}`;
     lsSelected = new Set();
     lsExpandedId = null;
     lsEnableControls(true);
@@ -5516,13 +5538,21 @@
     updateSelectionControls();
   }
 
+  function lsRunSearch(){
+    const project = lsProjectSelect.value;
+    const stack = lsStackInput.value.trim();
+    if (!project && !stack) return;
+    lsLoadStack(stack, project);
+  }
+
+  lsSearchBtn.addEventListener("click", lsRunSearch);
+  lsStackInput.addEventListener("keydown", (e) => { if (e.key === "Enter") lsRunSearch(); });
+
   lsSimulateScan.addEventListener("click", ()=>{
-    lsLoadStack("10-23");
-  });
-  lsPasteCode.addEventListener("click", ()=>{
-    const code = prompt("Enter stack number (e.g. 10-23, 8-132, 10-179):", "10-23");
-    if (!code) return;
-    lsLoadStack(code.trim());
+    const scanned = prompt("Scan stack barcode (wireframe):", "10-23");
+    if (!scanned) return;
+    lsStackInput.value = scanned.trim();
+    lsRunSearch();
   });
 
   lsReviewBtn.addEventListener("click", ()=>{
